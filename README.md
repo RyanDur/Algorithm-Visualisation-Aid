@@ -1,2 +1,2 @@
-Algoritm-Visualisation-Aid
+Algorithm-Visualisation-Aid
 ==========================
