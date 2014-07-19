@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/RyanDur/Algoritm-Visualisation-Aid",
   "devDependencies": {
+    "browser-sync": "^1.3.0",
     "growly": "^1.1.1",
     "gulp": "^3.8.6",
     "gulp-compass": "^1.1.9",

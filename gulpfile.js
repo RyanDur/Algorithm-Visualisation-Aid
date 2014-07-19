@@ -16,6 +16,7 @@ var growl = require('gulp-notify-growl');
 var uglify = require('gulp-uglify');
 var compass = require('gulp-compass');
 var minifyCSS = require('gulp-minify-css');
+var browserSync = require('browser-sync');
 
 function runKarma(configFilePath, options, cb) {
 
@@ -58,7 +59,7 @@ gulp.task('lint', function() {
     gulp.src('app/scripts/**/*.js')
         .pipe(jshint())
         .pipe(jshint.reporter('jshint-stylish'))
-        .pipe(jshint.reporter('fail'))
+//        .pipe(jshint.reporter('fail'))
         .pipe(notify({
             title: 'JSHint',
             message: 'JSHint Passed. Let it fly!'
@@ -82,4 +83,21 @@ gulp.task('compass', function() {
         .pipe(gulp.dest('build/assets/css'));
 });
 
-gulp.task('default', ['lint', 'test-dev']);
+gulp.task('browser-sync', function() {
+    browserSync(['app/scripts/**/*.js','app/stylesheets/**/*.css', 'app/*.html'],{
+        server: {
+            baseDir: "./app"
+        }
+    });
+});
+
+gulp.task('bs-reload', function () {
+    browserSync.reload();
+});
+
+gulp.task('default', ['browser-sync'], function() {
+    gulp.watch('specs/scripts/**/*.js', ['lint', 'test-dev']);
+    gulp.watch('app/scripts/**/*.js', ['lint', 'test-dev']);
+    gulp.watch('app/sass/**/*.scss', ['compass']);
+    gulp.watch("app/*.html", ['bs-reload']);
+});
