@@ -13,6 +13,7 @@ var karmaParseConfig = require('karma/lib/config').parseConfig;
 var jshint = require('gulp-jshint');
 var notify = require('gulp-notify');
 var growl = require('gulp-notify-growl');
+var uglify = require('gulp-uglify');
 
 function runKarma(configFilePath, options, cb) {
 
@@ -60,6 +61,12 @@ gulp.task('lint', function() {
             title: 'JSHint',
             message: 'JSHint Passed. Let it fly!'
         }));
+});
+
+gulp.task('compress', function() {
+    gulp.src('app/scripts/**/*.js')
+        .pipe(uglify())
+        .pipe(gulp.dest('build/scripts'));
 });
 
 gulp.task('default', ['lint', 'test-dev']);
