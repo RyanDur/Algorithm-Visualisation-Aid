@@ -1,0 +1,22 @@
+{
+  "name": "Algorithm-Visualisation-Aid",
+  "version": "0.0.0",
+  "description": "A visualisation aid to help budding programmers understand the concepts of algorithms. A student will input sudo code on one-side and an animation will be built on the the other representing the students code.",
+  "main": "app/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RyanDur/Algoritm-Visualisation-Aid.git"
+  },
+  "author": "Ryan Durling",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RyanDur/Algoritm-Visualisation-Aid/issues"
+  },
+  "homepage": "https://github.com/RyanDur/Algoritm-Visualisation-Aid",
+  "devDependencies": {
+    "gulp": "^3.8.6"
+  }
+}
