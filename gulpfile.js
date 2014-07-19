@@ -12,11 +12,37 @@ var karma = require('karma');
 var karmaParseConfig = require('karma/lib/config').parseConfig;
 var jshint = require('gulp-jshint');
 var notify = require('gulp-notify');
-var growl = require('gulp-notify-growl');
+//var growly = require('growly');
 var uglify = require('gulp-uglify');
 var compass = require('gulp-compass');
 var minifyCSS = require('gulp-minify-css');
 var browserSync = require('browser-sync');
+var map = require('map-stream'),
+    events = require('events'),
+    emmitter = new events.EventEmitter();
+
+var jsHintErrorReporter = map(function (file, cb) {
+    if (!file.jshint.success) {
+        file.jshint.results.forEach(function (err) {
+            if (err) {
+                //console.log(err);
+
+                // Error message
+                var msg = [
+                    path.basename(file.path),
+                    'Line: ' + err.error.line,
+                    'Reason: ' + err.error.reason
+                ];
+
+                // Emit this error event
+                emmitter.emit('error', new Error(msg.join('\n')));
+
+            }
+        });
+
+    }
+    cb(null, file);
+});
 
 function runKarma(configFilePath, options, cb) {
 
@@ -51,7 +77,8 @@ gulp.task('test', function(cb) {
 gulp.task('test-dev', function(cb) {
     runKarma('karma.conf.js', {
         autoWatch: true,
-        singleRun: false
+        singleRun: false,
+        reporters: ['progress', 'growl']
     }, cb);
 });
 
@@ -59,10 +86,17 @@ gulp.task('lint', function() {
     gulp.src('app/scripts/**/*.js')
         .pipe(jshint())
         .pipe(jshint.reporter('jshint-stylish'))
-//        .pipe(jshint.reporter('fail'))
-        .pipe(notify({
-            title: 'JSHint',
-            message: 'JSHint Passed. Let it fly!'
+        .pipe(notify(function(file) {
+            if (file.jshint.success) {return false;}
+            var errors = file.jshint.results.map(function (data) {
+                if (data.error) {
+                    return "(" + data.error.line + ':' + data.error.character + ') ' + data.error.reason;
+                }
+		return true;
+            });
+            errors.join("\n");
+
+            return file.relative + " (" + file.jshint.results.length + " errors)\n" + errors;
         }));
 });
 
