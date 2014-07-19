@@ -14,6 +14,7 @@ var jshint = require('gulp-jshint');
 var notify = require('gulp-notify');
 var growl = require('gulp-notify-growl');
 var uglify = require('gulp-uglify');
+var compass = require('gulp-compass');
 
 function runKarma(configFilePath, options, cb) {
 
@@ -67,6 +68,16 @@ gulp.task('compress', function() {
     gulp.src('app/scripts/**/*.js')
         .pipe(uglify())
         .pipe(gulp.dest('build/scripts'));
+});
+
+gulp.task('compass', function() {
+    gulp.src('app/sass/**/*.scss')
+        .pipe(compass({
+            config_file: 'app/config.rb',
+            css: 'app/stylesheets',
+            sass: 'app/sass'
+        }))
+        .pipe(gulp.dest('app/assets/temp'));
 });
 
 gulp.task('default', ['lint', 'test-dev']);
