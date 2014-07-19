@@ -17,12 +17,19 @@
   },
   "homepage": "https://github.com/RyanDur/Algoritm-Visualisation-Aid",
   "devDependencies": {
+    "growly": "^1.1.1",
     "gulp": "^3.8.6",
+    "gulp-jshint": "^1.7.1",
+    "gulp-notify": "^1.4.0",
+    "gulp-notify-growl": "^1.0.2",
     "gulp-util": "^3.0.0",
+    "jshint-stylish": "^0.4.0",
     "karma": "^0.12.17",
     "karma-chrome-launcher": "^0.1.4",
+    "karma-growl-reporter": "^0.1.1",
     "karma-jasmine": "^0.1.5",
     "karma-safari-launcher": "^0.1.1",
+    "lodash": "^2.4.1",
     "path": "^0.4.9"
   }
 }
