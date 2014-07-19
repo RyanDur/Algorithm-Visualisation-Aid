@@ -18,10 +18,11 @@
   "homepage": "https://github.com/RyanDur/Algoritm-Visualisation-Aid",
   "devDependencies": {
     "gulp": "^3.8.6",
+    "gulp-util": "^3.0.0",
     "karma": "^0.12.17",
     "karma-chrome-launcher": "^0.1.4",
     "karma-jasmine": "^0.1.5",
     "karma-safari-launcher": "^0.1.1",
-    "lodash": "^2.4.1"
+    "path": "^0.4.9"
   }
 }
