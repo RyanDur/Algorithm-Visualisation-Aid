@@ -15,6 +15,7 @@ var notify = require('gulp-notify');
 var growl = require('gulp-notify-growl');
 var uglify = require('gulp-uglify');
 var compass = require('gulp-compass');
+var minifyCSS = require('gulp-minify-css');
 
 function runKarma(configFilePath, options, cb) {
 
@@ -77,7 +78,8 @@ gulp.task('compass', function() {
             css: 'app/stylesheets',
             sass: 'app/sass'
         }))
-        .pipe(gulp.dest('app/assets/temp'));
+        .pipe(minifyCSS())
+        .pipe(gulp.dest('build/assets/css'));
 });
 
 gulp.task('default', ['lint', 'test-dev']);
