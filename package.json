@@ -47,6 +47,7 @@
     "map-stream": "^0.1.0",
     "npm": "^1.4.21",
     "path": "^0.4.9",
+    "run-sequence": "^0.3.6",
     "vinyl-source-stream": "^0.1.1"
   }
 }
