@@ -1,5 +1,4 @@
 var gulp = require('gulp'),
-    //    karma = require('gulp-karma'),
     jshint = require('gulp-jshint'),
     notify = require('gulp-notify'),
     uglify = require('gulp-uglify'),
@@ -7,11 +6,13 @@ var gulp = require('gulp'),
     minifyCSS = require('gulp-minify-css'),
     browserSync = require('browser-sync'),
     browserify = require('browserify'),
-    source = require('vinyl-source-stream');
-var path = require('path');
-var gutil = require('gulp-util');
-var karmaParseConfig = require('karma/lib/config').parseConfig;
-var karma = require('karma');
+    source = require('vinyl-source-stream'),
+    path = require('path'),
+    gutil = require('gulp-util'),
+    karmaParseConfig = require('karma/lib/config').parseConfig,
+    karma = require('karma'),
+    rename = require('gulp-rename'),
+    clean = require('gulp-clean');
 
 
 function runKarma(configFilePath, options, cb) {
@@ -75,7 +76,8 @@ gulp.task('lint', function() {
 });
 
 gulp.task('compress', function() {
-    gulp.src('app/scripts/bundle/*.js')
+    gulp.src('app/scripts/bundle/bundle.js')
+        .pipe(rename('bundle.min.js'))
         .pipe(uglify())
         .pipe(gulp.dest('build/scripts'));
 });
@@ -109,6 +111,13 @@ gulp.task('browserify', function() {
         .pipe(gulp.dest('./app/scripts/bundle'));
 });
 
+gulp.task('clean', function() {
+    return gulp.src('build')
+        .pipe(clean());
+});
+
+gulp.task('build', ['clean', 'lint', 'test', 'browserify', 'compress', 'compass']);
+gulp.task('ci', ['build']);
 gulp.task('default', ['browserify', 'browser-sync'], function() {
     gulp.watch(['specs/scripts/**/*.js', 'app/scripts/**/*.js'], ['lint', 'test-dev']);
     gulp.watch('app/sass/**/*.scss', ['compass']);
