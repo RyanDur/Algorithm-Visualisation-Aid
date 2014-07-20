@@ -147,7 +147,7 @@ gulp.task('push', ['commit'], function(){
 });
 
 gulp.task('push-build', function() {
-    return runSequence('add', 'commit', 'push');
+    runSequence('add', 'commit', 'push');
 });
 
 gulp.task('ci', ['build']);
