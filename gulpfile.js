@@ -80,6 +80,7 @@ gulp.task('compress', function() {
     gulp.src('app/scripts/bundle/bundle.js')
         .pipe(rename('bundle.min.js'))
         .pipe(uglify())
+        .pipe(gulp.dest('app/scripts'))
         .pipe(gulp.dest('build/scripts'));
 });
 
@@ -91,6 +92,7 @@ gulp.task('compass', function() {
             sass: 'app/sass'
         }))
         .pipe(minifyCSS())
+        .pipe(gulp.dest('app/assets/css'))
         .pipe(gulp.dest('build/assets/css'));
 });
 
@@ -119,12 +121,12 @@ gulp.task('clean', function() {
 
 gulp.task('build', function () {
     return runSequence('clean',
-		       'lint',
-		       'test',
-		       ['browserify', 'compress', 'compass']);
+                       'lint',
+                       'test',
+                       ['browserify', 'compress', 'compass']);
 });
 gulp.task('ci', ['build']);
 gulp.task('default', ['browserify', 'browser-sync'], function() {
-    gulp.watch(['specs/scripts/**/*.js', 'app/scripts/**/*.js'], ['lint', 'test-dev']);
+    gulp.watch(['specs/scripts/**/*.js', 'app/scripts/**/*.js'], ['lint', 'test-dev', 'compress']);
     gulp.watch('app/sass/**/*.scss', ['compass']);
 });
