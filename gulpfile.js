@@ -128,7 +128,7 @@ gulp.task('copy', function() {
         .pipe(gulp.dest('build'));
 });
 
-gulp.task('build', ['clean', 'browserify', 'compress', 'compass']);
+gulp.task('build', ['browserify', 'compress', 'compass']);
 
 
 gulp.task('add', ['build'], function(){
