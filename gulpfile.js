@@ -14,6 +14,7 @@ var gulp = require('gulp'),
     rename = require('gulp-rename'),
     clean = require('gulp-clean');
 var runSequence = require('run-sequence');
+var git = require('gulp-git');
 
 
 function runKarma(configFilePath, options, cb) {
@@ -71,8 +72,8 @@ gulp.task('test-dev', function(cb) {
 
 gulp.task('lint', function() {
     gulp.src(['app/scripts/**/*.js',
-	      '!app/scripts/bundle/*.js',
-	      '!app/scripts/bundle.min.js'])
+              '!app/scripts/bundle/*.js',
+              '!app/scripts/bundle.min.js'])
         .pipe(jshint())
         .pipe(jshint.reporter('jshint-stylish'))
         .pipe(growlReporter());
@@ -131,6 +132,20 @@ gulp.task('build', function () {
     return runSequence('clean', 'browserify', 'compress', 'compass');
 });
 
+gulp.task('add', ['build'], function(){
+    return gulp.src('./*')
+	.pipe(git.add());
+});
+
+gulp.task('commit', ['add'], function(){
+    return gulp.src('./*')
+	.pipe(git.commit('commit build'));
+});
+
+gulp.task('push', ['commit'], function(){
+    git.push('origin', 'master')
+        .end();  // .end() is required
+});
 
 gulp.task('ci', ['build']);
 gulp.task('default', ['browserify', 'browser-sync'], function() {
