@@ -128,7 +128,7 @@ gulp.task('copy', function() {
 });
 
 gulp.task('build', function () {
-    return runSequence('clean', 'browserify', 'compress', 'compass', 'copy');
+    return runSequence('clean', 'browserify', 'compress', 'compass');
 });
 
 
