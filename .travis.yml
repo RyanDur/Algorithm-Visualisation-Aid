@@ -8,6 +8,7 @@ before_install:
 script:
 - gulp test
 - gulp ci
+- heroku config:set BUILDPACK_URL=https://github.com/zeke/harp-buildpack.git
 deploy:
   provider: heroku
   api_key:
