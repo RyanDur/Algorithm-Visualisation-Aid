@@ -1,26 +1,18 @@
-/**
- * testing tasks (using karma to test in the browser). Requires a karma.conf.js for full config
- * single-run testing
- * continuous testing
- */
-
-/** base deps, but you may need more specifically for your application */
-var gulp = require('gulp');
-var gutil = require('gulp-util');
+var gulp = require('gulp'),
+    //    karma = require('gulp-karma'),
+    jshint = require('gulp-jshint'),
+    notify = require('gulp-notify'),
+    uglify = require('gulp-uglify'),
+    compass = require('gulp-compass'),
+    minifyCSS = require('gulp-minify-css'),
+    browserSync = require('browser-sync'),
+    browserify = require('browserify'),
+    source = require('vinyl-source-stream');
 var path = require('path');
-var karma = require('karma');
+var gutil = require('gulp-util');
 var karmaParseConfig = require('karma/lib/config').parseConfig;
-var jshint = require('gulp-jshint');
-var notify = require('gulp-notify');
-var uglify = require('gulp-uglify');
-var compass = require('gulp-compass');
-var minifyCSS = require('gulp-minify-css');
-var browserSync = require('browser-sync');
-var browserify = require('browserify');
-var source = require('vinyl-source-stream');
-var map = require('map-stream'),
-    events = require('events'),
-    emmitter = new events.EventEmitter();
+var karma = require('karma');
+
 
 function runKarma(configFilePath, options, cb) {
 
@@ -41,21 +33,36 @@ function runKarma(configFilePath, options, cb) {
     });
 }
 
-/** actual tasks */
+
+
+var growlReporter = function() {
+    return notify(function(file) {
+        if (file.jshint.success) {return false;}
+        var errors = file.jshint.results.map(function (data) {
+            return (data.error) ?
+                "(" + data.error.line +
+                ':' + data.error.character +
+                ') ' + data.error.reason
+                : true;
+        }).join("\n");
+
+        return file.relative +
+            " (" + file.jshint.results.length +
+            " errors)\n" + errors;
+    });
+};
 
 /** single run */
 gulp.task('test', function(cb) {
-    runKarma('karma.conf.js', {
-        autoWatch: false,
-        singleRun: true
-    }, cb);
+    runKarma('karma.conf.js',{}, cb);
 });
 
 /** continuous ... using karma to watch (feel free to circumvent that;) */
 gulp.task('test-dev', function(cb) {
-    runKarma('karma.conf.js', {
+    runKarma('karma.conf.js',{
         autoWatch: true,
         singleRun: false,
+        browsers: ['Chrome', 'Firefox'],
         reporters: ['progress', 'growl']
     }, cb);
 });
@@ -64,18 +71,7 @@ gulp.task('lint', function() {
     gulp.src(['app/scripts/**/*.js', '!app/scripts/bundle/*.js'])
         .pipe(jshint())
         .pipe(jshint.reporter('jshint-stylish'))
-        .pipe(notify(function(file) {
-            if (file.jshint.success) {return false;}
-            var errors = file.jshint.results.map(function (data) {
-                if (data.error) {
-                    return "(" + data.error.line + ':' + data.error.character + ') ' + data.error.reason;
-                }
-                return true;
-            });
-            errors.join("\n");
-
-            return file.relative + " (" + file.jshint.results.length + " errors)\n" + errors;
-        }));
+        .pipe(growlReporter());
 });
 
 gulp.task('compress', function() {
@@ -96,28 +92,24 @@ gulp.task('compass', function() {
 });
 
 gulp.task('browser-sync', function() {
-    browserSync(['app/scripts/**/*.js','app/stylesheets/**/*.css', 'app/*.html'],{
-        server: {
-            baseDir: "./app"
-        }
-    });
-});
-
-gulp.task('bs-reload', function () {
-    browserSync.reload();
+    browserSync(
+        ['app/scripts/**/*.js',
+         'app/stylesheets/**/*.css',
+         'app/*.html'],{
+             server: {
+                 baseDir: "./app"
+             }
+         });
 });
 
 gulp.task('browserify', function() {
     return browserify('./app/scripts/app.js')
         .bundle()
-    //Pass desired output filename to vinyl-source-stream
         .pipe(source('bundle.js'))
-    // Start piping stream to tasks!
         .pipe(gulp.dest('./app/scripts/bundle'));
 });
 
 gulp.task('default', ['browserify', 'browser-sync'], function() {
     gulp.watch(['specs/scripts/**/*.js', 'app/scripts/**/*.js'], ['lint', 'test-dev']);
     gulp.watch('app/sass/**/*.scss', ['compass']);
-    gulp.watch("app/*.html", ['bs-reload']);
 });
