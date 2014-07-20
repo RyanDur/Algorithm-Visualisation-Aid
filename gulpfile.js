@@ -70,7 +70,9 @@ gulp.task('test-dev', function(cb) {
 });
 
 gulp.task('lint', function() {
-    gulp.src(['app/scripts/**/*.js', '!app/scripts/bundle/*.js'])
+    gulp.src(['app/scripts/**/*.js',
+	      '!app/scripts/bundle/*.js',
+	      '!app/scripts/bundle.min.js'])
         .pipe(jshint())
         .pipe(jshint.reporter('jshint-stylish'))
         .pipe(growlReporter());
@@ -119,12 +121,17 @@ gulp.task('clean', function() {
         .pipe(clean());
 });
 
-gulp.task('build', function () {
-    return runSequence('clean',
-                       'lint',
-                       'test',
-                       ['browserify', 'compress', 'compass']);
+gulp.task('copy', function() {
+    return gulp.src('app/index.html')
+        .pipe(rename('home.html'))
+        .pipe(gulp.dest('build'));
 });
+
+gulp.task('build', function () {
+    return runSequence('clean', 'browserify', 'compress', 'compass', 'copy');
+});
+
+
 gulp.task('ci', ['build']);
 gulp.task('default', ['browserify', 'browser-sync'], function() {
     gulp.watch(['specs/scripts/**/*.js', 'app/scripts/**/*.js'], ['lint', 'test-dev', 'compress']);
