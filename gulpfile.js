@@ -128,9 +128,8 @@ gulp.task('copy', function() {
         .pipe(gulp.dest('build'));
 });
 
-gulp.task('build', function () {
-    return runSequence('clean', 'browserify', 'compress', 'compass');
-});
+gulp.task('build', ['clean', 'browserify', 'compress', 'compass']);
+
 
 gulp.task('add', ['build'], function(){
     return gulp.src('./*')
@@ -145,6 +144,10 @@ gulp.task('commit', ['add'], function(){
 gulp.task('push', ['commit'], function(){
     git.push('origin', 'master')
         .end();  // .end() is required
+});
+
+gulp.task('push-build', function() {
+    return runSequence('add', 'commit', 'push');
 });
 
 gulp.task('ci', ['build']);
