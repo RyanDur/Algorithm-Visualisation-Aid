@@ -13,7 +13,7 @@ var gulp = require('gulp'),
     karma = require('karma'),
     rename = require('gulp-rename'),
     clean = require('gulp-clean');
-
+var runSequence = require('run-sequence');
 
 
 function runKarma(configFilePath, options, cb) {
@@ -129,7 +129,11 @@ gulp.task('copy', function() {
 
 gulp.task('build', ['browserify', 'compress', 'compass']);
 
-gulp.task('ci', ['build']);
+gulp.task('ready', ['clean'], function() {
+    gulp.run('build');
+});
+
+gulp.task('ci', ['test']);
 gulp.task('default', ['browserify', 'browser-sync'], function() {
     gulp.watch(['specs/scripts/**/*.js', 'app/scripts/**/*.js'], ['lint', 'test-dev', 'compress']);
     gulp.watch('app/sass/**/*.scss', ['compass']);
