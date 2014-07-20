@@ -6,6 +6,7 @@ before_install:
 - gem install compass
 - npm install -g gulp
 script:
+- gulp test
 - gulp ci
 deploy:
   provider: heroku
