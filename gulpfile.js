@@ -12,37 +12,15 @@ var karma = require('karma');
 var karmaParseConfig = require('karma/lib/config').parseConfig;
 var jshint = require('gulp-jshint');
 var notify = require('gulp-notify');
-//var growly = require('growly');
 var uglify = require('gulp-uglify');
 var compass = require('gulp-compass');
 var minifyCSS = require('gulp-minify-css');
 var browserSync = require('browser-sync');
+var browserify = require('browserify');
+var source = require('vinyl-source-stream');
 var map = require('map-stream'),
     events = require('events'),
     emmitter = new events.EventEmitter();
-
-var jsHintErrorReporter = map(function (file, cb) {
-    if (!file.jshint.success) {
-        file.jshint.results.forEach(function (err) {
-            if (err) {
-                //console.log(err);
-
-                // Error message
-                var msg = [
-                    path.basename(file.path),
-                    'Line: ' + err.error.line,
-                    'Reason: ' + err.error.reason
-                ];
-
-                // Emit this error event
-                emmitter.emit('error', new Error(msg.join('\n')));
-
-            }
-        });
-
-    }
-    cb(null, file);
-});
 
 function runKarma(configFilePath, options, cb) {
 
@@ -83,7 +61,7 @@ gulp.task('test-dev', function(cb) {
 });
 
 gulp.task('lint', function() {
-    gulp.src('app/scripts/**/*.js')
+    gulp.src(['app/scripts/**/*.js', '!app/scripts/bundle/*.js'])
         .pipe(jshint())
         .pipe(jshint.reporter('jshint-stylish'))
         .pipe(notify(function(file) {
@@ -92,7 +70,7 @@ gulp.task('lint', function() {
                 if (data.error) {
                     return "(" + data.error.line + ':' + data.error.character + ') ' + data.error.reason;
                 }
-		return true;
+                return true;
             });
             errors.join("\n");
 
@@ -101,7 +79,7 @@ gulp.task('lint', function() {
 });
 
 gulp.task('compress', function() {
-    gulp.src('app/scripts/**/*.js')
+    gulp.src('app/scripts/bundle/*.js')
         .pipe(uglify())
         .pipe(gulp.dest('build/scripts'));
 });
@@ -129,9 +107,17 @@ gulp.task('bs-reload', function () {
     browserSync.reload();
 });
 
-gulp.task('default', ['browser-sync'], function() {
-    gulp.watch('specs/scripts/**/*.js', ['lint', 'test-dev']);
-    gulp.watch('app/scripts/**/*.js', ['lint', 'test-dev']);
+gulp.task('browserify', function() {
+    return browserify('./app/scripts/app.js')
+        .bundle()
+    //Pass desired output filename to vinyl-source-stream
+        .pipe(source('bundle.js'))
+    // Start piping stream to tasks!
+        .pipe(gulp.dest('./app/scripts/bundle'));
+});
+
+gulp.task('default', ['browserify', 'browser-sync'], function() {
+    gulp.watch(['specs/scripts/**/*.js', 'app/scripts/**/*.js'], ['lint', 'test-dev']);
     gulp.watch('app/sass/**/*.scss', ['compass']);
     gulp.watch("app/*.html", ['bs-reload']);
 });
