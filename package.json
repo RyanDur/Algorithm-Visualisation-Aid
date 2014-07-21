@@ -43,5 +43,8 @@
     "path": "^0.4.9",
     "run-sequence": "^0.3.6",
     "vinyl-source-stream": "^0.1.1"
+  },
+  "dependencies": {
+    "brace": "^0.3.0"
   }
 }
