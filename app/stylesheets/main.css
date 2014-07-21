@@ -2,3 +2,9 @@
 body {
   background: green;
 }
+
+/* line 5, ../sass/main.scss */
+#editor {
+  height: 100px;
+  width: 600px;
+}

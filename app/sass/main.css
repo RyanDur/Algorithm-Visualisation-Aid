@@ -1,2 +1,6 @@
 body {
   background: green; }
+
+#editor {
+  height: 100px;
+  width: 600px; }

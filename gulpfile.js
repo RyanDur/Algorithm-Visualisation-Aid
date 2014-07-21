@@ -102,9 +102,11 @@ gulp.task('browser-sync', function() {
     browserSync(
         ['app/scripts/**/*.js',
          'app/stylesheets/**/*.css',
-         'app/*.html'],{
+         './*.html',
+         '!app/scripts/bundle.min.js',
+         '!app/scripts/bundle/*.js'],{
              server: {
-                 baseDir: "./app"
+                 baseDir: "./"
              }
          });
 });
@@ -135,6 +137,9 @@ gulp.task('ready', ['clean'], function() {
 
 gulp.task('ci', ['test']);
 gulp.task('default', ['browserify', 'browser-sync'], function() {
-    gulp.watch(['specs/scripts/**/*.js', 'app/scripts/**/*.js'], ['lint', 'test-dev', 'compress']);
+    gulp.watch(['specs/scripts/**/*.js',
+		'app/scripts/**/*.js',
+		'!app/scripts/bundle.min.js',
+		'!app/scripts/bundle/*.js'], ['lint', 'test-dev', 'compress']);
     gulp.watch('app/sass/**/*.scss', ['compass']);
 });
