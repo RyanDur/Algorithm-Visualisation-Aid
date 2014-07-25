@@ -44,7 +44,8 @@
     "karma-safari-launcher": "^0.1.1",
     "npm": "^1.4.21",
     "path": "^0.4.9",
-    "vinyl-source-stream": "^0.1.1"
+    "vinyl-source-stream": "^0.1.1",
+    "watchify": "^0.10.2"
   },
   "dependencies": {
     "angular": "^1.2.19",
