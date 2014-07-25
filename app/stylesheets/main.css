@@ -1,10 +1,10 @@
 /* line 1, ../sass/main.scss */
 body {
-  background: green;
+  background: blue;
 }
 
 /* line 5, ../sass/main.scss */
 #editor {
-  height: 100px;
+  height: 300px;
   width: 600px;
 }

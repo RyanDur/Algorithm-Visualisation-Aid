@@ -15,33 +15,34 @@ module.exports = function(config) {
 
         // list of files / patterns to load in the browser
         files: [
-	    'node_modules/jquery/dist/jquery.min.js',
-	    'node_modules/jasmine-jquery/lib/jasmine-jquery.js',
 	    {
-		pattern: 'specs/scripts/fixtures/**/*.html',
+		pattern: 'spec/javascripts/fixtures/**/*.html',
 		watched: true,
 		included: false,
 		served: true
 	    },
-            'app/scripts/bundle/bundle.js',
-            'specs/scripts/**/*.js'
+	    'node_modules/jquery/dist/jquery.min.js',
+	    'node_modules/jasmine-jquery/lib/jasmine-jquery.js',
+	    'spec/javascripts/**/*.js'
         ],
 
 
         // list of files to exclude
         exclude: [
-            'app/scripts/bundle.min.js'
+            'app/javascripts/bundle.min.js',
+	    'app/javascripts/bundle/bundle.js'
         ],
-
-	browserify: {watch: false},
 
         // preprocess matching files before serving them to the browser
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
         preprocessors: {
-	    'specs/scripts/**/*.js':['browserify'],
-	    '**/*.html': ['html2js']
+	    'spec/javascripts/**/*.js': ['browserify']
         },
 
+	browserify: {
+	    debug: true,
+	    transform: ['brfs']
+        },
 
         // test results reporter to use
         // possible values: 'dots', 'progress'
@@ -67,7 +68,7 @@ module.exports = function(config) {
 
         // start these browsers
         // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-        browsers: ['PhantomJS'],
+        browsers: ['Chrome'],
 
 
         // Continuous Integration mode
