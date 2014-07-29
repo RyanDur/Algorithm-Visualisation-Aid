@@ -1,9 +1,18 @@
+'use strict';
 var angular = require('angular');
-var code = require('./editorDirective');
+var editor = require('./editor');
 var app = angular.module('ava', []);
 
 
-app.controller('editorCtrl', function() {});
+app.controller('editorCtrl', [function() {
+    editor('editor');
+}]);
 
 
-app.directive('editor', code.editor);
+app.directive('editor', function() {
+    return {
+        restrict: 'E',
+        replace: true,
+        template: "<div id='editor'></div>"
+    };
+});

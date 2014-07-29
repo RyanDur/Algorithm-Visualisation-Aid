@@ -1,6 +1,7 @@
 jasmine.getFixtures().fixturesPath = 'base/spec/javascripts/fixtures';
 var e = require('../../app/javascripts/editor');
 
+
 describe('editor', function() {
     var editor;
     beforeEach(function() {

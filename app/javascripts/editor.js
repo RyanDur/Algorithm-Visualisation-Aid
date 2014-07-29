@@ -1,10 +1,10 @@
 'use strict';
 
 module.exports = function editor(elementId) {
-    var codeEditor;
-    var ace = require('brace');
+    var codeEditor, ace = require('brace');
     require('brace/mode/javascript');
     require('brace/theme/monokai');
+
     codeEditor = ace.edit(elementId);
     codeEditor.getSession().setMode('ace/mode/javascript');
     codeEditor.setTheme('ace/theme/monokai');
