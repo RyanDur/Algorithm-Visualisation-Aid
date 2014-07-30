@@ -21,6 +21,12 @@ module.exports = function(config) {
 		included: false,
 		served: true
 	    },
+	    {
+		pattern: 'app/javascripts/**/*.js',
+		watched: true,
+		included: false,
+		served: false
+	    },
 	    'node_modules/jquery/dist/jquery.min.js',
 	    'node_modules/jasmine-jquery/lib/jasmine-jquery.js',
 	    'spec/javascripts/**/*.js'

@@ -7,6 +7,7 @@ describe('editor', function() {
     beforeEach(function() {
 	loadFixtures("editor.html");
 	editor = e('editor');
+	editor.init();
     });
 
     it('should be able to retrieve the users content', function() {
@@ -16,5 +17,9 @@ describe('editor', function() {
 		       '// below line has an error which is annotated',
 		       'var b ='].join('\n');
 	expect(editor.getContent()).toBe(content);
+    });
+
+    it('should load the editor into the screen', function() {
+	expect($('#editor').html()).toHaveClass("ace_text-input");
     });
 });

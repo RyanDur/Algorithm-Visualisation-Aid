@@ -134,10 +134,10 @@ gulp.task('ready', ['clean'], function() {
 });
 
 gulp.task('ci', ['test']);
-gulp.task('default', ['lint', 'browserify', 'browser-sync'], function() {
+gulp.task('default', ['lint', 'browserify', 'test-dev', 'browser-sync'], function() {
     gulp.watch(['spec/javascripts/**/*.js',
 		'app/javascripts/**/*.js',
 		'!app/javascripts/bundle.min.js',
-		'!app/javascripts/bundle/*.js'], ['lint', 'test-dev', 'browserify','compress']);
+		'!app/javascripts/bundle/*.js'], ['lint', 'browserify','compress']);
     gulp.watch('app/sass/**/*.scss', ['compass']);
 });
