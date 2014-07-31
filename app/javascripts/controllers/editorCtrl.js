@@ -1,7 +1,10 @@
 'use strict';
 
-module.exports = function(app, editor) {
-    app.controller('editorCtrl', [function() {
-	editor('editor').init();
-    }]);
+module.exports = function(editor) {
+    return function($scope) {
+	var edit = editor(editor);
+	$scope.getInput = function() {
+	    return edit.getValue();
+	};
+    };
 };
