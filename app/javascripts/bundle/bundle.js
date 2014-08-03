@@ -6,7 +6,7 @@ var editor = require('./editor');
 
 var app = angular.module('ava', []);
 app.controller('editorCtrl',
-	       require('./controllers/editorCtrl')(editor));
+	       ['scope', require('./controllers/editorCtrl')(editor)]);
 
 require('./directives/editor')(app);
 

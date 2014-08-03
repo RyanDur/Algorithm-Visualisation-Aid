@@ -96,7 +96,7 @@ gulp.task('compass', function() {
         .pipe(gulp.dest('build/assets/css'));
 });
 
-gulp.task('browser-sync', function() {
+gulp.task('browser-sync', ['compass'], function() {
     browserSync(
         ['app/javascripts/**/*.js',
          'app/stylesheets/**/*.css',

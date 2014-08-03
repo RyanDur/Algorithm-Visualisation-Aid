@@ -5,6 +5,16 @@ body {
 
 /* line 5, ../sass/main.scss */
 #editor {
-  height: 300px;
+  height: 100%;
+  width: 600px;
+}
+
+/* line 10, ../sass/main.scss */
+section {
+  height: 800px;
+}
+
+/* line 14, ../sass/main.scss */
+#btn {
   width: 600px;
 }

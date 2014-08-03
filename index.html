@@ -4,8 +4,9 @@
     <link rel="stylesheet" type="text/css" href="build/assets/css/main.css">
   </head>
   <body>
-    <section ng-controller="editorCtrl">
+    <section ng-controller="editorCtrl as editor">
       <editor></editor>
+      <button id="btn" ng-click="editor.getInput()"></button>
     </section>
     <section>
     </section>
