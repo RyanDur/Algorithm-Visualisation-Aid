@@ -104,7 +104,7 @@ gulp.task('browser-sync', ['compass'], function() {
          '!app/js/bundle.min.js',
          '!app/js/bundle/*.js'],{
              server: {
-                 baseDir: "./app"
+                 baseDir: "./"
              }
          });
 });
