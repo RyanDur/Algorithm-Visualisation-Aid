@@ -69,27 +69,27 @@ gulp.task('test-dev', function(cb) {
 });
 
 gulp.task('lint', function() {
-    gulp.src(['app/javascripts/**/*.js',
-              '!app/javascripts/bundle/*.js',
-              '!app/javascripts/bundle.min.js'])
+    gulp.src(['app/js/**/*.js',
+              '!app/js/bundle/*.js',
+              '!app/js/bundle.min.js'])
         .pipe(jshint('./.jshintrc'))
         .pipe(jshint.reporter('jshint-stylish'))
         .pipe(growlReporter());
 });
 
 gulp.task('compress', function() {
-    gulp.src('app/javascripts/bundle/bundle.js')
+    gulp.src('app/js/bundle/bundle.js')
         .pipe(rename('bundle.min.js'))
         .pipe(uglify())
         .pipe(gulp.dest('build/scripts'));
 });
 
 gulp.task('compass', function() {
-    gulp.src('app/sass/**/*.scss')
+    gulp.src('app/scss/**/*.scss')
         .pipe(compass({
             config_file: 'app/config.rb',
             css: 'app/stylesheets',
-            sass: 'app/sass'
+            sass: 'app/scss'
         }))
         .pipe(minifyCSS())
         .pipe(gulp.dest('app/assets/css'))
@@ -98,22 +98,22 @@ gulp.task('compass', function() {
 
 gulp.task('browser-sync', ['compass'], function() {
     browserSync(
-        ['app/javascripts/**/*.js',
+        ['app/js/**/*.js',
          'app/stylesheets/**/*.css',
-         './*.html',
-         '!app/javascripts/bundle.min.js',
-         '!app/javascripts/bundle/*.js'],{
+         'app/index.html',
+         '!app/js/bundle.min.js',
+         '!app/js/bundle/*.js'],{
              server: {
-                 baseDir: "./"
+                 baseDir: "./app"
              }
          });
 });
 
 gulp.task('browserify', function() {
-    return browserify('./app/javascripts/app.js')
+    return browserify('./app/js/app.js')
         .bundle()
         .pipe(source('bundle.js'))
-        .pipe(gulp.dest('./app/javascripts/bundle'));
+        .pipe(gulp.dest('./app/js/bundle'));
 });
 
 gulp.task('clean', function() {
@@ -135,9 +135,9 @@ gulp.task('ready', ['clean'], function() {
 
 gulp.task('ci', ['test']);
 gulp.task('default', ['lint', 'browserify', 'test-dev', 'browser-sync'], function() {
-    gulp.watch(['spec/javascripts/**/*.js',
-		'app/javascripts/**/*.js',
-		'!app/javascripts/bundle.min.js',
-		'!app/javascripts/bundle/*.js'], ['lint', 'browserify','compress']);
-    gulp.watch('app/sass/**/*.scss', ['compass']);
+    gulp.watch(['spec/js/**/*.js',
+		'app/js/**/*.js',
+		'!app/js/bundle.min.js',
+		'!app/js/bundle/*.js'], ['lint', 'browserify','compress']);
+    gulp.watch('app/scss/**/*.scss', ['compass']);
 });

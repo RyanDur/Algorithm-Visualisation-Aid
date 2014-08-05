@@ -16,33 +16,33 @@ module.exports = function(config) {
         // list of files / patterns to load in the browser
         files: [
 	    {
-		pattern: 'spec/javascripts/fixtures/**/*.html',
+		pattern: 'spec/js/fixtures/**/*.html',
 		watched: true,
 		included: false,
 		served: true
 	    },
 	    {
-		pattern: 'app/javascripts/**/*.js',
+		pattern: 'app/js/**/*.js',
 		watched: true,
 		included: false,
 		served: false
 	    },
 	    'node_modules/jquery/dist/jquery.min.js',
 	    'node_modules/jasmine-jquery/lib/jasmine-jquery.js',
-	    'spec/javascripts/**/*.js'
+	    'spec/js/**/*.js'
         ],
 
 
         // list of files to exclude
         exclude: [
-            'app/javascripts/bundle.min.js',
-	    'app/javascripts/bundle/bundle.js'
+            'app/js/bundle.min.js',
+	    'app/js/bundle/bundle.js'
         ],
 
         // preprocess matching files before serving them to the browser
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
         preprocessors: {
-	    'spec/javascripts/**/*.js': ['browserify']
+	    'spec/js/**/*.js': ['browserify']
         },
 
 	browserify: {
