@@ -78,7 +78,6 @@ gulp.task('lint', function() {
 
 gulp.task('compress', ['browserify'], function() {
     gulp.src('app/js/bundle/bundle.js')
-        .pipe(uglify())
         .pipe(gulp.dest('dist/js/bundle'));
 });
 
