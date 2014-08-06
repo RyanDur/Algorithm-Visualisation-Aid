@@ -3,7 +3,10 @@
   "version": "0.0.0",
   "description": "A visualisation aid to help budding programmers understand the concepts of algorithms. A student will input sudo code on one-side and an animation will be built on the the other representing the students code.",
   "main": "app/app.js",
-  "engine": "node >= 0.10.29",
+  "engines": {
+      "node >= 0.10.29",
+      "npm": "1.5.x"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -50,6 +53,7 @@
   },
   "dependencies": {
     "angular": "^1.2.19",
-    "brace": "^0.3.0"
+    "brace": "^0.3.0",
+    "harp": "^0.12.1"
   }
 }
