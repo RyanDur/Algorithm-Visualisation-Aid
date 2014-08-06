@@ -15,4 +15,3 @@ deploy:
   app: sleepy-tundra-7645
   on:
     repo: RyanDur/Algorithm-Visualisation-Aid
-  skip_cleanup: true

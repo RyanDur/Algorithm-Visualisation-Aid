@@ -70,18 +70,16 @@ gulp.task('test-dev', function(cb) {
 
 gulp.task('lint', function() {
     gulp.src(['app/js/**/*.js',
-              '!app/js/bundle/*.js',
-              '!app/js/bundle.min.js'])
+              '!app/js/bundle/*.js'])
         .pipe(jshint('./.jshintrc'))
         .pipe(jshint.reporter('jshint-stylish'))
         .pipe(growlReporter());
 });
 
-gulp.task('compress', function() {
+gulp.task('compress', ['browserify'], function() {
     gulp.src('app/js/bundle/bundle.js')
-        .pipe(rename('bundle.min.js'))
         .pipe(uglify())
-        .pipe(gulp.dest('build/scripts'));
+        .pipe(gulp.dest('build/js/bundle'));
 });
 
 gulp.task('compass', function() {
@@ -104,7 +102,7 @@ gulp.task('browser-sync', ['compass'], function() {
          '!app/js/bundle.min.js',
          '!app/js/bundle/*.js'],{
              server: {
-                 baseDir: "./"
+                 baseDir: "./app"
              }
          });
 });
@@ -121,9 +119,23 @@ gulp.task('clean', function() {
         .pipe(clean());
 });
 
-gulp.task('copy', function() {
+gulp.task('copy index', ['clean', 'build'], function() {
     return gulp.src('app/index.html')
-        .pipe(rename('home.html'))
+        .pipe(gulp.dest('build'));
+});
+
+gulp.task('copy vendor', ['clean', 'build'], function() {
+    return gulp.src('app/vendor/*')
+        .pipe(gulp.dest('build/vendor'));
+});
+
+gulp.task('copy robots', ['clean', 'build'], function() {
+    return gulp.src('app/robots.txt')
+        .pipe(gulp.dest('build'));
+});
+
+gulp.task('copy humans', ['clean', 'build'], function() {
+    return gulp.src('app/humans.txt')
         .pipe(gulp.dest('build'));
 });
 
@@ -133,11 +145,12 @@ gulp.task('ready', ['clean'], function() {
     gulp.run('build');
 });
 
-gulp.task('ci', ['test']);
-gulp.task('default', ['lint', 'browserify', 'test-dev', 'browser-sync'], function() {
+gulp.task('ci', ['test', 'clean', 'browserify', 'compress', 'compass', 'copy index', 'copy vendor', 'copy humans', 'copy robots']);
+
+gulp.task('default', ['lint', 'browserify', 'browser-sync'], function() {
     gulp.watch(['spec/js/**/*.js',
 		'app/js/**/*.js',
 		'!app/js/bundle.min.js',
-		'!app/js/bundle/*.js'], ['lint', 'browserify','compress']);
+		'!app/js/bundle/*.js'], ['lint', 'test-dev', 'browserify','compress']);
     gulp.watch('app/scss/**/*.scss', ['compass']);
 });
