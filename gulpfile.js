@@ -119,38 +119,42 @@ gulp.task('clean', function() {
         .pipe(clean());
 });
 
-gulp.task('copy index', ['clean', 'build'], function() {
+gulp.task('copy index', ['clean'], function() {
     return gulp.src('app/index.html')
         .pipe(gulp.dest('build'));
 });
 
-gulp.task('copy vendor', ['clean', 'build'], function() {
+gulp.task('copy vendor', ['clean'], function() {
     return gulp.src('app/vendor/*')
         .pipe(gulp.dest('build/vendor'));
 });
 
-gulp.task('copy robots', ['clean', 'build'], function() {
+gulp.task('copy robots', ['clean'], function() {
     return gulp.src('app/robots.txt')
         .pipe(gulp.dest('build'));
 });
 
-gulp.task('copy humans', ['clean', 'build'], function() {
+gulp.task('copy humans', ['clean'], function() {
     return gulp.src('app/humans.txt')
         .pipe(gulp.dest('build'));
 });
 
-gulp.task('build', ['browserify', 'compress', 'compass']);
+gulp.task('ready',
+          ['clean',
+           'browserify',
+           'compress',
+           'compass',
+           'copy index',
+           'copy vendor',
+           'copy humans',
+           'copy robots']);
 
-gulp.task('ready', ['clean'], function() {
-    gulp.run('build');
-});
-
-gulp.task('ci', ['test', 'clean', 'browserify', 'compress', 'compass', 'copy index', 'copy vendor', 'copy humans', 'copy robots']);
+gulp.task('ci', ['test']);
 
 gulp.task('default', ['lint', 'browserify', 'browser-sync'], function() {
     gulp.watch(['spec/js/**/*.js',
-		'app/js/**/*.js',
-		'!app/js/bundle.min.js',
-		'!app/js/bundle/*.js'], ['lint', 'test-dev', 'browserify','compress']);
+                'app/js/**/*.js',
+                '!app/js/bundle.min.js',
+                '!app/js/bundle/*.js'], ['lint', 'test-dev', 'browserify','compress']);
     gulp.watch('app/scss/**/*.scss', ['compass']);
 });
