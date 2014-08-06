@@ -4,8 +4,8 @@
   "description": "A visualisation aid to help budding programmers understand the concepts of algorithms. A student will input sudo code on one-side and an animation will be built on the the other representing the students code.",
   "main": "app/app.js",
   "engines": {
-      "node": "0.10.29",
-      "npm": "1.4.x"
+    "node": "0.10.29",
+    "npm": "1.4.x"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -54,6 +54,7 @@
   "dependencies": {
     "angular": "^1.2.19",
     "brace": "^0.3.0",
-    "harp": "^0.12.1"
+    "harp": "^0.12.1",
+    "jison": "^0.4.13"
   }
 }
