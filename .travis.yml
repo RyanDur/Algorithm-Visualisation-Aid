@@ -8,7 +8,6 @@ script:
 - gulp ci
 deploy:
   provider: heroku
-  buildpack: "https://github.com/zeke/harp-buildpack.git"
   api_key:
     secure: V41E1y7Yy4MwG6NqfhESGwWMMOPLjH29S10MGQCPq74a5zs6Az0V5R6bswtkLj+sDiUpdba4+OzLOgqeG5UHl+EKjrSttObTbIKrCRB7aziB6Be7hP32nRA7f5Q/JbB+6Azl2vb5S6eu/GoerH1BzUGOneAEBPJco1V3ioxsj0U=
   app: sleepy-tundra-7645
