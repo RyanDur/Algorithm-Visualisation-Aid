@@ -79,7 +79,7 @@ gulp.task('lint', function() {
 gulp.task('compress', ['browserify'], function() {
     gulp.src('app/js/bundle/bundle.js')
         .pipe(uglify())
-        .pipe(gulp.dest('build/js/bundle'));
+        .pipe(gulp.dest('dist/js/bundle'));
 });
 
 gulp.task('compass', function() {
@@ -91,7 +91,7 @@ gulp.task('compass', function() {
         }))
         .pipe(minifyCSS())
         .pipe(gulp.dest('app/assets/css'))
-        .pipe(gulp.dest('build/assets/css'));
+        .pipe(gulp.dest('dist/assets/css'));
 });
 
 gulp.task('browser-sync', ['compass'], function() {
@@ -115,28 +115,28 @@ gulp.task('browserify', function() {
 });
 
 gulp.task('clean', function() {
-    return gulp.src('build')
+    return gulp.src('dist')
         .pipe(clean());
 });
 
 gulp.task('copy index', ['clean'], function() {
     return gulp.src('app/index.html')
-        .pipe(gulp.dest('build'));
+        .pipe(gulp.dest('dist'));
 });
 
 gulp.task('copy vendor', ['clean'], function() {
     return gulp.src('app/vendor/*')
-        .pipe(gulp.dest('build/vendor'));
+        .pipe(gulp.dest('dist/vendor'));
 });
 
 gulp.task('copy robots', ['clean'], function() {
     return gulp.src('app/robots.txt')
-        .pipe(gulp.dest('build'));
+        .pipe(gulp.dest('dist'));
 });
 
 gulp.task('copy humans', ['clean'], function() {
     return gulp.src('app/humans.txt')
-        .pipe(gulp.dest('build'));
+        .pipe(gulp.dest('dist'));
 });
 
 gulp.task('ready',
