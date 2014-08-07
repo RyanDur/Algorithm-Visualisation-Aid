@@ -3,6 +3,7 @@
 // Documentation can be found at: http://foundation.zurb.com/docs
 var angular = require('angular');
 var editor = require('./modules/editor');
+var parser = require('./modules/parser')('./grammars/grammar');
 
 var app = angular.module('ava', []);
 app.controller('EditorCtrl', require('./controllers/editorCtrl')(editor));
