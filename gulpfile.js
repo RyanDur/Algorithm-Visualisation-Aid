@@ -63,7 +63,7 @@ gulp.task('test-dev', function(cb) {
     runKarma('karma.conf.js',{
         autoWatch: true,
         singleRun: false,
-        browsers: ['Chrome', 'Firefox'],
+        browsers: ['Chrome'],
         reporters: ['progress', 'growl']
     }, cb);
 });

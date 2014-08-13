@@ -4,7 +4,7 @@
 // Documentation can be found at: http://foundation.zurb.com/docs
 var angular = require('angular');
 var editor = require('./modules/editor');
-var parser = require('./modules/parser')('./grammars/grammar');
+var parser = require('./modules/parser');
 
 var app = angular.module('ava', []);
 app.controller('EditorCtrl', require('./controllers/editorCtrl')(editor));
@@ -50,8 +50,9 @@ module.exports = function editor(elementId) {
 'use strict';
 var Parser = require("jison").Parser;
 
-module.exports = function(grammar) {
+module.exports = function(grammar, ast) {
     var parser = new Parser(grammar);
+    parser.yy = ast;
     return {
         parse: function parse(input) {
             return parser.parse(input);
