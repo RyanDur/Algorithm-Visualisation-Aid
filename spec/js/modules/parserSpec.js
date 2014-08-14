@@ -19,6 +19,9 @@ describe('parser', function() {
                 ["E\\b",                    "return 'E';"],
                 ["<-",                      "return 'ASSIGN';"],
                 ["=",                       "return 'EQUALITY';"],
+		["≠",                       "return 'NOTEQUAL';"],
+		["≤",                       "return 'LTE';"],
+		["≥",                       "return 'GTE';"],
                 ["(\n|\;)",                 "return 'TERM';"],
                 ["$",                       "return 'EOF';"],
                 ["return",                  "return 'RET';"],
@@ -29,11 +32,8 @@ describe('parser', function() {
         },
 
         "operators": [
-            ["left", "+", "-"],
-            ["left", "*", "/"],
-            ["left", "^"],
-            ["left", "UMINUS"],
-            ["nonassoc", "EQUALITY"]
+            ["left", "+", "-", "*", "/", "^", "UMINUS"],
+            ["nonassoc", "EQUALITY", "NOTEQUAL", "LTE", "GTE"]
         ],
 
         "bnf": {
@@ -56,7 +56,13 @@ describe('parser', function() {
 		[ "NUMBER",           "$$ = Number(yytext);" ],
 		[ "VARIABLE",         "$$ = yy.Variables.get($1);"],
                 [ "exp + exp",        "$$ = $1 + $3;" ],
-                [ "exp EQUALITY exp", "$$ = $1 === $3;" ]
+		[ "exp - exp",        "$$ = $1 - $3;" ],
+		[ "exp * exp",        "$$ = $1 * $3;" ],
+		[ "exp / exp",        "$$ = $1 / $3;" ],
+                [ "exp EQUALITY exp", "$$ = $1 === $3;" ],
+		[ "exp NOTEQUAL exp", "$$ = $1 !== $3;" ],
+		[ "exp LTE exp",      "$$ = $1 <= $3;" ],
+		[ "exp GTE exp",      "$$ = $1 >= $3;" ]
             ]
         }
     };
@@ -69,12 +75,20 @@ describe('parser', function() {
         parser = module(grammar, require('./astM'));
     });
 
-    it('should return true for if correct', function() {
+    it('should return the correct sum', function() {
         expect(parser.parse("1 + 1")).toBe(2);
     });
 
-    it('should throw an error if incorrect input', function() {
-       // expect(function() {parser.parse("a + 1");}).toThrow();
+    it('should return the correct difference', function() {
+        expect(parser.parse("4 - 1")).toBe(3);
+    });
+
+    it('should return the correct product', function() {
+        expect(parser.parse("4 * 2")).toBe(8);
+    });
+
+    it('should return the correct quotient', function() {
+        expect(parser.parse("4 / 2")).toBe(2);
     });
 
     it('should return true for equality', function() {
@@ -83,6 +97,36 @@ describe('parser', function() {
 
     it('should return false for equality', function() {
         expect(parser.parse("3 = 4")).toBe(false);
+    });
+
+    it('should return true for proper inequality', function() {
+	expect(parser.parse("3 ≠ 4")).toBe(true);
+    });
+
+    it('should return false for improper inequality', function() {
+	expect(parser.parse("3 ≠ 3")).toBe(false);
+    });
+
+    it('should return true for numbers less than or equal', function() {
+	expect(parser.parse("3 ≤ 3")).toBe(true);
+	expect(parser.parse("2 ≤ 3")).toBe(true);
+	expect(parser.parse("1 ≤ 3")).toBe(true);
+    });
+
+    it('should return true for numbers greater than or equal', function() {
+	expect(parser.parse("3 ≥ 3")).toBe(true);
+	expect(parser.parse("4 ≥ 3")).toBe(true);
+	expect(parser.parse("5 ≥ 3")).toBe(true);
+    });
+
+    it('should return false for numbers not less than or equal', function() {
+	expect(parser.parse("2 ≥ 3")).toBe(false);
+	expect(parser.parse("1 ≥ 3")).toBe(false);
+    });
+
+    it('should return true for numbers not greater than or equal', function() {
+	expect(parser.parse("4 ≤ 3")).toBe(false);
+	expect(parser.parse("5 ≤ 3")).toBe(false);
     });
 
     it('should know the correct syntax for assignment', function() {
