@@ -48,16 +48,16 @@ describe('parser', function() {
 
         "bnf": {
             "expressions" :[
-                [ "exp EOF",     "return $1;" ],
-		[ "cond EOF",    "return $1;" ],
-                [ "stmnt EOF",   "return $1;" ],
-		[ "if EOF",      "return $1;" ]
+                [ "exp EOF",   "return $1;" ],
+		[ "cond EOF",  "return $1;" ],
+                [ "stmnt EOF", "return $1;" ]
             ],
 
             "stmnt" :[
-                [ "decl stmnt",               "$$ = $2;" ],
-		[ "RET exp TERM",             "$$ = $2;" ],
-		[ "RET cond TERM",            "$$ = $2;" ]
+                [ "decl stmnt",    "$$ = $2;" ],
+		[ "RET exp TERM",  "$$ = $2;" ],
+		[ "RET cond TERM", "$$ = $2;" ],
+		[ "if",            "$$ = $1" ]
             ],
 
 	    "if" :[
@@ -76,25 +76,25 @@ describe('parser', function() {
 	    ],
 
             "exp" :[
-		[ "NUMBER",           "$$ = Number(yytext);" ],
-		[ "VARIABLE",         "$$ = yy.Variables.get($1);" ],
-                [ "exp + exp",        "$$ = $1 + $3;" ],
-		[ "exp - exp",        "$$ = $1 - $3;" ],
-		[ "exp * exp",        "$$ = $1 * $3;" ],
-		[ "exp / exp",        "$$ = $1 / $3;" ],
-		[ "exp ^ exp",        "$$ = Math.pow($1, $3);" ],
-		[ "- exp",            "$$ = -$2;", {"prec": "UMINUS"} ],
-		[ "( exp )",          "$$ = $2;" ],
-		[ "E",                "$$ = Math.E;" ],
-		[ "PI",               "$$ = Math.PI;" ]
+		[ "( exp )",   "$$ = $2;" ],
+		[ "NUMBER",    "$$ = Number(yytext);" ],
+		[ "VARIABLE",  "$$ = yy.Variables.get($1);" ],
+                [ "exp + exp", "$$ = $1 + $3;" ],
+		[ "exp - exp", "$$ = $1 - $3;" ],
+		[ "exp * exp", "$$ = $1 * $3;" ],
+		[ "exp / exp", "$$ = $1 / $3;" ],
+		[ "exp ^ exp", "$$ = Math.pow($1, $3);" ],
+		[ "- exp",     "$$ = -$2;", {"prec": "UMINUS"} ],
+		[ "E",         "$$ = Math.E;" ],
+		[ "PI",        "$$ = Math.PI;" ]
             ],
 
 	    "cond" :[
+		[ "( cond )",         "$$ = $2;" ],
 		[ "exp EQUALITY exp", "$$ = $1 === $3;" ],
 		[ "exp NOTEQUAL exp", "$$ = $1 !== $3;" ],
 		[ "exp LTE exp",      "$$ = $1 <= $3;" ],
 		[ "exp GTE exp",      "$$ = $1 >= $3;" ],
-		[ "( cond )",         "$$ = $2;" ],
 		[ "TRUE",             "$$ = true;"],
 		[ "FALSE",            "$$ = false;"]
 	    ]
@@ -208,5 +208,9 @@ describe('parser', function() {
 	expect(parser.parse("if ( false ) { return 5; } else if(false) { return 4; } else { return 3; }")).toBe(3);
 	expect(parser.parse("if ( true ) { return 5; } else if(false) { return 4; } else { return 3; }")).toBe(5);
 	expect(parser.parse("if ( true ) { return 5; } else if(true) { return 4; } else { return 3; }")).toBe(5);
+    });
+
+    it('should be able to nest if statements', function() {
+	expect(parser.parse("if (true) {if (true) {return 3;}}")).toBe(3);
     });
 });
