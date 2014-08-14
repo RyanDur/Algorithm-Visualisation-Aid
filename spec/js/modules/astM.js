@@ -8,11 +8,19 @@ exports.Variables = function() {
     return {
 	add: function(variable, value) {
 	    variables[variable] = value;
-	    return value || variable;
 	},
 	get: function(variable) {
 	    var val = variables[variable];
 	    return val || 0;
+	}
+    };
+}();
+
+exports.Statement = function ifStatement() {
+    return {
+	if: function(condition, fisrt, second) {
+	    second = second === undefined ? null : second;
+	    return condition === true ? fisrt : second;
 	}
     };
 }();

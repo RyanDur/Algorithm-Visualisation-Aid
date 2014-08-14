@@ -15,6 +15,8 @@ describe('parser', function() {
                 ["\\^",                     "return '^';"],
                 ["\\(",                     "return '(';"],
                 ["\\)",                     "return ')';"],
+		["\\{",                     "return '{';"],
+		["\\}",                     "return '}';"],
                 ["PI\\b",                   "return 'PI';"],
                 ["E\\b",                    "return 'E';"],
                 ["<-",                      "return 'ASSIGN';"],
@@ -23,47 +25,79 @@ describe('parser', function() {
 		["≤",                       "return 'LTE';"],
 		["≥",                       "return 'GTE';"],
                 ["(\n|\;)",                 "return 'TERM';"],
-                ["$",                       "return 'EOF';"],
                 ["return",                  "return 'RET';"],
                 ["var",                     "return 'TYPE';"],
-		["[a-zA-Z][a-zA-Z0-9_]*",  "return 'VARIABLE';"],
+		["true\\b",                 "return 'TRUE'"],
+		["false\\b",                "return 'FALSE'"],
+		["nil\\b",                  "return 'NULL'"],
+		["if",                      "return 'IF';"],
+		["else",                    "return 'ELSE';"],
+		["[a-zA-Z][a-zA-Z0-9_]*",   "return 'VARIABLE';"],
+		["$",                       "return 'EOF';"],
                 ["\n+",                     "return 'NEWLINE'"]
             ]
         },
 
         "operators": [
-            ["left", "+", "-", "*", "/", "^", "UMINUS"],
+	    ["left", "+", "-"],
+            ["left", "*", "/"],
+            ["left", "^"],
+            ["left", "UMINUS"]
             ["nonassoc", "EQUALITY", "NOTEQUAL", "LTE", "GTE"]
         ],
 
         "bnf": {
             "expressions" :[
                 [ "exp EOF",     "return $1;" ],
-                [ "stmnt EOF",   "return $1;" ]
+		[ "cond EOF",    "return $1;" ],
+                [ "stmnt EOF",   "return $1;" ],
+		[ "if EOF",      "return $1;" ]
             ],
 
             "stmnt" :[
-                [ "vars stmnt",   "$$ = $1;" ],
-                [ "TYPE stmnt",   "$$ = $2;" ],
-		[ "RET exp TERM", "return $2;" ]
+                [ "decl stmnt",               "$$ = $2;" ],
+		[ "RET exp TERM",             "$$ = $2;" ],
+		[ "RET cond TERM",            "$$ = $2;" ]
             ],
 
-	    "vars" :[
+	    "if" :[
+		[ "IF cond block",            "$$ = yy.Statement.if($2, $3);" ],
+		[ "IF cond block ELSE if",    "$$ = yy.Statement.if($2, $3, $5);" ],
+		[ "IF cond block ELSE block", "$$ = yy.Statement.if($2, $3, $5);" ]
+	    ],
+
+	    "block" :[
+		[ "{ stmnt }", "$$ = $2;" ]
+	    ],
+
+	    "decl" :[
+		[ "TYPE decl", "$$ = $2" ],
 		[ "VARIABLE ASSIGN exp TERM", "$$ = yy.Variables.add($1, $3);" ]
 	    ],
 
             "exp" :[
 		[ "NUMBER",           "$$ = Number(yytext);" ],
-		[ "VARIABLE",         "$$ = yy.Variables.get($1);"],
+		[ "VARIABLE",         "$$ = yy.Variables.get($1);" ],
                 [ "exp + exp",        "$$ = $1 + $3;" ],
 		[ "exp - exp",        "$$ = $1 - $3;" ],
 		[ "exp * exp",        "$$ = $1 * $3;" ],
 		[ "exp / exp",        "$$ = $1 / $3;" ],
-                [ "exp EQUALITY exp", "$$ = $1 === $3;" ],
+		[ "exp ^ exp",        "$$ = Math.pow($1, $3);" ],
+		[ "- exp",            "$$ = -$2;", {"prec": "UMINUS"} ],
+		[ "( exp )",          "$$ = $2;" ],
+		[ "E",                "$$ = Math.E;" ],
+		[ "PI",               "$$ = Math.PI;" ]
+            ],
+
+	    "cond" :[
+		[ "exp EQUALITY exp", "$$ = $1 === $3;" ],
 		[ "exp NOTEQUAL exp", "$$ = $1 !== $3;" ],
 		[ "exp LTE exp",      "$$ = $1 <= $3;" ],
-		[ "exp GTE exp",      "$$ = $1 >= $3;" ]
-            ]
+		[ "exp GTE exp",      "$$ = $1 >= $3;" ],
+		[ "( cond )",         "$$ = $2;" ],
+		[ "TRUE",             "$$ = true;"],
+		[ "FALSE",            "$$ = false;"]
+	    ]
         }
     };
 
@@ -93,6 +127,10 @@ describe('parser', function() {
 
     it('should return true for equality', function() {
         expect(parser.parse("3 = 3")).toBe(true);
+    });
+
+    it('should be able to return a condition', function() {
+	expect(parser.parse("return 3 = 3;")).toBe(true);
     });
 
     it('should return false for equality', function() {
@@ -129,15 +167,46 @@ describe('parser', function() {
 	expect(parser.parse("5 ≤ 3")).toBe(false);
     });
 
+    it('should make sure true is true', function() {
+	expect(parser.parse("true")).toBe(true);
+    });
+
+    it('should make sure false is false', function() {
+	expect(parser.parse("false")).toBe(false);
+    });
+
     it('should know the correct syntax for assignment', function() {
         expect(parser.parse("var n <- 3; return n;")).toBe(3);
     });
 
-    it('should allow an expression befpre assignment', function() {
+    it('should allow an expression before assignment', function() {
         expect(parser.parse("n <- 3 + 1; return n;")).toBe(4);
     });
 
     it('should allow multiline expressions', function() {
-        expect(parser.parse(" var n <- 3 + 1; var n <- n + 1; return n;")).toBe(5);
+        expect(parser.parse("var n <- 3 + 1; var n <- n + 1; return n;")).toBe(5);
+    });
+
+    it('should perform the order of operations', function() {
+	expect(parser.parse("var x <- 10 - 5 * 2^2 + (36 / 6) - 3; return x;")).toBe(-7);
+    });
+
+    it('should be able to perform an if statement', function() {
+	expect(parser.parse("if (true) {return 3;}")).toBe(3);
+    });
+
+    it('should not perform the experession if condition is false', function() {
+	expect(parser.parse("if (false) {return 3;}")).toBe(null);
+    });
+
+    it('should be able to perform an if else statement', function() {
+	expect(parser.parse("if ( false ) { return 5; } else { return 3; }")).toBe(3);
+    });
+
+    it('should be able to continue if else statements', function() {
+	expect(parser.parse("if ( false ) { return 5; } else if(true) { return 4; } else { return 3; }")).toBe(4);
+	expect(parser.parse("if ( false ) { return 5; } else if(false) { return 4; } else { return 3; }")).toBe(3);
+	expect(parser.parse("if ( true ) { return 5; } else if(false) { return 4; } else { return 3; }")).toBe(5);
+	expect(parser.parse("if ( true ) { return 5; } else if(true) { return 4; } else { return 3; }")).toBe(5);
     });
 });
