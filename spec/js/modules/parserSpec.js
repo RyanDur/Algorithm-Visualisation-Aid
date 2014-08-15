@@ -1,11 +1,12 @@
 var module = require('../../../app/js/modules/parser');
 var grammar = require('../../../app/js/grammars/grammar');
+var ast = require('../../../app/js/modules/astM');
 
 describe('parser', function() {
     var parser;
 
     beforeEach(function() {
-        parser = module(grammar, require('./astM'));
+        parser = module(grammar, ast);
     });
 
     it('should return the correct sum', function() {
