@@ -24,3 +24,13 @@ exports.Statement = function ifStatement() {
 	}
     };
 }();
+
+exports.DataStructure = function() {
+    return {
+	array: function(list) {
+	    return list.replace(/\[(.*?)\]/g,"$1").split(',').map(function(item) {
+		return parseInt(item, 10);
+	    });
+	}
+    };
+}();

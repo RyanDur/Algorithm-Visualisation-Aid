@@ -1,108 +1,8 @@
 var module = require('../../../app/js/modules/parser');
+var grammar = require('../../../app/js/grammars/grammar');
 
 describe('parser', function() {
     var parser;
-    var grammar = {
-        "lex": {
-            "rules": [
-                ["\\s+",                    "/* skip whitespace */"],
-                ["//.*",                    "/* ignore comments */"],
-                ["[0-9]+(?:\\.[0-9]+)?\\b", "return 'NUMBER';"],
-                ["\\*",                     "return '*';"],
-                ["\\/",                     "return '/';"],
-                ["-",                       "return '-';"],
-                ["\\+",                     "return '+';"],
-                ["\\^",                     "return '^';"],
-                ["\\(",                     "return '(';"],
-                ["\\)",                     "return ')';"],
-		["\\{",                     "return '{';"],
-		["\\}",                     "return '}';"],
-                ["PI\\b",                   "return 'PI';"],
-                ["E\\b",                    "return 'E';"],
-                ["<-",                      "return 'ASSIGN';"],
-                ["=",                       "return 'EQUALITY';"],
-		["≠",                       "return 'NOTEQUAL';"],
-		["≤",                       "return 'LTE';"],
-		["≥",                       "return 'GTE';"],
-                ["(\n|\;)",                 "return 'TERM';"],
-                ["return",                  "return 'RET';"],
-                ["var",                     "return 'TYPE';"],
-		["true\\b",                 "return 'TRUE'"],
-		["false\\b",                "return 'FALSE'"],
-		["nil\\b",                  "return 'NULL'"],
-		["if",                      "return 'IF';"],
-		["else",                    "return 'ELSE';"],
-		["[a-zA-Z][a-zA-Z0-9_]*",   "return 'VARIABLE';"],
-		["$",                       "return 'EOF';"],
-                ["\n+",                     "return 'NEWLINE'"]
-            ]
-        },
-
-        "operators": [
-	    ["left", "+", "-"],
-            ["left", "*", "/"],
-            ["left", "^"],
-            ["left", "UMINUS"]
-            ["nonassoc", "EQUALITY", "NOTEQUAL", "LTE", "GTE"]
-        ],
-
-        "bnf": {
-            "expressions" :[
-                [ "stmnt EOF", "return $1;" ]
-            ],
-
-            "stmnt" :[
-                [ "decl stmnt",     "$$ = $2;" ],
-		[ "RET stmnt TERM", "$$ = $2;" ],
-		[ "if",             "$$ = $1" ],
-		[ "cond",           "$$ = $1" ],
-		[ "exp",            "$$ = $1" ]
-            ],
-
-	    "if" :[
-		[ "IF cond block",            "$$ = yy.Statement.if($2, $3);" ],
-		[ "IF cond block ELSE if",    "$$ = yy.Statement.if($2, $3, $5);" ],
-		[ "IF cond block ELSE block", "$$ = yy.Statement.if($2, $3, $5);" ]
-	    ],
-
-	    "block" :[
-		[ "{ stmnt }", "$$ = $2;" ]
-	    ],
-
-	    "decl" :[
-		[ "TYPE decl", "$$ = $2" ],
-		[ "VARIABLE ASSIGN exp TERM", "$$ = yy.Variables.add($1, $3);" ]
-	    ],
-
-            "exp" :[
-		[ "( exp )",   "$$ = $2;" ],
-		[ "NUMBER",    "$$ = Number(yytext);" ],
-		[ "VARIABLE",  "$$ = yy.Variables.get($1);" ],
-                [ "exp + exp", "$$ = $1 + $3;" ],
-		[ "exp - exp", "$$ = $1 - $3;" ],
-		[ "exp * exp", "$$ = $1 * $3;" ],
-		[ "exp / exp", "$$ = $1 / $3;" ],
-		[ "exp ^ exp", "$$ = Math.pow($1, $3);" ],
-		[ "- exp",     "$$ = -$2;", {"prec": "UMINUS"} ],
-		[ "E",         "$$ = Math.E;" ],
-		[ "PI",        "$$ = Math.PI;" ]
-            ],
-
-	    "cond" :[
-		[ "( cond )",         "$$ = $2;" ],
-		[ "exp EQUALITY exp", "$$ = $1 === $3;" ],
-		[ "exp NOTEQUAL exp", "$$ = $1 !== $3;" ],
-		[ "exp LTE exp",      "$$ = $1 <= $3;" ],
-		[ "exp GTE exp",      "$$ = $1 >= $3;" ],
-		[ "TRUE",             "$$ = true;"],
-		[ "FALSE",            "$$ = false;"]
-	    ]
-        }
-    };
-
-
-
-
 
     beforeEach(function() {
         parser = module(grammar, require('./astM'));
@@ -211,5 +111,9 @@ describe('parser', function() {
 
     it('should be able to nest if statements', function() {
 	expect(parser.parse("if (true) {if (true) {return 3;}}")).toBe(3);
+    });
+
+    it('should be able to create an array', function() {
+	expect(parser.parse("var a <- [1,2,3,4,5]; return a;")).toEqual([1,2,3,4,5]);
     });
 });
