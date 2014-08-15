@@ -48,16 +48,15 @@ describe('parser', function() {
 
         "bnf": {
             "expressions" :[
-                [ "exp EOF",   "return $1;" ],
-		[ "cond EOF",  "return $1;" ],
                 [ "stmnt EOF", "return $1;" ]
             ],
 
             "stmnt" :[
-                [ "decl stmnt",    "$$ = $2;" ],
-		[ "RET exp TERM",  "$$ = $2;" ],
-		[ "RET cond TERM", "$$ = $2;" ],
-		[ "if",            "$$ = $1" ]
+                [ "decl stmnt",     "$$ = $2;" ],
+		[ "RET stmnt TERM", "$$ = $2;" ],
+		[ "if",             "$$ = $1" ],
+		[ "cond",           "$$ = $1" ],
+		[ "exp",            "$$ = $1" ]
             ],
 
 	    "if" :[
