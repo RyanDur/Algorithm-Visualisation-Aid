@@ -11,7 +11,7 @@ describe('editorCtrl', function() {
     beforeEach(function() {
 	expected = "hello";
         mockEditor = {
-            getValue: function() {
+            getContent: function() {
                 return expected;
             }
         };
@@ -19,13 +19,13 @@ describe('editorCtrl', function() {
 	    parse: function(val) {}
 	};
         require('../../../app/js/controllers/editorCtrl')(mockEditor, mockParser)(scope);
-	spyOn(mockEditor, "getValue").and.callThrough();
+	spyOn(mockEditor, "getContent").and.callThrough();
 	spyOn(mockParser, "parse").and.callThrough();
     });
 
     it('should make sure the editors value is called', function() {
 	scope.getInput();
-        expect(mockEditor.getValue).toHaveBeenCalled();
+        expect(mockEditor.getContent).toHaveBeenCalled();
     });
 
     it('should make sure the parser was called', function() {
