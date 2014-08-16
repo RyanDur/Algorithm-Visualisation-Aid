@@ -12,6 +12,9 @@ var editorCtrl = require('./controllers/editorCtrl')(editor, parser);
 var app = angular.module('ava', []);
 
 app.controller('EditorCtrl', editorCtrl);
+app.controller('AnimationCtrl', function($scope) {
+
+});
 
 },{"./controllers/editorCtrl":2,"./grammars/grammar":3,"./modules/astM":4,"./modules/editor":5,"./modules/parser":6,"angular":7}],2:[function(require,module,exports){
 'use strict';
@@ -152,7 +155,11 @@ exports.Statement = function ifStatement() {
 }();
 
 exports.DataStructure = function() {
+    var controller;
     return {
+	setController: function(ctrl) {
+	    controller = ctrl;
+	},
 	array: function(list) {
 	    return list.replace(/\[(.*?)\]/g,"$1").split(',').map(function(item) {
 		return parseInt(item, 10);

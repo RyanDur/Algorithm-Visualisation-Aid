@@ -23,7 +23,11 @@ exports.Statement = function ifStatement() {
 }();
 
 exports.DataStructure = function() {
+    var controller;
     return {
+	setController: function(ctrl) {
+	    controller = ctrl;
+	},
 	array: function(list) {
 	    return list.replace(/\[(.*?)\]/g,"$1").split(',').map(function(item) {
 		return parseInt(item, 10);

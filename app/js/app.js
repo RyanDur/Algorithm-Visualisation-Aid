@@ -11,3 +11,6 @@ var editorCtrl = require('./controllers/editorCtrl')(editor, parser);
 var app = angular.module('ava', []);
 
 app.controller('EditorCtrl', editorCtrl);
+app.controller('AnimationCtrl', function($scope) {
+
+});
