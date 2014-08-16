@@ -9,11 +9,8 @@ describe('editor', function() {
     });
 
     it('should be able to retrieve the users content', function() {
-	var content = ['// JavaScript',
-		       'var a = 3;',
-		       '',
-		       '// below line has an error which is annotated',
-		       'var b ='].join('\n');
+	var content = ["var arr <- [1,2,3,4,5];",
+		       "return arr;"].join('\n');
 	expect(editor.getContent()).toBe(content);
     });
 

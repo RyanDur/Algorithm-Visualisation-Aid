@@ -2,6 +2,7 @@
 
 describe('editorCtrl', function() {
     var mockEditor,
+	mockParser,
 	controller,
         editorCtrl,
         scope = {},
@@ -14,17 +15,21 @@ describe('editorCtrl', function() {
                 return expected;
             }
         };
-	var mock = function($scope){return mockEditor;};
-        require('../../../app/js/controllers/editorCtrl')(mock)(scope);
+	mockParser = {
+	    parse: function(val) {}
+	};
+        require('../../../app/js/controllers/editorCtrl')(mockEditor, mockParser)(scope);
 	spyOn(mockEditor, "getValue").and.callThrough();
-    });
-
-    it('should return the input value in the editor', function() {
-	expect(scope.getInput()).toBe(expected);
+	spyOn(mockParser, "parse").and.callThrough();
     });
 
     it('should make sure the editors value is called', function() {
 	scope.getInput();
         expect(mockEditor.getValue).toHaveBeenCalled();
+    });
+
+    it('should make sure the parser was called', function() {
+	scope.getInput();
+	expect(mockParser.parse).toHaveBeenCalled();
     });
 });

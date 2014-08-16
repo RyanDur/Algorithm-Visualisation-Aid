@@ -1,7 +1,4 @@
-var AstNode = function (line, column) {
-    this._line = line;
-    this._column = column;
-};
+'use strict';
 
 exports.Variables = function() {
     var variables = {};

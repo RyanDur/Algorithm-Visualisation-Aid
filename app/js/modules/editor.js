@@ -6,11 +6,8 @@ module.exports = function editor(elementId) {
     require('brace/theme/monokai');
     codeEditor = ace.edit(elementId);
     codeEditor.setTheme('ace/theme/monokai');
-    codeEditor.setValue(['// JavaScript',
-                         'var a = 3;',
-                         '',
-                         '// below line has an error which is annotated',
-                         'var b ='].join('\n'));
+    codeEditor.setValue(["var arr <- [1,2,3,4,5];",
+			 "return arr;"].join('\n'));
     codeEditor.clearSelection();
 
     return {

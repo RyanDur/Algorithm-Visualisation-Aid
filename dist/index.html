@@ -21,11 +21,11 @@
       <div class="large-12 medium-12 columns">
         <div class="row">
 
-          <section ng-controller="EditorCtrl as editor">
+          <section ng-controller="EditorCtrl as e" ng-init="content=true">
             <div class="large-5 columns">
               <div class="panel">
                 <div id="editor"></div>
-                <button class="small radius button expand" ng-click="editor.getInput()">
+                <button class="small radius button expand" ng-click="e.getInput()">
                   Run
                 </button>
               </div>
@@ -38,6 +38,11 @@
                 <div id="animationArea"></div>
               </div>
             </div>
+            <div class="large-7 columns">
+	      <div class="panel">
+		<div id="output"></div>
+	      </div>
+	    </div>
           </section>
 
         </div>

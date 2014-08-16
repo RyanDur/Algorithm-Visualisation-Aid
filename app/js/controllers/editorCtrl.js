@@ -1,10 +1,13 @@
 'use strict';
 
-module.exports = function(editor) {
+module.exports = function(editor, parser) {
     return function($scope) {
-	var e = editor('editor');
+	$('button').click(function() {
+	    parser.parse(editor.getContent());
+	});
+
 	$scope.getInput = function() {
-	    return e.getValue();
+            parser.parse(editor.getValue());
 	};
     };
 };
