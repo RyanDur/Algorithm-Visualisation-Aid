@@ -138,12 +138,18 @@ gulp.task('copy humans', ['clean'], function() {
         .pipe(gulp.dest('dist'));
 });
 
+gulp.task('copy templates',['clean'], function() {
+    return gulp.src('app/templates/*')
+	.pipe(gulp.dest('dist/templates'));
+});
+
 gulp.task('ready',
           ['clean',
            'browserify',
            'compress',
            'compass',
            'copy index',
+	   'copy templates',
            'copy vendor',
            'copy humans',
            'copy robots']);
