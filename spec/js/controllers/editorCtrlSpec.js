@@ -5,11 +5,12 @@ describe('editorCtrl', function() {
 	mockParser,
 	controller,
         editorCtrl,
-        scope = {};
+        scope;
 
     beforeEach(function() {
         mockEditor = { getContent: function() {}};
 	mockParser = { parse: function(val) {}};
+	scope = { $watch: function(){}};
         require('../../../app/js/controllers/editorCtrl')(mockEditor, mockParser)(scope);
 	spyOn(mockEditor, "getContent").and.callThrough();
 	spyOn(mockParser, "parse").and.callThrough();

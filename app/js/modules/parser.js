@@ -6,8 +6,7 @@ module.exports = function(grammar, ast) {
     parser.yy = ast;
     return {
         parse: function parse(input) {
-	    var output = document.getElementById('output');
-            output.innerHTML = parser.parse(input);
+            return parser.parse(input);
         }
     };
 };

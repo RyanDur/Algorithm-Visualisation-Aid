@@ -20,33 +20,35 @@
     <div class="row">
       <div class="large-12 medium-12 columns">
         <div class="row">
+          <div ng-controller="EditorCtrl">
 
-          <section ng-controller="EditorCtrl">
-            <div class="large-5 columns">
-              <div class="panel">
-                <div id="editor"></div>
-                <button class="small radius button expand" ng-click="getInput()">
-                  Run
-                </button>
+            <section>
+              <div class="large-5 columns">
+                <div class="panel">
+                  <div id="editor"></div>
+                  <button id="run" class="small radius button expand" ng-click="getInput()">
+                    Run
+                  </button>
+                </div>
               </div>
-            </div>
-          </section>
+            </section>
 
-          <section ng-controller="AnimationCtrl">
-            <div class="large-7 columns">
-              <div class="panel">
-                <div id="animationArea">
-                  <dataStructure></dataStructure>
-		</div>
+            <section>
+              <div class="large-7 columns">
+                <div class="panel">
+                  <div id="animationArea">
+                    <dataStructure data="data" structure="{{structure}}"></dataStructure>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div class="large-7 columns">
-	      <div class="panel">
-		<div id="output"></div>
-	      </div>
-	    </div>
-          </section>
+              <div class="large-7 columns">
+                <div class="panel">
+                  <div id="output">{{output}}</div>
+                </div>
+              </div>
+            </section>
 
+          </div>
         </div>
       </div>
 

@@ -2,27 +2,47 @@
 'use strict';
 // Foundation JavaScript
 // Documentation can be found at: http://foundation.zurb.com/docs
+
 var angular = require('angular');
+
 var editor = require('./modules/editor')('editor');
 var grammar = require("./grammars/grammar");
+
 var ast = require("./modules/astM");
 var parser = require('./modules/parser')(grammar, ast);
-var editorCtrl = require('./controllers/editorCtrl')(editor, parser);
+
+var editorCtrl = require('./controllers/editorCtrl')(editor, parser,ast.config());
 
 var app = angular.module('ava', []);
 
-app.controller('EditorCtrl', editorCtrl);
-app.controller('AnimationCtrl', function($scope) {
+app.controller('EditorCtrl', ['$scope', editorCtrl]);
 
+app.directive('datastructure', function() {
+    return {
+	restrict: 'E',
+        replace: false,
+        scope: {
+            data: "=",
+            structure: "@"
+        },
+        templateUrl: "templates/data_array.html"
+    };
 });
 
 },{"./controllers/editorCtrl":2,"./grammars/grammar":3,"./modules/astM":4,"./modules/editor":5,"./modules/parser":6,"angular":7}],2:[function(require,module,exports){
 'use strict';
 
-module.exports = function(editor, parser) {
+module.exports = function(editor, parser, config) {
     return function($scope) {
+	$scope.output = "";
+	var c;
+	$scope.$watch('output', function() {
+	    c = config.get();
+	    $scope.data = c.data;
+	    $scope.structure = c.structure;
+	});
 	$scope.getInput = function() {
-            parser.parse(editor.getContent());
+            $scope.output = parser.parse(editor.getContent());
 	};
     };
 };
@@ -131,40 +151,50 @@ module.exports={
 
 },{}],4:[function(require,module,exports){
 'use strict';
+var obj = {};
+
+exports.config = function() {
+    return {
+        get: function() {
+            return obj;
+        }
+    };
+};
 
 exports.Variables = function() {
     var variables = {};
     return {
-	add: function(variable, value) {
-	    variables[variable] = value;
-	},
-	get: function(variable) {
-	    var val = variables[variable];
-	    return val || 0;
-	}
+        add: function(variable, value) {
+            variables[variable] = value;
+        },
+        get: function(variable) {
+            var val = variables[variable];
+            return val || 0;
+        }
     };
 }();
 
 exports.Statement = function ifStatement() {
     return {
-	if: function(condition, fisrt, second) {
-	    second = second === undefined ? null : second;
-	    return condition === true ? fisrt : second;
-	}
+        if: function(condition, fisrt, second) {
+            second = second === undefined ? null : second;
+            return condition === true ? fisrt : second;
+        }
     };
 }();
 
 exports.DataStructure = function() {
-    var controller;
     return {
-	setController: function(ctrl) {
-	    controller = ctrl;
-	},
-	array: function(list) {
-	    return list.replace(/\[(.*?)\]/g,"$1").split(',').map(function(item) {
-		return parseInt(item, 10);
-	    });
-	}
+        array: function(list) {
+            var arr = list.replace(/\[(.*?)\]/g,"$1").split(',').map(function(item) {
+                return parseInt(item, 10);
+            });
+
+            obj.data = arr;
+            obj.structure = "array";
+
+            return arr;
+        }
     };
 }();
 
@@ -197,8 +227,7 @@ module.exports = function(grammar, ast) {
     parser.yy = ast;
     return {
         parse: function parse(input) {
-	    var output = document.getElementById('output');
-            output.innerHTML = parser.parse(input);
+            return parser.parse(input);
         }
     };
 };
