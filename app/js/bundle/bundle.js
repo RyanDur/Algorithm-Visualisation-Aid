@@ -7,29 +7,18 @@ var angular = require('angular');
 
 var editor = require('./modules/editor')('editor');
 var grammar = require("./grammars/grammar");
-
 var ast = require("./modules/astM");
 var parser = require('./modules/parser')(grammar, ast);
 
 var editorCtrl = require('./controllers/editorCtrl')(editor, parser,ast.config());
+var dataStructure = require('./directives/dataStructure');
+
 
 var app = angular.module('ava', []);
-
 app.controller('EditorCtrl', ['$scope', editorCtrl]);
+app.directive('datastructure', dataStructure);
 
-app.directive('datastructure', function() {
-    return {
-	restrict: 'E',
-        replace: false,
-        scope: {
-            data: "=",
-            structure: "@"
-        },
-        templateUrl: "templates/data_array.html"
-    };
-});
-
-},{"./controllers/editorCtrl":2,"./grammars/grammar":3,"./modules/astM":4,"./modules/editor":5,"./modules/parser":6,"angular":7}],2:[function(require,module,exports){
+},{"./controllers/editorCtrl":2,"./directives/dataStructure":3,"./grammars/grammar":4,"./modules/astM":5,"./modules/editor":6,"./modules/parser":7,"angular":8}],2:[function(require,module,exports){
 'use strict';
 
 module.exports = function(editor, parser, config) {
@@ -48,6 +37,21 @@ module.exports = function(editor, parser, config) {
 };
 
 },{}],3:[function(require,module,exports){
+'use strict';
+
+module.exports = function() {
+    return {
+        restrict: 'E',
+        replace: false,
+        scope: {
+            data: "=",
+            structure: "@"
+        },
+        templateUrl: "templates/data_array.html"
+    };
+};
+
+},{}],4:[function(require,module,exports){
 module.exports={
     "lex": {
         "rules": [
@@ -149,7 +153,7 @@ module.exports={
     }
 };
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 'use strict';
 var obj = {};
 
@@ -198,7 +202,7 @@ exports.DataStructure = function() {
     };
 }();
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 'use strict';
 
 module.exports = function editor(elementId) {
@@ -218,7 +222,7 @@ module.exports = function editor(elementId) {
     };
 };
 
-},{"brace":9,"brace/theme/monokai":11}],6:[function(require,module,exports){
+},{"brace":10,"brace/theme/monokai":12}],7:[function(require,module,exports){
 'use strict';
 var Parser = require("jison").Parser;
 
@@ -232,12 +236,12 @@ module.exports = function(grammar, ast) {
     };
 };
 
-},{"jison":15}],7:[function(require,module,exports){
+},{"jison":16}],8:[function(require,module,exports){
 require('./lib/angular.js');
 
 module.exports = angular;
 
-},{"./lib/angular.js":8}],8:[function(require,module,exports){
+},{"./lib/angular.js":9}],9:[function(require,module,exports){
 /**
  * @license AngularJS v1.2.19
  * (c) 2010-2014 Google, Inc. http://angularjs.org
@@ -22016,7 +22020,7 @@ var styleDirective = valueFn({
 })(window, document);
 
 !window.angular.$$csp() && window.angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide{display:none !important;}ng\\:form{display:block;}.ng-animate-block-transitions{transition:0s all!important;-webkit-transition:0s all!important;}.ng-hide-add-active,.ng-hide-remove{display:block!important;}</style>');
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 /* ***** BEGIN LICENSE BLOCK *****
  * Distributed under the BSD license:
  *
@@ -40115,7 +40119,7 @@ exports.UndoManager = UndoManager;
             })();
         
 module.exports = window.ace.acequire("ace/ace");
-},{"w3c-blob":10}],10:[function(require,module,exports){
+},{"w3c-blob":11}],11:[function(require,module,exports){
 (function (global){
 module.exports = get_blob()
 
@@ -40147,7 +40151,7 @@ function get_blob() {
 }
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 ace.define("ace/theme/monokai",["require","exports","module","ace/lib/dom"], function(acequire, exports, module) {
 
 exports.isDark = true;
@@ -40255,9 +40259,9 @@ var dom = acequire("../lib/dom");
 dom.importCssString(exports.cssText, exports.cssClass);
 });
 
-},{}],12:[function(require,module,exports){
-
 },{}],13:[function(require,module,exports){
+
+},{}],14:[function(require,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -40485,7 +40489,7 @@ var substr = 'ab'.substr(-1) === 'b'
 ;
 
 }).call(this,require("FWaASH"))
-},{"FWaASH":14}],14:[function(require,module,exports){
+},{"FWaASH":15}],15:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -40550,7 +40554,7 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 (function (process){
 // Jison, an LR(0), SLR(1), LARL(1), LR(1) Parser Generator
 // Zachary Carter <zach@carter.name>
@@ -42304,7 +42308,7 @@ return function Parser (g, options) {
 
 
 }).call(this,require("FWaASH"))
-},{"../package.json":40,"./util/set":16,"./util/typal":17,"FWaASH":14,"JSONSelect":18,"ebnf-parser":19,"escodegen":23,"esprima":36,"fs":12,"jison-lex":38,"path":13}],16:[function(require,module,exports){
+},{"../package.json":41,"./util/set":17,"./util/typal":18,"FWaASH":15,"JSONSelect":19,"ebnf-parser":20,"escodegen":24,"esprima":37,"fs":13,"jison-lex":39,"path":14}],17:[function(require,module,exports){
 // Set class to wrap arrays
 
 var typal = require("./typal").typal;
@@ -42399,7 +42403,7 @@ if (typeof exports !== 'undefined')
     exports.Set = Set;
 
 
-},{"./typal":17}],17:[function(require,module,exports){
+},{"./typal":18}],18:[function(require,module,exports){
 /*
  * Introduces a typal object to make classical/prototypal patterns easier
  * Plus some AOP sugar
@@ -42491,7 +42495,7 @@ return {
 if (typeof exports !== 'undefined')
     exports.typal = typal;
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 /*! Copyright (c) 2011, Lloyd Hilaiel, ISC License */
 /*
  * This is the JSONSelect reference implementation, in javascript.  This
@@ -43065,7 +43069,7 @@ if (typeof exports !== 'undefined')
     exports.compile = compile;
 })(typeof exports === "undefined" ? (window.JSONSelect = {}) : exports);
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 var bnf = require("./parser").parser,
     ebnf = require("./ebnf-transform"),
     jisonlex = require("lex-parser");
@@ -43108,7 +43112,7 @@ var parseLex = function (text) {
 };
 
 
-},{"./ebnf-transform":20,"./parser":21,"lex-parser":39}],20:[function(require,module,exports){
+},{"./ebnf-transform":21,"./parser":22,"lex-parser":40}],21:[function(require,module,exports){
 var EBNF = (function(){
     var parser = require('./transform-parser.js');
 
@@ -43245,7 +43249,7 @@ var EBNF = (function(){
 exports.transform = EBNF.transform;
 
 
-},{"./transform-parser.js":22}],21:[function(require,module,exports){
+},{"./transform-parser.js":23}],22:[function(require,module,exports){
 (function (process){
 /* parser generated by jison 0.4.11 */
 /*
@@ -44050,7 +44054,7 @@ if (typeof module !== 'undefined' && require.main === module) {
 }
 }
 }).call(this,require("FWaASH"))
-},{"./ebnf-transform":20,"FWaASH":14,"fs":12,"path":13}],22:[function(require,module,exports){
+},{"./ebnf-transform":21,"FWaASH":15,"fs":13,"path":14}],23:[function(require,module,exports){
 (function (process){
 /* parser generated by jison 0.4.11 */
 /*
@@ -44682,7 +44686,7 @@ if (typeof module !== 'undefined' && require.main === module) {
 }
 }
 }).call(this,require("FWaASH"))
-},{"FWaASH":14,"fs":12,"path":13}],23:[function(require,module,exports){
+},{"FWaASH":15,"fs":13,"path":14}],24:[function(require,module,exports){
 (function (global){
 /*
   Copyright (C) 2012 Michael Ficarra <escodegen.copyright@michael.ficarra.me>
@@ -46940,7 +46944,7 @@ if (typeof module !== 'undefined' && require.main === module) {
 /* vim: set sw=4 ts=4 et tw=80 : */
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./package.json":35,"estraverse":24,"source-map":25}],24:[function(require,module,exports){
+},{"./package.json":36,"estraverse":25,"source-map":26}],25:[function(require,module,exports){
 /*
   Copyright (C) 2012 Yusuke Suzuki <utatane.tea@gmail.com>
   Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
@@ -47257,7 +47261,7 @@ if (typeof module !== 'undefined' && require.main === module) {
 }));
 /* vim: set sw=4 ts=4 et tw=80 : */
 
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 /*
  * Copyright 2009-2011 Mozilla Foundation and contributors
  * Licensed under the New BSD license. See LICENSE.txt or:
@@ -47267,7 +47271,7 @@ exports.SourceMapGenerator = require('./source-map/source-map-generator').Source
 exports.SourceMapConsumer = require('./source-map/source-map-consumer').SourceMapConsumer;
 exports.SourceNode = require('./source-map/source-node').SourceNode;
 
-},{"./source-map/source-map-consumer":30,"./source-map/source-map-generator":31,"./source-map/source-node":32}],26:[function(require,module,exports){
+},{"./source-map/source-map-consumer":31,"./source-map/source-map-generator":32,"./source-map/source-node":33}],27:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -47366,7 +47370,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./util":33,"amdefine":34}],27:[function(require,module,exports){
+},{"./util":34,"amdefine":35}],28:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -47512,7 +47516,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./base64":28,"amdefine":34}],28:[function(require,module,exports){
+},{"./base64":29,"amdefine":35}],29:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -47556,7 +47560,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":34}],29:[function(require,module,exports){
+},{"amdefine":35}],30:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -47639,7 +47643,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":34}],30:[function(require,module,exports){
+},{"amdefine":35}],31:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -48119,7 +48123,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./array-set":26,"./base64-vlq":27,"./binary-search":29,"./util":33,"amdefine":34}],31:[function(require,module,exports){
+},{"./array-set":27,"./base64-vlq":28,"./binary-search":30,"./util":34,"amdefine":35}],32:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -48524,7 +48528,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./array-set":26,"./base64-vlq":27,"./util":33,"amdefine":34}],32:[function(require,module,exports){
+},{"./array-set":27,"./base64-vlq":28,"./util":34,"amdefine":35}],33:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -48934,7 +48938,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./source-map-generator":31,"./util":33,"amdefine":34}],33:[function(require,module,exports){
+},{"./source-map-generator":32,"./util":34,"amdefine":35}],34:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -49255,7 +49259,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":34}],34:[function(require,module,exports){
+},{"amdefine":35}],35:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
  * @license amdefine 0.1.0 Copyright (c) 2011, The Dojo Foundation All Rights Reserved.
@@ -49558,7 +49562,7 @@ function amdefine(module, requireFn) {
 module.exports = amdefine;
 
 }).call(this,require("FWaASH"),"/../../node_modules/jison/node_modules/escodegen/node_modules/source-map/node_modules/amdefine/amdefine.js")
-},{"FWaASH":14,"path":13}],35:[function(require,module,exports){
+},{"FWaASH":15,"path":14}],36:[function(require,module,exports){
 module.exports={
   "name": "escodegen",
   "description": "ECMAScript code generator",
@@ -49628,7 +49632,7 @@ module.exports={
   "readme": "ERROR: No README data found!"
 }
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 /*
   Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
   Copyright (C) 2012 Mathias Bynens <mathias@qiwi.be>
@@ -53538,7 +53542,7 @@ parseStatement: true, parseSourceElement: true */
 }));
 /* vim: set sw=4 ts=4 et tw=80 : */
 
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 module.exports={
   "author": {
     "name": "Zach Carter",
@@ -53608,7 +53612,7 @@ module.exports={
   "readme": "ERROR: No README data found!"
 }
 
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 // Basic Lexer implemented using JavaScript regular expressions
 // MIT Licensed
 
@@ -54181,7 +54185,7 @@ return RegExpLexer;
 module.exports = RegExpLexer;
 
 
-},{"./package.json":37,"lex-parser":39}],39:[function(require,module,exports){
+},{"./package.json":38,"lex-parser":40}],40:[function(require,module,exports){
 (function (process){
 /* parser generated by jison 0.4.6 */
 /*
@@ -55035,7 +55039,7 @@ if (typeof module !== 'undefined' && require.main === module) {
 }
 }
 }).call(this,require("FWaASH"))
-},{"FWaASH":14,"fs":12,"path":13}],40:[function(require,module,exports){
+},{"FWaASH":15,"fs":13,"path":14}],41:[function(require,module,exports){
 module.exports={
   "author": {
     "name": "Zach Carter",
