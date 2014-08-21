@@ -10,28 +10,42 @@ var grammar = require("./grammars/grammar");
 var ast = require("./modules/astM");
 var parser = require('./modules/parser')(grammar, ast);
 
-var editorCtrl = require('./controllers/editorCtrl')(editor, parser,ast.config());
+var editorCtrl = require('./controllers/editorCtrl')(editor, parser);
 var dataStructure = require('./directives/dataStructure');
 
 
 var app = angular.module('ava', []);
-app.controller('EditorCtrl', ['$scope', editorCtrl]);
+app.controller('EditorCtrl', ['$scope', '$timeout', editorCtrl]);
+
 app.directive('datastructure', dataStructure);
 
 },{"./controllers/editorCtrl":2,"./directives/dataStructure":3,"./grammars/grammar":4,"./modules/astM":5,"./modules/editor":6,"./modules/parser":7,"angular":8}],2:[function(require,module,exports){
 'use strict';
 
-module.exports = function(editor, parser, config) {
-    return function($scope) {
-	$scope.output = "";
-	var c;
-	$scope.$watch('output', function() {
-	    c = config.get();
-	    $scope.data = c.data;
-	    $scope.structure = c.structure;
-	});
+module.exports = function(editor, parser) {
+
+    return function($scope, $timeout) {
+
+	var forEach = function(collection, func) {
+            for(var i = 1; i <= collection.length; i++) {
+		func(collection[i-1], i);
+            }
+	};
+
+	var executeAsynchronously = function(functions, timeout) {
+            forEach(functions, function(func, index) {
+		$timeout(function() {
+		    func($scope, editor);
+		}, index*timeout);
+            });
+	};
+
 	$scope.getInput = function() {
-            $scope.output = parser.parse(editor.getContent());
+            var result = parser.parse(editor.getContent());
+            var ani = result.animation;
+            $scope.output = result.print;
+            editor.highlightLine();
+            executeAsynchronously(ani, 750);
 	};
     };
 };
@@ -58,6 +72,7 @@ module.exports={
             ["\\s+",                    "/* skip whitespace */"],
             ["//.*",                    "/* ignore comments */"],
             ["[0-9]+(?:\\.[0-9]+)?\\b", "return 'NUMBER';"],
+            ["print",                   "return 'PRINT';"],
             ["\\*",                     "return '*';"],
             ["\\/",                     "return '/';"],
             ["-",                       "return '-';"],
@@ -104,79 +119,207 @@ module.exports={
         ],
 
         "stmnt" :[
-            [ "decl stmnt",     "$$ = $2;" ],
-            [ "RET stmnt TERM", "$$ = $2;" ],
-            [ "if",             "$$ = $1" ],
-            [ "cond",           "$$ = $1" ],
-            [ "exp",            "$$ = $1" ]
+            [ "",               "" ],
+            [ "if",             "$$ = $1;" ],
+            [ "line stmnt",     "$$ = ($2 !== undefined) ? $2 : $1;" ]
+        ],
+
+        "returnable" :[
+            [ "RET returnable", "$$ = $2;" ],
+            [ "cond",           "$$ = $1;" ],
+            [ "exp",            "$$ = $1;" ]
         ],
 
         "if" :[
-            [ "IF cond block",            "$$ = yy.Statement.if($2, $3);" ],
-            [ "IF cond block ELSE if",    "$$ = yy.Statement.if($2, $3, $5);" ],
-            [ "IF cond block ELSE block", "$$ = yy.Statement.if($2, $3, $5);" ]
-        ],
-
-        "block" :[
-            [ "{ stmnt }", "$$ = $2;" ]
+            [ "IF ( cond ) { stmnt }",                "$$ = new yy.If(@7.first_line, @7.first_column, $3, $6)._value;" ],
+            [ "IF ( cond ) { stmnt } ELSE if",        "$$ = new yy.If(@9.first_line, @9.first_column, $3, $6, $9)._value;" ],
+            [ "IF ( cond ) { stmnt } ELSE { stmnt }", "$$ = new yy.If(@11.first_line, @11.first_column, $3, $6, $10)._value;" ]
         ],
 
         "decl" :[
-            [ "TYPE decl", "$$ = $2" ],
-            [ "VARIABLE ASSIGN exp TERM", "$$ = yy.Variables.add($1, $3);" ]
+            [ "TYPE decl",             "$$ = $2" ],
+            [ "exp ASSIGN returnable", "$$ = new yy.Assign(@3.first_line, @3.first_column, $1, $3);" ]
+        ],
+
+        "line": [
+            [ "returnable TERM",           "$$ = new yy.Line(@2.first_line, @2.first_column, $1);" ],
+            [ "decl TERM",                 "$$ = new yy.Line(@2.first_line, @2.first_column, $1);" ],
+            [ "PRINT ( returnable ) TERM", "$$ = new yy.Output(@5.first_line ,@5.first_column, $3, $1);" ]
         ],
 
         "exp" :[
-            [ "( exp )",   "$$ = $2;" ],
-            [ "NUMBER",    "$$ = Number(yytext);" ],
-            [ "VARIABLE",  "$$ = yy.Variables.get($1);" ],
-            [ "exp + exp", "$$ = $1 + $3;" ],
-            [ "exp - exp", "$$ = $1 - $3;" ],
-            [ "exp * exp", "$$ = $1 * $3;" ],
-            [ "exp / exp", "$$ = $1 / $3;" ],
-            [ "exp ^ exp", "$$ = Math.pow($1, $3);" ],
-            [ "- exp",     "$$ = -$2;", {"prec": "UMINUS"} ],
-            [ "E",         "$$ = Math.E;" ],
-            [ "PI",        "$$ = Math.PI;" ],
-            [ "ARRAY",     "$$ = yy.DataStructure.array($1)" ]
+            [ "VARIABLE",   "$$ = new yy.Variable(@1.first_line, @1.first_column, yytext);"],
+            [ "NUMBER",     "$$ = new yy.Number(@1.first_line, @1.first_column, yytext);" ],
+	    [ "( exp )",    "$$ = $2;" ],
+            [ "exp + exp",  "$$ = new yy.Expression(@3.first_line, @3.first_column, $1, $3, '+');" ],
+            [ "exp - exp",  "$$ = new yy.Expression(@3.first_line, @3.first_column, $1, $3, '-');" ],
+            [ "exp * exp",  "$$ = new yy.Expression(@3.first_line, @3.first_column, $1, $3, '*');" ],
+            [ "exp / exp",  "$$ = new yy.Expression(@3.first_line, @3.first_column, $1, $3, '/');" ],
+            [ "exp ^ exp",  "$$ = new yy.Expression(@3.first_line, @3.first_column, $1, $3, '^');" ],
+            [ "E",          "$$ = Math.E;" ],
+            [ "PI",         "$$ = Math.PI;" ],
+            [ "ARRAY",      "$$ = new yy.Arr(@1.first_line, @1.first_column, $1)" ]
         ],
 
         "cond" :[
-            [ "( cond )",         "$$ = $2;" ],
-            [ "exp EQUALITY exp", "$$ = $1 === $3;" ],
-            [ "exp NOTEQUAL exp", "$$ = $1 !== $3;" ],
-            [ "exp LTE exp",      "$$ = $1 <= $3;" ],
-            [ "exp GTE exp",      "$$ = $1 >= $3;" ],
-            [ "TRUE",             "$$ = true;"],
-            [ "FALSE",            "$$ = false;"]
+            [ "exp EQUALITY exp", "$$ = new yy.Expression(@3.first_line, @3.first_column, $1, $3, '=');" ],
+            [ "exp NOTEQUAL exp", "$$ = new yy.Expression(@3.first_line, @3.first_column, $1, $3, '≠');" ],
+            [ "exp LTE exp",      "$$ = new yy.Expression(@3.first_line, @3.first_column, $1, $3, '≤');" ],
+            [ "exp GTE exp",      "$$ = new yy.Expression(@3.first_line, @3.first_column, $1, $3, '≥');" ],
+            [ "TRUE",             "$$ = new yy.Boolean(@1.first_line, @1.first_column, true);"],
+            [ "FALSE",            "$$ = new yy.Boolean(@1.first_line, @1.first_column, false);"]
         ]
     }
 };
 
 },{}],5:[function(require,module,exports){
 'use strict';
-var obj = {};
+var variables = {};
 
-exports.config = function() {
-    return {
-        get: function() {
-            return obj;
-        }
-    };
+var AstNode = function (line, column, animation) {
+    this._line = line;
+    this._column = column;
+
+    this.animation = animation || [];
 };
 
-exports.Variables = function() {
-    var variables = {};
-    return {
-        add: function(variable, value) {
-            variables[variable] = value;
-        },
-        get: function(variable) {
-            var val = variables[variable];
-            return val || 0;
-        }
+exports.Line = function(line, column, value) {
+    AstNode.call(this, line, column, value.animation);
+    this._value = value._value;
+};
+exports.Line.prototype = Object.create(AstNode.prototype);
+
+exports.Variable = function (line, column, value) {
+    AstNode.call(this, line, column);
+    this._name = value;
+    variables[this._name] = variables[this._name];
+};
+exports.Variable.prototype = Object.create(AstNode.prototype);
+
+exports.Assign = function(line, column, variable, value) {
+    exports.Variable.call(this, line, column, variable.name);
+    this._value = value._value;
+    this.animation = value.animation;
+    variables[variable._name] = this;
+};
+exports.Assign.prototype = Object.create(exports.Variable.prototype);
+
+exports.Number = function (line, column, value) {
+    AstNode.call(this, line, column);
+    this._value = Number(value);
+};
+exports.Number.prototype = Object.create(AstNode.prototype);
+
+exports.Boolean = function(line, column, value) {
+    AstNode.call(this, line, column);
+    this._value = value;
+};
+exports.Boolean.prototype = Object.create(AstNode.prototype);
+
+
+exports.Expression = function (line, column, operand1, operand2, operator) {
+    if (operand1._name !== undefined && isNaN(operand1._value)) {
+        operand1 = variables[operand1._name];
+    }
+    if (operand2._name !== undefined && isNaN(operand2._value)) {
+        operand2 = variables[operand2._name];
+    }
+
+    AstNode.call(this, line, column);
+
+    if (operator === "+") {
+        this._value =  operand1._value + operand2._value;
+        this.result = new exports.Number(line, column, this._value);
+    } else if (operator === "-") {
+        this._value =  operand1._value - operand2._value;
+        this.result = new exports.Number(line, column, this._value);
+    } else if (operator === "*") {
+        this._value =  operand1._value * operand2._value;
+        this.result = new exports.Number(line, column, this._value);
+    } else if (operator === '/') {
+        this._value =  operand1._value / operand2._value;
+        this.result = new exports.Number(line, column, this._value);
+    } else if(operator === '^') {
+        this._value =  Math.pow(operand1._value, operand2._value);
+        this.result = new exports.Number(line, column, this._value);
+    } else if (operator === '=') {
+        this._value = operand1._value === operand2._value;
+        this.result = new exports.Boolean(line, column, this._value);
+    } else if (operator === '≠') {
+        this._value = operand1._value !== operand2._value;
+        this.result = new exports.Boolean(line, column, this._value);
+    } else if (operator === '≤') {
+        this._value = operand1._value <= operand2._value;
+        this.result = new exports.Boolean(line, column, this._value);
+    } else if (operator === '≥') {
+        this._value = operand1._value >= operand2._value;
+        this.result = new exports.Boolean(line, column, this._value);
+    } else if (operator === 'true') {
+        this._value = true;
+        this.result = new exports.Boolean(line, column, this._value);
+    } else if (operator === 'false') {
+        this._value = false;
+        this.result = new exports.Boolean(line, column, this._value);
+    }
+};
+exports.Expression.prototype = Object.create(AstNode.prototype);
+
+exports.Output = function(line, column, toPrint, type) {
+    var printable;
+
+    if (toPrint._name !== undefined) {
+        printable = variables[toPrint._name];
+    } else {
+        printable = toPrint;
+    }
+
+    AstNode.call(this, line, column, printable.animation);
+    var last = printable.animation[printable.animation.length-1];
+
+    var f = function($scope, editor) {
+	editor.highlightLine(line, column);
     };
-}();
+
+    this.animation.push(f);
+
+    if (type === 'print') {this.print = printable._value;}
+    else if (type === 'println') {this.print = printable._value + '\n';}
+};
+exports.Output.prototype = Object.create(AstNode.prototype);
+
+exports.Operator = function (line, column, operatorText) {
+    AstNode.call(this, line, column);
+    this.symbol = operatorText;
+};
+exports.Operator.prototype = Object.create(AstNode.prototype);
+
+exports.If = function(line, column, cond, stmnt1, stmnt2) {
+    AstNode.call(this, line, column);
+    if (cond._value) {
+        this._value = stmnt1;
+    } else {
+        this._value = stmnt2;
+    }
+};
+exports.If.prototype = Object.create(AstNode.prototype);
+
+exports.Arr = function(line, column, list) {
+    AstNode.call(this, line, column);
+    var arr = list.replace(/\[(.*?)\]/g,"$1").split(',').map(function(item) {
+        return parseInt(item, 10);
+    });
+    this._value = arr;
+
+    var f = function($scope, editor) {
+        $scope.data = arr;
+        $scope.structure = 'array';
+        editor.highlightLine(line, column);
+    };
+
+    this.animation.push(f);
+};
+exports.Arr.prototype = Object.create(AstNode.prototype);
+
 
 exports.Statement = function ifStatement() {
     return {
@@ -187,37 +330,35 @@ exports.Statement = function ifStatement() {
     };
 }();
 
-exports.DataStructure = function() {
-    return {
-        array: function(list) {
-            var arr = list.replace(/\[(.*?)\]/g,"$1").split(',').map(function(item) {
-                return parseInt(item, 10);
-            });
-
-            obj.data = arr;
-            obj.structure = "array";
-
-            return arr;
-        }
-    };
-}();
-
 },{}],6:[function(require,module,exports){
 'use strict';
 
 module.exports = function editor(elementId) {
     var codeEditor,
-        ace = require('brace');
+        ace = require('brace'),
+        marker;
+
     require('brace/theme/monokai');
     codeEditor = ace.edit(elementId);
     codeEditor.setTheme('ace/theme/monokai');
     codeEditor.setValue(["var arr <- [1,2,3,4,5];",
-			 "return arr;"].join('\n'));
+                         "print(arr);"].join('\n'));
     codeEditor.clearSelection();
 
     return {
         getContent: function() {
             return codeEditor.getValue();
+        },
+        removeHighlight: function() {
+
+        },
+        highlightLine: function(line,column) {
+            var Range = ace.acequire('ace/range').Range;
+            var range = new Range(line, 0, line, column);
+            if (marker !== undefined) {
+                codeEditor.getSession().removeMarker(marker);
+            }
+            marker = codeEditor.getSession().addMarker(range, "warning", "background", true);
         }
     };
 };

@@ -59,7 +59,7 @@ gulp.task('test', function(cb) {
 });
 
 /** continuous ... using karma to watch (feel free to circumvent that;) */
-gulp.task('test-dev', function(cb) {
+gulp.task('test-dev', ['browserify'], function(cb) {
     runKarma('karma.conf.js',{
         autoWatch: true,
         singleRun: false,

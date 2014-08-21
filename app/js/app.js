@@ -9,10 +9,11 @@ var grammar = require("./grammars/grammar");
 var ast = require("./modules/astM");
 var parser = require('./modules/parser')(grammar, ast);
 
-var editorCtrl = require('./controllers/editorCtrl')(editor, parser,ast.config());
+var editorCtrl = require('./controllers/editorCtrl')(editor, parser);
 var dataStructure = require('./directives/dataStructure');
 
 
 var app = angular.module('ava', []);
-app.controller('EditorCtrl', ['$scope', editorCtrl]);
+app.controller('EditorCtrl', ['$scope', '$timeout', editorCtrl]);
+
 app.directive('datastructure', dataStructure);

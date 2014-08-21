@@ -10,7 +10,7 @@ describe('editor', function() {
 
     it('should be able to retrieve the users content', function() {
 	var content = ["var arr <- [1,2,3,4,5];",
-		       "return arr;"].join('\n');
+		       "print(arr);"].join('\n');
 	expect(editor.getContent()).toBe(content);
     });
 
