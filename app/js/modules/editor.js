@@ -3,7 +3,7 @@
 module.exports = function editor(elementId) {
     var codeEditor,
         ace = require('brace'),
-        marker;
+        marker = 0;
 
     require('brace/theme/monokai');
     codeEditor = ace.edit(elementId);
@@ -15,9 +15,6 @@ module.exports = function editor(elementId) {
     return {
         getContent: function() {
             return codeEditor.getValue();
-        },
-        removeHighlight: function() {
-
         },
         highlightLine: function(line,column) {
             var Range = ace.acequire('ace/range').Range;
