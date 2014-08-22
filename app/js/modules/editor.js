@@ -3,7 +3,8 @@
 module.exports = function editor(elementId) {
     var codeEditor,
         ace = require('brace'),
-        marker = 0;
+        marker = 0, session,
+        Range = ace.acequire('ace/range').Range;
 
     require('brace/theme/monokai');
     codeEditor = ace.edit(elementId);
@@ -11,18 +12,20 @@ module.exports = function editor(elementId) {
     codeEditor.setValue(["var arr <- [1,2,3,4,5];",
                          "print(arr);"].join('\n'));
     codeEditor.clearSelection();
+    session = codeEditor.session;
 
     return {
         getContent: function() {
             return codeEditor.getValue();
         },
-        highlightLine: function(line,column) {
-            var Range = ace.acequire('ace/range').Range;
-            var range = new Range(line, 0, line, column);
-            if (marker !== undefined) {
-                codeEditor.getSession().removeMarker(marker);
+        setHighlight: function(fistLine, lastLine, firstColumn, lastColumn) {
+            var range = new Range(fistLine-1, firstColumn-1, lastLine-1, lastColumn-1);
+            marker = session.addMarker(range, "warning", null, true);
+        },
+	removeHighlight: function() {
+	    if (marker !== undefined) {
+                session.removeMarker(marker);
             }
-            marker = codeEditor.getSession().addMarker(range, "warning", "background", true);
-        }
+	}
     };
 };

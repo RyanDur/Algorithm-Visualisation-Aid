@@ -27,8 +27,8 @@ module.exports = function(editor, parser) {
     return function($scope, $timeout) {
 
 	var forEach = function(collection, func) {
-            for(var i = 1; i <= collection.length; i++) {
-		func(collection[i-1], i);
+            for(var i = 0; i < collection.length; i++) {
+		func(collection[i], i);
             }
 	};
 
@@ -43,8 +43,10 @@ module.exports = function(editor, parser) {
 	$scope.getInput = function() {
             var result = parser.parse(editor.getContent());
             var ani = result.animation;
+	    ani.push(function($scope, editor) {
+		editor.removeHighlight();
+	    });
             $scope.output = result.print;
-            editor.highlightLine();
             executeAsynchronously(ani, 750);
 	};
     };
@@ -138,13 +140,13 @@ module.exports={
 
         "decl" :[
             [ "TYPE decl",             "$$ = $2" ],
-            [ "exp ASSIGN returnable", "$$ = new yy.Assign(@3.first_line, @3.first_column, $1, $3);" ]
+            [ "exp ASSIGN returnable", "$$ = new yy.Assign(@1.first_line, @3.last_line, @1.first_column, @3.last_column, $1, $3);" ]
         ],
 
         "line": [
             [ "returnable TERM",           "$$ = new yy.Line(@2.first_line, @2.first_column, $1);" ],
             [ "decl TERM",                 "$$ = new yy.Line(@2.first_line, @2.first_column, $1);" ],
-            [ "PRINT ( returnable ) TERM", "$$ = new yy.Output(@5.first_line ,@5.first_column, $3, $1);" ]
+            [ "PRINT ( returnable ) TERM", "$$ = new yy.Output(@1.first_line, @5.last_line, @1.first_column, @5.last_column, $3, $1);" ]
         ],
 
         "exp" :[
@@ -158,7 +160,7 @@ module.exports={
             [ "exp ^ exp",  "$$ = new yy.Expression(@3.first_line, @3.first_column, $1, $3, '^');" ],
             [ "E",          "$$ = Math.E;" ],
             [ "PI",         "$$ = Math.PI;" ],
-            [ "ARRAY",      "$$ = new yy.Arr(@1.first_line, @1.first_column, $1)" ]
+            [ "ARRAY",      "$$ = new yy.Arr(@1.first_line, @1.last_line, 0, @1.last_column, $1)" ]
         ],
 
         "cond" :[
@@ -196,11 +198,16 @@ exports.Variable = function (line, column, value) {
 };
 exports.Variable.prototype = Object.create(AstNode.prototype);
 
-exports.Assign = function(line, column, variable, value) {
-    exports.Variable.call(this, line, column, variable.name);
+exports.Assign = function(fistLine, lastLine, firstColumn, lastColumn, variable, value) {
+    exports.Variable.call(this, fistLine, lastColumn, variable.name);
     this._value = value._value;
     this.animation = value.animation;
     variables[variable._name] = this;
+    var f = function($scope, editor) {
+	editor.removeHighlight();
+	editor.setHighlight(fistLine, lastLine, firstColumn, lastColumn);
+    };
+    this.animation.push(f);
 };
 exports.Assign.prototype = Object.create(exports.Variable.prototype);
 
@@ -264,7 +271,7 @@ exports.Expression = function (line, column, operand1, operand2, operator) {
 };
 exports.Expression.prototype = Object.create(AstNode.prototype);
 
-exports.Output = function(line, column, toPrint, type) {
+exports.Output = function(fistLine, lastLine, firstColumn, lastColumn, toPrint, type) {
     var printable;
 
     if (toPrint._name !== undefined) {
@@ -273,11 +280,12 @@ exports.Output = function(line, column, toPrint, type) {
         printable = toPrint;
     }
 
-    AstNode.call(this, line, column, printable.animation);
+    AstNode.call(this, fistLine, firstColumn, printable.animation);
     var last = printable.animation[printable.animation.length-1];
 
     var f = function($scope, editor) {
-	editor.highlightLine(line, column);
+	editor.removeHighlight();
+	editor.setHighlight(fistLine, lastLine, firstColumn, lastColumn);
     };
 
     this.animation.push(f);
@@ -303,8 +311,8 @@ exports.If = function(line, column, cond, stmnt1, stmnt2) {
 };
 exports.If.prototype = Object.create(AstNode.prototype);
 
-exports.Arr = function(line, column, list) {
-    AstNode.call(this, line, column);
+exports.Arr = function(fistLine, lastLine, firstColumn, lastColumn, list) {
+    AstNode.call(this, fistLine, firstColumn);
     var arr = list.replace(/\[(.*?)\]/g,"$1").split(',').map(function(item) {
         return parseInt(item, 10);
     });
@@ -313,7 +321,8 @@ exports.Arr = function(line, column, list) {
     var f = function($scope, editor) {
         $scope.data = arr;
         $scope.structure = 'array';
-        editor.highlightLine(line, column);
+	editor.removeHighlight();
+        editor.setHighlight(fistLine, lastLine, firstColumn, lastColumn);
     };
 
     this.animation.push(f);
@@ -336,7 +345,8 @@ exports.Statement = function ifStatement() {
 module.exports = function editor(elementId) {
     var codeEditor,
         ace = require('brace'),
-        marker = 0;
+        marker = 0, session,
+        Range = ace.acequire('ace/range').Range;
 
     require('brace/theme/monokai');
     codeEditor = ace.edit(elementId);
@@ -344,19 +354,21 @@ module.exports = function editor(elementId) {
     codeEditor.setValue(["var arr <- [1,2,3,4,5];",
                          "print(arr);"].join('\n'));
     codeEditor.clearSelection();
+    session = codeEditor.session;
 
     return {
         getContent: function() {
             return codeEditor.getValue();
         },
-        highlightLine: function(line,column) {
-            var Range = ace.acequire('ace/range').Range;
-            var range = new Range(line, 0, line, column);
-            if (marker !== undefined) {
-                codeEditor.getSession().removeMarker(marker);
+        setHighlight: function(fistLine, lastLine, firstColumn, lastColumn) {
+            var range = new Range(fistLine-1, firstColumn-1, lastLine-1, lastColumn-1);
+            marker = session.addMarker(range, "warning", null, true);
+        },
+	removeHighlight: function() {
+	    if (marker !== undefined) {
+                session.removeMarker(marker);
             }
-            marker = codeEditor.getSession().addMarker(range, "warning", "background", true);
-        }
+	}
     };
 };
 

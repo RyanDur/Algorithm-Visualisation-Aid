@@ -5,8 +5,8 @@ module.exports = function(editor, parser) {
     return function($scope, $timeout) {
 
 	var forEach = function(collection, func) {
-            for(var i = 1; i <= collection.length; i++) {
-		func(collection[i-1], i);
+            for(var i = 0; i < collection.length; i++) {
+		func(collection[i], i);
             }
 	};
 
@@ -21,8 +21,10 @@ module.exports = function(editor, parser) {
 	$scope.getInput = function() {
             var result = parser.parse(editor.getContent());
             var ani = result.animation;
+	    ani.push(function($scope, editor) {
+		editor.removeHighlight();
+	    });
             $scope.output = result.print;
-            editor.highlightLine();
             executeAsynchronously(ani, 750);
 	};
     };

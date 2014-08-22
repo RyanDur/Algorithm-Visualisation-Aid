@@ -21,11 +21,16 @@ exports.Variable = function (line, column, value) {
 };
 exports.Variable.prototype = Object.create(AstNode.prototype);
 
-exports.Assign = function(line, column, variable, value) {
-    exports.Variable.call(this, line, column, variable.name);
+exports.Assign = function(fistLine, lastLine, firstColumn, lastColumn, variable, value) {
+    exports.Variable.call(this, fistLine, lastColumn, variable.name);
     this._value = value._value;
     this.animation = value.animation;
     variables[variable._name] = this;
+    var f = function($scope, editor) {
+	editor.removeHighlight();
+	editor.setHighlight(fistLine, lastLine, firstColumn, lastColumn);
+    };
+    this.animation.push(f);
 };
 exports.Assign.prototype = Object.create(exports.Variable.prototype);
 
@@ -89,7 +94,7 @@ exports.Expression = function (line, column, operand1, operand2, operator) {
 };
 exports.Expression.prototype = Object.create(AstNode.prototype);
 
-exports.Output = function(line, column, toPrint, type) {
+exports.Output = function(fistLine, lastLine, firstColumn, lastColumn, toPrint, type) {
     var printable;
 
     if (toPrint._name !== undefined) {
@@ -98,11 +103,12 @@ exports.Output = function(line, column, toPrint, type) {
         printable = toPrint;
     }
 
-    AstNode.call(this, line, column, printable.animation);
+    AstNode.call(this, fistLine, firstColumn, printable.animation);
     var last = printable.animation[printable.animation.length-1];
 
     var f = function($scope, editor) {
-	editor.highlightLine(line, column);
+	editor.removeHighlight();
+	editor.setHighlight(fistLine, lastLine, firstColumn, lastColumn);
     };
 
     this.animation.push(f);
@@ -128,8 +134,8 @@ exports.If = function(line, column, cond, stmnt1, stmnt2) {
 };
 exports.If.prototype = Object.create(AstNode.prototype);
 
-exports.Arr = function(line, column, list) {
-    AstNode.call(this, line, column);
+exports.Arr = function(fistLine, lastLine, firstColumn, lastColumn, list) {
+    AstNode.call(this, fistLine, firstColumn);
     var arr = list.replace(/\[(.*?)\]/g,"$1").split(',').map(function(item) {
         return parseInt(item, 10);
     });
@@ -138,7 +144,8 @@ exports.Arr = function(line, column, list) {
     var f = function($scope, editor) {
         $scope.data = arr;
         $scope.structure = 'array';
-        editor.highlightLine(line, column);
+	editor.removeHighlight();
+        editor.setHighlight(fistLine, lastLine, firstColumn, lastColumn);
     };
 
     this.animation.push(f);
