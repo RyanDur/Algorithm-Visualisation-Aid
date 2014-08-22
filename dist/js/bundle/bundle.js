@@ -358,7 +358,7 @@ module.exports = function editor(elementId) {
 
     return {
         getContent: function() {
-            return codeEditor.getValue();
+            return session.getValue();
         },
         setHighlight: function(fistLine, lastLine, firstColumn, lastColumn) {
             var range = new Range(fistLine-1, firstColumn-1, lastLine-1, lastColumn-1);

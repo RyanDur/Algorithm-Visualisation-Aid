@@ -5,7 +5,7 @@
   overflow: scroll;
   position: relative; }
   #animationArea datastructure {
-    width: 50%;
+    width: auto;
     height: 50%;
     overflow: auto;
     margin: auto;
