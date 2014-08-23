@@ -93,12 +93,11 @@ gulp.task('compass', function() {
         .pipe(gulp.dest('dist/assets/css'));
 });
 
-gulp.task('browser-sync', ['compass'], function() {
+gulp.task('browser-sync', ['compass', 'browserify'], function() {
     browserSync(
         ['app/js/**/*.js',
          'app/stylesheets/**/*.css',
          'app/index.html',
-         '!app/js/bundle.min.js',
          '!app/js/bundle/*.js'],{
              server: {
                  baseDir: "./app"
