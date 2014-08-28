@@ -1,157 +1,350 @@
 'use strict';
-var variables = {};
 
-var AstNode = function (line, column, animation) {
-    this._line = line;
-    this._column = column;
-
-    this.animation = animation || [];
+var AstNode = function (first, last) {
+    this.highlight = function(editor) {
+        editor.removeHighlight();
+        editor.setHighlight(first.first_line,
+                            last.last_line,
+                            first.first_column,
+                            last.last_column);
+    };
+    this.variables = new Variables();
+    this.animation = [];
+    var highlight = this.highlight;
+    this.frame = function(scope, editor) {
+        highlight(editor);
+    };
 };
 
+var Variables = function() {
+    var variables = {};
+
+    if(Variables.prototype._instance) {
+        return Variables.prototype._instance;
+    }
+    Variables.prototype._instance = this;
+
+    this.add = function(key, value) {
+        variables[key] = value;
+    };
+    this.get = function(key) {
+        return variables[key];
+    };
+};
+
+
 exports.Line = function(line, column, value) {
-    AstNode.call(this, line, column, value.animation);
-    this._value = value._value;
+    AstNode.call(this, line, column);
+    this.compile = function() {
+        var compiled = value.compile();
+        this.animation = compiled.animation;
+        this.print = compiled.print;
+        this.animation.push(this.frame);
+        this._value = compiled.value;
+
+        return {
+            animation: this.animation,
+            print: this.print,
+            value: this._value
+        };
+    };
 };
 exports.Line.prototype = Object.create(AstNode.prototype);
 
-exports.Variable = function (line, column, value) {
-    AstNode.call(this, line, column);
-    this._name = value;
-    variables[this._name] = variables[this._name];
-};
-exports.Variable.prototype = Object.create(AstNode.prototype);
-
-exports.Assign = function(fistLine, lastLine, firstColumn, lastColumn, variable, value) {
-    exports.Variable.call(this, fistLine, lastColumn, variable.name);
-    this._value = value._value;
-    this.animation = value.animation;
-    variables[variable._name] = this;
-    var f = function($scope, editor) {
-	editor.removeHighlight();
-	editor.setHighlight(fistLine, lastLine, firstColumn, lastColumn);
+exports.Number = function(line, value) {
+    AstNode.call(this, line, line);
+    this.compile = function() {
+        this._value = Number(value);
+        this.print = this._value;
+        this.animation.push(this.frame);
+        return {
+            animation: this.animation,
+            print: this.print,
+            value: this._value
+        };
     };
-    this.animation.push(f);
-};
-exports.Assign.prototype = Object.create(exports.Variable.prototype);
-
-exports.Number = function (line, column, value) {
-    AstNode.call(this, line, column);
-    this._value = Number(value);
 };
 exports.Number.prototype = Object.create(AstNode.prototype);
 
-exports.Boolean = function(line, column, value) {
-    AstNode.call(this, line, column);
-    this._value = value;
-};
-exports.Boolean.prototype = Object.create(AstNode.prototype);
-
-
-exports.Expression = function (line, column, operand1, operand2, operator) {
-    if (operand1._name !== undefined && isNaN(operand1._value)) {
-        operand1 = variables[operand1._name];
-    }
-    if (operand2._name !== undefined && isNaN(operand2._value)) {
-        operand2 = variables[operand2._name];
-    }
-
-    AstNode.call(this, line, column);
-
-    if (operator === "+") {
-        this._value =  operand1._value + operand2._value;
-        this.result = new exports.Number(line, column, this._value);
-    } else if (operator === "-") {
-        this._value =  operand1._value - operand2._value;
-        this.result = new exports.Number(line, column, this._value);
-    } else if (operator === "*") {
-        this._value =  operand1._value * operand2._value;
-        this.result = new exports.Number(line, column, this._value);
-    } else if (operator === '/') {
-        this._value =  operand1._value / operand2._value;
-        this.result = new exports.Number(line, column, this._value);
-    } else if(operator === '^') {
-        this._value =  Math.pow(operand1._value, operand2._value);
-        this.result = new exports.Number(line, column, this._value);
-    } else if (operator === '=') {
-        this._value = operand1._value === operand2._value;
-        this.result = new exports.Boolean(line, column, this._value);
-    } else if (operator === '≠') {
-        this._value = operand1._value !== operand2._value;
-        this.result = new exports.Boolean(line, column, this._value);
-    } else if (operator === '≤') {
-        this._value = operand1._value <= operand2._value;
-        this.result = new exports.Boolean(line, column, this._value);
-    } else if (operator === '≥') {
-        this._value = operand1._value >= operand2._value;
-        this.result = new exports.Boolean(line, column, this._value);
-    } else if (operator === 'true') {
-        this._value = true;
-        this.result = new exports.Boolean(line, column, this._value);
-    } else if (operator === 'false') {
-        this._value = false;
-        this.result = new exports.Boolean(line, column, this._value);
-    }
-};
-exports.Expression.prototype = Object.create(AstNode.prototype);
-
-exports.Output = function(fistLine, lastLine, firstColumn, lastColumn, toPrint, type) {
-    var printable;
-
-    if (toPrint._name !== undefined) {
-        printable = variables[toPrint._name];
-    } else {
-        printable = toPrint;
-    }
-
-    AstNode.call(this, fistLine, firstColumn, printable.animation);
-    var last = printable.animation[printable.animation.length-1];
-
-    var f = function($scope, editor) {
-	editor.removeHighlight();
-	editor.setHighlight(fistLine, lastLine, firstColumn, lastColumn);
+exports.Variable = function (line, variable) {
+    AstNode.call(this, line, line);
+    this._name = variable;
+    this.compile = function() {
+        return this.variables.get(this._name);
     };
+};
+exports.Variable.prototype = Object.create(AstNode.prototype);
 
-    this.animation.push(f);
+exports.Assign = function(first, last, variable, value) {
+    exports.Variable.call(this, first, variable);
+    this.variables.add(variable, value.compile());
+    this.compile = function() {
+        return this;
+    };
+};
+exports.Assign.prototype = Object.create(exports.Variable.prototype);
 
-    if (type === 'print') {this.print = printable._value;}
-    else if (type === 'println') {this.print = printable._value + '\n';}
+exports.Output = function(first, last, toPrint, type) {
+    AstNode.call(this, first, last);
+    this.compile = function() {
+        var compiled = toPrint.compile();
+        if (type === 'print') {this.print = compiled.print;}
+        else if (type === 'println') {this.print = compiled.print + '\n';}
+        this.animation = compiled.animation;
+        this.animation.push(this.frame);
+        return  {
+            animation: this.animation,
+            print: this.print
+        };
+    };
 };
 exports.Output.prototype = Object.create(AstNode.prototype);
 
-exports.Operator = function (line, column, operatorText) {
-    AstNode.call(this, line, column);
-    this.symbol = operatorText;
-};
-exports.Operator.prototype = Object.create(AstNode.prototype);
-
 exports.If = function(line, column, cond, stmnt1, stmnt2) {
     AstNode.call(this, line, column);
-    if (cond._value) {
-        this._value = stmnt1;
-    } else {
-        this._value = stmnt2;
-    }
+    this.compile = function() {
+        var compiled;
+        if (cond.compile().value) {
+            compiled = stmnt1.compile();
+        } else {
+            if(stmnt2) {
+                compiled = stmnt2.compile();
+            }
+        }
+	if (compiled) {
+	    this.print = compiled.print;
+            this.animation = compiled.animation;
+	    this._value = compiled.value;
+            this.animation.push(this.frame);
+	}
+        return  {
+            animation: this.animation,
+            print: this.print,
+            value: this._value
+        };
+    };
 };
 exports.If.prototype = Object.create(AstNode.prototype);
 
-exports.Arr = function(fistLine, lastLine, firstColumn, lastColumn, list) {
-    AstNode.call(this, fistLine, firstColumn);
+exports.Arr = function(line, list) {
+    AstNode.call(this, line, line);
     var arr = list.replace(/\[(.*?)\]/g,"$1").split(',').map(function(item) {
         return parseInt(item, 10);
     });
     this._value = arr;
-
-    var f = function($scope, editor) {
-        $scope.data = arr;
-        $scope.structure = 'array';
-	editor.removeHighlight();
-        editor.setHighlight(fistLine, lastLine, firstColumn, lastColumn);
+    var highlight = this.highlight;
+    this.compile = function() {
+        this.print = arr;
+        this.animation.push(function($scope, editor) {
+            $scope.data = arr;
+            $scope.structure = 'array';
+            highlight(editor);
+        });
+        return {
+            animation: this.animation,
+            print: this.print,
+            value: this._value
+        };
     };
-
-    this.animation.push(f);
 };
 exports.Arr.prototype = Object.create(AstNode.prototype);
 
+exports.Add = function(first, last, stmnt1, stmnt2) {
+    AstNode.call(this, first, last);
+    this.compile = function() {
+        stmnt1 = stmnt1.compile();
+        stmnt2 = stmnt2.compile();
+        this._value = stmnt1.value + stmnt2.value;
+        this.print = this._value;
+        this.animation = stmnt1.animation.concat(stmnt2.animation);
+        this.animation.push(this.frame);
+        return {
+            animation: this.animation,
+            print: this.print,
+            value: this._value
+        };
+    };
+};
+exports.Add.prototype = Object.create(AstNode.prototype);
+
+exports.Subtract = function(first, last, stmnt1, stmnt2) {
+    AstNode.call(this, first, last);
+    this.compile = function() {
+        stmnt1 = stmnt1.compile();
+        stmnt2 = stmnt2.compile();
+        this._value = stmnt1.value - stmnt2.value;
+        this.print = this._value;
+        this.animation = stmnt1.animation.concat(stmnt2.animation);
+        this.animation.push(this.frame);
+        return {
+            animation: this.animation,
+            print: this.print,
+            value: this._value
+        };
+    };
+};
+exports.Add.prototype = Object.create(AstNode.prototype);
+
+exports.Subtract = function(first, last, stmnt1, stmnt2) {
+    AstNode.call(this, first, last);
+    this.compile = function() {
+        stmnt1 = stmnt1.compile();
+        stmnt2 = stmnt2.compile();
+        this._value = stmnt1.value - stmnt2.value;
+        this.print = this._value;
+        this.animation = stmnt1.animation.concat(stmnt2.animation);
+        this.animation.push(this.frame);
+        return {
+            animation: this.animation,
+            print: this.print,
+            value: this._value
+        };
+    };
+};
+exports.Subtract.prototype = Object.create(AstNode.prototype);
+
+exports.Multiply = function(first, last, stmnt1, stmnt2) {
+    AstNode.call(this, first, last);
+    this.compile = function() {
+        stmnt1 = stmnt1.compile();
+        stmnt2 = stmnt2.compile();
+        this._value = stmnt1.value * stmnt2.value;
+        this.print = this._value;
+        this.animation = stmnt1.animation.concat(stmnt2.animation);
+        this.animation.push(this.frame);
+        return {
+            animation: this.animation,
+            print: this.print,
+            value: this._value
+        };
+    };
+};
+exports.Multiply.prototype = Object.create(AstNode.prototype);
+
+
+exports.Divide = function(first, last, stmnt1, stmnt2) {
+    AstNode.call(this, first, last);
+    this.compile = function() {
+        stmnt1 = stmnt1.compile();
+        stmnt2 = stmnt2.compile();
+        this._value = stmnt1.value / stmnt2.value;
+        this.print = this._value;
+        this.animation = stmnt1.animation.concat(stmnt2.animation);
+        this.animation.push(this.frame);
+        return {
+            animation: this.animation,
+            print: this.print,
+            value: this._value
+        };
+    };
+};
+exports.Divide.prototype = Object.create(AstNode.prototype);
+
+exports.Pow = function(first, last, stmnt1, stmnt2) {
+    AstNode.call(this, first, last);
+    this.compile = function() {
+        stmnt1 = stmnt1.compile();
+        stmnt2 = stmnt2.compile();
+        this._value = Math.pow(stmnt1.value, stmnt2.value);
+        this.print = this._value;
+        this.animation = stmnt1.animation.concat(stmnt2.animation);
+        this.animation.push(this.frame);
+        return {
+            animation: this.animation,
+            print: this.print,
+            value: this._value
+        };
+    };
+};
+exports.Pow.prototype = Object.create(AstNode.prototype);
+
+exports.Equal = function(first, last, stmnt1, stmnt2) {
+    AstNode.call(this, first, last);
+    this.compile = function() {
+        stmnt1 = stmnt1.compile();
+        stmnt2 = stmnt2.compile();
+        this._value = stmnt1.value === stmnt2.value;
+        this.print = this._value;
+        this.animation = stmnt1.animation.concat(stmnt2.animation);
+        this.animation.push(this.frame);
+        return {
+            animation: this.animation,
+            print: this.print,
+            value: this._value
+        };
+    };
+};
+exports.Equal.prototype = Object.create(AstNode.prototype);
+
+exports.Inequal = function(first, last, stmnt1, stmnt2) {
+    AstNode.call(this, first, last);
+    this.compile = function() {
+        stmnt1 = stmnt1.compile();
+        stmnt2 = stmnt2.compile();
+        this._value = stmnt1.value !== stmnt2.value;
+        this.print = this._value;
+        this.animation = stmnt1.animation.concat(stmnt2.animation);
+        this.animation.push(this.frame);
+        return {
+            animation: this.animation,
+            print: this.print,
+            value: this._value
+        };
+    };
+};
+exports.Inequal.prototype = Object.create(AstNode.prototype);
+
+exports.LTE = function(first, last, stmnt1, stmnt2) {
+    AstNode.call(this, first, last);
+    this.compile = function() {
+        stmnt1 = stmnt1.compile();
+        stmnt2 = stmnt2.compile();
+        this._value = stmnt1.value <= stmnt2.value;
+        this.print = this._value;
+        this.animation = stmnt1.animation.concat(stmnt2.animation);
+        this.animation.push(this.frame);
+        return {
+            animation: this.animation,
+            print: this.print,
+            value: this._value
+        };
+    };
+};
+exports.LTE.prototype = Object.create(AstNode.prototype);
+
+
+exports.GTE = function(first, last, stmnt1, stmnt2) {
+    AstNode.call(this, first, last);
+    this.compile = function() {
+        stmnt1 = stmnt1.compile();
+        stmnt2 = stmnt2.compile();
+        this._value = stmnt1.value >= stmnt2.value;
+        this.print = this._value;
+        this.animation = stmnt1.animation.concat(stmnt2.animation);
+        this.animation.push(this.frame);
+        return {
+            animation: this.animation,
+            print: this.print,
+            value: this._value
+        };
+    };
+};
+exports.GTE.prototype = Object.create(AstNode.prototype);
+
+exports.Boolean = function(line, bool) {
+    AstNode.call(this, line, line);
+    this.compile = function() {
+        this._value = bool;
+        this.print = this._value;
+        this.animation.push(this.frame);
+        return {
+            animation: this.animation,
+            print: this.print,
+            value: this._value
+        };
+    };
+};
+exports.Boolean.prototype = Object.create(AstNode.prototype);
 
 exports.Statement = function ifStatement() {
     return {
