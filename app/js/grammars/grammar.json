@@ -47,13 +47,13 @@
 
     "bnf": {
         "expressions" :[
-            [ "stmnt EOF", ";return $$.compile();" ]
+            [ "stmnt EOF", "return yy.compile($$);" ]
         ],
 
         "stmnt" :[
             [ "",               "" ],
             [ "if",             "$$ = $1;" ],
-            [ "line stmnt",     "$$ = ($2 !== undefined) ? $2 : $1;" ]
+            [ "line stmnt",     "$$ = ($2 !== undefined) ? $1.concat($2) : $1;" ]
         ],
 
         "returnable" :[
@@ -64,20 +64,20 @@
         ],
 
         "if" :[
-            [ "IF ( cond ) { stmnt }",                "$$ = new yy.If(@1, @4, $3, $6);" ],
-            [ "IF ( cond ) { stmnt } ELSE if",        "$$ = new yy.If(@1, @4, $3, $6, $9);" ],
-            [ "IF ( cond ) { stmnt } ELSE { stmnt }", "$$ = new yy.If(@1, @4, $3, $6, $10);" ]
+            [ "IF ( cond ) { stmnt }",                "$$ = [new yy.If(@1, @4, $3, $6)];" ],
+            [ "IF ( cond ) { stmnt } ELSE if",        "$$ = [new yy.If(@1, @4, $3, $6, $9)];" ],
+            [ "IF ( cond ) { stmnt } ELSE { stmnt }", "$$ = [new yy.If(@1, @4, $3, $6, $10)];" ]
         ],
 
         "decl" :[
-            [ "TYPE decl",             "$$ = $2" ],
+            [ "TYPE decl",                  "$$ = $2" ],
             [ "VARIABLE ASSIGN returnable", "$$ = new yy.Assign(@1, @3, $1, $3);" ]
         ],
 
         "line": [
-            [ "returnable TERM",           "$$ = new yy.Line(@1, @2, $1);" ],
-            [ "decl TERM",                 "$$ = new yy.Line(@1, @2, $1);" ],
-            [ "func TERM",                 "$$ = $1;" ]
+            [ "returnable TERM",           "$$ = [new yy.Line(@1, @2, $1)];" ],
+            [ "decl TERM",                 "$$ = [new yy.Line(@1, @2, $1)];" ],
+            [ "func TERM",                 "$$ = [new yy.Line(@1, @2, $1)];" ]
         ],
 
         'structure' : [
