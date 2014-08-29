@@ -4,6 +4,7 @@
             ["\\s+",                    "/* skip whitespace */"],
             ["//.*",                    "/* ignore comments */"],
             ["[0-9]+(?:\\.[0-9]+)?\\b", "return 'NUMBER';"],
+            ["println",                 "return 'PRINT';"],
             ["print",                   "return 'PRINT';"],
             ["\\*",                     "return '*';"],
             ["\\/",                     "return '/';"],
@@ -93,7 +94,7 @@
         ],
 
         "exp" :[
-	    [ "var",        "$$ = new yy.Variable(@1, $1);"],
+            [ "var",        "$$ = new yy.Variable(@1, $1);"],
             [ "NUMBER",     "$$ = new yy.Number(@1,yytext);" ],
             [ "( exp )",    "$$ = $2;" ],
             [ "exp + exp",  "$$ = new yy.Add(@1, @3, $1, $3);" ],

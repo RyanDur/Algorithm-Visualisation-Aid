@@ -75,7 +75,7 @@ exports.Line = function(line, column, val) {
 	node = node || new PassNode();
 	var compiled = val.compile();
 	node.value = compiled.value;
-	node.animation = compiled.animation;
+	node.animation.concat(compiled.animation);
 	node.animation.push(this.frame);
 	node.print = new Prints().get();
         return node;
@@ -163,7 +163,7 @@ exports.If = function(line, column, cond, stmnt1, stmnt2) {
             }
 	}
 	if (compiled) {
-            node.animation = compiled.animation;
+            node.animation.concat(compiled.animation);
             node.value = compiled.value;
 	}
         node.animation.push(this.frame);

@@ -74,6 +74,7 @@ module.exports={
             ["\\s+",                    "/* skip whitespace */"],
             ["//.*",                    "/* ignore comments */"],
             ["[0-9]+(?:\\.[0-9]+)?\\b", "return 'NUMBER';"],
+            ["println",                 "return 'PRINT';"],
             ["print",                   "return 'PRINT';"],
             ["\\*",                     "return '*';"],
             ["\\/",                     "return '/';"],
@@ -163,7 +164,7 @@ module.exports={
         ],
 
         "exp" :[
-	    [ "var",        "$$ = new yy.Variable(@1, $1);"],
+            [ "var",        "$$ = new yy.Variable(@1, $1);"],
             [ "NUMBER",     "$$ = new yy.Number(@1,yytext);" ],
             [ "( exp )",    "$$ = $2;" ],
             [ "exp + exp",  "$$ = new yy.Add(@1, @3, $1, $3);" ],
@@ -264,7 +265,7 @@ exports.Line = function(line, column, val) {
 	node = node || new PassNode();
 	var compiled = val.compile();
 	node.value = compiled.value;
-	node.animation = compiled.animation;
+	node.animation.concat(compiled.animation);
 	node.animation.push(this.frame);
 	node.print = new Prints().get();
         return node;
@@ -352,7 +353,7 @@ exports.If = function(line, column, cond, stmnt1, stmnt2) {
             }
 	}
 	if (compiled) {
-            node.animation = compiled.animation;
+            node.animation.concat(compiled.animation);
             node.value = compiled.value;
 	}
         node.animation.push(this.frame);

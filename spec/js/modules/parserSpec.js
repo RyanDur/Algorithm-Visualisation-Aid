@@ -120,4 +120,8 @@ describe('parser', function() {
     it('should be able to print multiple times', function() {
 	expect(parser.parse("print(3); print(4);").print).toBe('34');
     });
+
+    it('should be able to print and new line', function() {
+	expect(parser.parse("println(3);").print).toBe('3\n');
+    });
 });
