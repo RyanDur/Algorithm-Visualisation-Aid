@@ -124,4 +124,15 @@ describe('parser', function() {
     it('should be able to print and new line', function() {
 	expect(parser.parse("println(3);").print).toBe('3\n');
     });
+
+    it('should bea able to perform multiple statments within a block', function() {
+	var program = "var a <- 3; if(true) {a <- a + 3; a <- a - 2;} print(a);";
+	expect(parser.parse(program).print).toBe('4');
+    });
+
+    it('should not have variable declared within a block be visible outside of it', function() {
+	var program = "var a <- 3; if(true) {var b <- 3; b <- a + b; b <- a - 2;} print(b);";
+	expect(parser.parse(program).print).toBe('');
+
+    });
 });
