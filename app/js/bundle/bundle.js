@@ -104,7 +104,9 @@ module.exports={
             ["if",                      "return 'IF';"],
             ["else",                    "return 'ELSE';"],
             ["while",                   "return 'WHILE';"],
-	    ["do",                      "return 'DO';"],
+            ["do",                      "return 'DO';"],
+            ["for",                     "return 'FOR';"],
+            ["[A-z][A-z0-9_]*\\+\\+",   "return 'INC';"],
             ["[a-zA-Z][a-zA-Z0-9_]*",   "return 'VARIABLE';"],
             ["$",                       "return 'EOF';"],
             ["\n+",                     "return 'NEWLINE'"]
@@ -145,8 +147,9 @@ module.exports={
         ],
 
         "loop" :[
-            [ "WHILE ( cond ) block",     "$$ = new yy.While(@1, @5, $3, $5);" ],
-	    [ "DO block WHILE ( cond ) TERM", "$$ = new yy.DoWhile(@1, @7, $2, $5);" ]
+            [ "WHILE ( cond ) block",                  "$$ = new yy.While(@1, @5, $3, $5);" ],
+            [ "DO block WHILE ( cond ) TERM",          "$$ = new yy.DoWhile(@1, @7, $2, $5);" ],
+            [ "FOR ( decl TERM cond TERM exp ) block", "$$ = new yy.For(@1, @8, $3, $5, $7, $9);" ]
         ],
 
         "block" :[
@@ -180,6 +183,7 @@ module.exports={
             [ "var",        "$$ = $1"],
             [ "NUMBER",     "$$ = new yy.Number(@1,yytext);" ],
             [ "( exp )",    "$$ = $2;" ],
+	    [ "INC",        "$$ = new yy.Increment(@1, $1);" ],
             [ "exp + exp",  "$$ = new yy.Expression(@1, @3, $1, $3, yy.Add);" ],
             [ "exp - exp",  "$$ = new yy.Expression(@1, @3, $1, $3, yy.Subtract);" ],
             [ "exp * exp",  "$$ = new yy.Expression(@1, @3, $1, $3, yy.Multiply);" ],
@@ -480,13 +484,41 @@ exports.DoWhile = function(first, last, block, cond) {
 
     this.compile = function(node) {
         node = new PassNode(node);
-	do {
-	    node = block.compile(node);
-	} while(cond.compile(node).value);
-	return node;
+        do {
+            node = block.compile(node);
+        } while(cond.compile(node).value);
+        return node;
     };
 };
 exports.DoWhile.prototype = Object.create(AstNode.prototype);
+
+exports.Increment = function(line, stmnt) {
+    AstNode.call(this, line, line);
+    var variable = stmnt.replace('++', '');
+    this.compile = function(node) {
+        node = new PassNode(node);
+        var incrementable = node.variables.get(variable);
+        incrementable.value++;
+	console.log(incrementable);
+        return node;
+    };
+};
+exports.Increment.prototype = Object.create(AstNode.prototype);
+
+exports.For =function(first, last, decl, cond, exp, block) {
+    AstNode.call(this, first, last);
+
+    this.compile = function(node) {
+	node = new PassNode(node);
+	node = decl.compile(node);
+        while(cond.compile(node).value) {
+	    node = block.compile(node);
+	    node = exp.compile(node);
+	}
+        return node;
+    };
+};
+exports.Increment.prototype = Object.create(AstNode.prototype);
 
 exports.Add = function(stmnt1, stmnt2) {
     return stmnt1.value + stmnt2.value;

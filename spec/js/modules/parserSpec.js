@@ -149,4 +149,14 @@ describe('parser', function() {
 	var program = "var a <- 1; do {a <- a + 1;} while(a < 10); print(a);";
 	expect(parser.parse(program).print).toBe('10');
     });
+
+    it('it should be able to perform a for loop', function() {
+	var program = "var a <- 0; for(var i <- 0; i < 12; i++) {a <- a + 1;} print(a);";
+	expect(parser.parse(program).print).toBe('12');
+    });
+
+    it('should scope variables to within the for loop', function() {
+	var program = "var a <- 2; for(var i <- 0; i < 13; i++) {a <- a + 1;} print(i);print(a);";
+	expect(parser.parse(program).print).toBe('15');
+    });
 });

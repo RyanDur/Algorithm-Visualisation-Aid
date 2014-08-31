@@ -259,6 +259,13 @@ exports.Block = function(first, last, stmnts) {
 };
 exports.Block.prototype = Object.create(AstNode.prototype);
 
+var scope = function(block, node) {
+    var keys = node.variables.getKeys();
+    node = compile(block, node);
+    node.variables.removeChildScope(keys);
+    return node;
+};
+
 exports.While = function(first, last, cond, block) {
     AstNode.call(this, first, last);
     this.compile = function(node) {
@@ -276,13 +283,42 @@ exports.DoWhile = function(first, last, block, cond) {
 
     this.compile = function(node) {
         node = new PassNode(node);
-	do {
-	    node = block.compile(node);
-	} while(cond.compile(node).value);
-	return node;
+        do {
+            node = block.compile(node);
+        } while(cond.compile(node).value);
+        return node;
     };
 };
 exports.DoWhile.prototype = Object.create(AstNode.prototype);
+
+exports.Increment = function(line, stmnt) {
+    AstNode.call(this, line, line);
+    var variable = stmnt.replace('++', '');
+    this.compile = function(node) {
+        node = new PassNode(node);
+        var incrementable = node.variables.get(variable);
+        incrementable.value++;
+        return node;
+    };
+};
+exports.Increment.prototype = Object.create(AstNode.prototype);
+
+exports.For =function(first, last, decl, cond, exp, block) {
+    AstNode.call(this, first, last);
+
+    this.compile = function(node) {
+        node = new PassNode(node);
+        var keys = node.variables.getKeys();
+        node = decl.compile(node);
+        while(cond.compile(node).value) {
+            node = block.compile(node);
+            node = exp.compile(node);
+        }
+        node.variables.removeChildScope(keys);
+        return node;
+    };
+};
+exports.Increment.prototype = Object.create(AstNode.prototype);
 
 exports.Add = function(stmnt1, stmnt2) {
     return stmnt1.value + stmnt2.value;
