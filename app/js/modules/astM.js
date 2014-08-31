@@ -25,20 +25,20 @@ var Variables = function() {
         return variables[key] || {value: ''};
     };
     this.getKeys = function() {
-	var keys = [];
-	for(var key in variables) {
-	    if(key) {
-		keys.push(key);
-	    }
-	}
-	return keys;
+        var keys = [];
+        for(var key in variables) {
+            if(key) {
+                keys.push(key);
+            }
+        }
+        return keys;
     };
     this.removeChildScope = function(keys) {
-	for(var v in variables) {
-	    if(keys.indexOf(v) < 0) {
-		delete variables[v];
-	    }
-	}
+        for(var v in variables) {
+            if(keys.indexOf(v) < 0) {
+                delete variables[v];
+            }
+        }
     };
 };
 
@@ -131,10 +131,6 @@ exports.Number.prototype = Object.create(AstNode.prototype);
 
 exports.Variable = function (line, variable) {
     AstNode.call(this, line, line);
-    var value;
-    this.set = function(val) {
-        value = val;
-    };
     this.name = variable;
     this.compile = function(node) {
         node = new PassNode(node);
@@ -150,6 +146,7 @@ exports.Assign = function(first, last, variable, value) {
     this.compile = function(node) {
         node = new PassNode(node);
         new Animations().add(this.frame);
+        value.name = variable.name;
         node.variables.add(variable.name, value.compile(node));
         return node;
     };
@@ -220,18 +217,19 @@ exports.Expression = function(first, last, stmnt1, stmnt2, func) {
         node = new PassNode(node);
         new Animations().add(this.frame);
 
+        var node1;
+        var node2;
         if(stmnt1.name) {
-            stmnt1 = node.variables.get(stmnt1.name);
-            stmnt2 = stmnt2.compile(node);
+            node1 = node.variables.get(stmnt1.name);
+            node2 = stmnt2.compile(node);
         } else if(stmnt2.name) {
-            stmnt1 = stmnt1.compile(node);
-            stmnt2 = node.variables.get(stmnt2.name);
+            node1 = stmnt1.compile(node);
+            node2 = node.variables.get(stmnt2.name);
         } else {
-            stmnt1 = stmnt1.compile(node);
-            stmnt2 = stmnt2.compile(node);
+            node1 = stmnt1.compile(node);
+            node2 = stmnt2.compile(node);
         }
-
-        node.value = func(stmnt1, stmnt2);
+        node.value = func(node1, node2);
         return node;
     };
 };
@@ -253,13 +251,25 @@ exports.Block = function(first, last, stmnts) {
     AstNode.call(this, first, last);
     this.compile = function(node) {
         node = new PassNode(node);
-	var keys = node.variables.getKeys();
-	node = compile(stmnts, node);
-	node.variables.removeChildScope(keys);
+        var keys = node.variables.getKeys();
+        node = compile(stmnts, node);
+        node.variables.removeChildScope(keys);
         return node;
     };
 };
 exports.Block.prototype = Object.create(AstNode.prototype);
+
+exports.While = function(first, last, cond, block) {
+    AstNode.call(this, first, last);
+    this.compile = function(node) {
+        node = new PassNode(node);
+        while(cond.compile(node).value) {
+            node = block.compile(node);
+        }
+        return node;
+    };
+};
+exports.While.prototype = Object.create(AstNode.prototype);
 
 exports.Add = function(stmnt1, stmnt2) {
     return stmnt1.value + stmnt2.value;
@@ -291,6 +301,10 @@ exports.Inequal = function(stmnt1, stmnt2) {
 
 exports.LTE = function(stmnt1, stmnt2) {
     return stmnt1.value <= stmnt2.value;
+};
+
+exports.LT = function(stmnt1, stmnt2) {
+    return stmnt1.value < stmnt2.value;
 };
 
 exports.GTE = function(stmnt1, stmnt2) {

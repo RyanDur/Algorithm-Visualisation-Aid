@@ -133,6 +133,15 @@ describe('parser', function() {
     it('should not have variable declared within a block be visible outside of it', function() {
 	var program = "var a <- 3; if(true) {var b <- 3; b <- a + b; b <- a - 2;} print(b);";
 	expect(parser.parse(program).print).toBe('');
+    });
 
+    it('should be able to assign a variable multiple times', function() {
+	var program = "var a <- 1; a <- a + 1; a <- a + 1; a <- a + 1; print(a);";
+	expect(parser.parse(program).print).toBe('4');
+    });
+
+    it('should be able to perform a while loop', function() {
+	var program = "var a <- 1; while(a < 10) {a <- a + 1;} print(a);";
+	expect(parser.parse(program).print).toBe('10');
     });
 });

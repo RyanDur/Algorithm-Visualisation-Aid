@@ -158,6 +158,7 @@ gulp.task('ci', ['test']);
 gulp.task('default', ['lint', 'browserify', 'browser-sync'], function() {
     gulp.watch(['spec/js/**/*.js',
                 'app/js/**/*.js',
+		'app/js/**/*.json',
                 '!app/js/bundle.min.js',
                 '!app/js/bundle/*.js'], ['lint', 'test-dev', 'browserify','compress']);
     gulp.watch('app/scss/**/*.scss', ['compass']);

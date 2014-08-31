@@ -93,6 +93,7 @@ module.exports={
             ["=",                       "return 'EQUALITY';"],
             ["≠",                       "return 'NOTEQUAL';"],
             ["≤",                       "return 'LTE';"],
+            ["<",                       "return 'LT';"],
             ["≥",                       "return 'GTE';"],
             ["(\n|\;)",                 "return 'TERM';"],
             ["return",                  "return 'RET';"],
@@ -102,6 +103,7 @@ module.exports={
             ["nil\\b",                  "return 'NULL'"],
             ["if",                      "return 'IF';"],
             ["else",                    "return 'ELSE';"],
+            ["while",                    "return 'WHILE';"],
             ["[a-zA-Z][a-zA-Z0-9_]*",   "return 'VARIABLE';"],
             ["$",                       "return 'EOF';"],
             ["\n+",                     "return 'NEWLINE'"]
@@ -124,6 +126,7 @@ module.exports={
         "stmnt" :[
             [ "",               "" ],
             [ "if stmnt",       "$$ = ($2 !== undefined) ? [$1].concat($2) : [$1];" ],
+            [ "loop stmnt",     "$$ = ($2 !== undefined) ? [$1].concat($2) : [$1];" ],
             [ "line stmnt",     "$$ = ($2 !== undefined) ? [$1].concat($2) : [$1];" ]
         ],
 
@@ -140,9 +143,13 @@ module.exports={
             [ "IF ( cond ) block ELSE block",     "$$ = new yy.If(@1, @4, $3, $5, $7);" ]
         ],
 
-	"block" :[
-	    [ "{ stmnt }", "$$ = new yy.Block(@1, @3, $2);" ]
-	],
+        "loop" :[
+            [ "WHILE ( cond ) block", "$$ = new yy.While(@1, @5, $3, $5);" ]
+        ],
+
+        "block" :[
+            [ "{ stmnt }", "$$ = new yy.Block(@1, @3, $2);" ]
+        ],
 
         "decl" :[
             [ "TYPE decl",                  "$$ = $2" ],
@@ -185,6 +192,7 @@ module.exports={
             [ "exp NOTEQUAL exp", "$$ = new yy.Expression(@1, @3, $1, $3, yy.Inequal);" ],
             [ "exp LTE exp",      "$$ = new yy.Expression(@1, @3, $1, $3, yy.LTE);" ],
             [ "exp GTE exp",      "$$ = new yy.Expression(@1, @3, $1, $3, yy.GTE);" ],
+            [ "exp LT exp",       "$$ = new yy.Expression(@1, @3, $1, $3, yy.LT);" ],
             [ "TRUE",             "$$ = new yy.Boolean(@1, true);"],
             [ "FALSE",            "$$ = new yy.Boolean(@1, false);"]
         ]
@@ -219,20 +227,20 @@ var Variables = function() {
         return variables[key] || {value: ''};
     };
     this.getKeys = function() {
-	var keys = [];
-	for(var key in variables) {
-	    if(key) {
-		keys.push(key);
-	    }
-	}
-	return keys;
+        var keys = [];
+        for(var key in variables) {
+            if(key) {
+                keys.push(key);
+            }
+        }
+        return keys;
     };
     this.removeChildScope = function(keys) {
-	for(var v in variables) {
-	    if(keys.indexOf(v) < 0) {
-		delete variables[v];
-	    }
-	}
+        for(var v in variables) {
+            if(keys.indexOf(v) < 0) {
+                delete variables[v];
+            }
+        }
     };
 };
 
@@ -325,10 +333,6 @@ exports.Number.prototype = Object.create(AstNode.prototype);
 
 exports.Variable = function (line, variable) {
     AstNode.call(this, line, line);
-    var value;
-    this.set = function(val) {
-        value = val;
-    };
     this.name = variable;
     this.compile = function(node) {
         node = new PassNode(node);
@@ -344,6 +348,7 @@ exports.Assign = function(first, last, variable, value) {
     this.compile = function(node) {
         node = new PassNode(node);
         new Animations().add(this.frame);
+        value.name = variable.name;
         node.variables.add(variable.name, value.compile(node));
         return node;
     };
@@ -414,18 +419,21 @@ exports.Expression = function(first, last, stmnt1, stmnt2, func) {
         node = new PassNode(node);
         new Animations().add(this.frame);
 
+	console.log(stmnt1);
+	console.log(stmnt2);
+	var node1;
+	var node2;
         if(stmnt1.name) {
-            stmnt1 = node.variables.get(stmnt1.name);
-            stmnt2 = stmnt2.compile(node);
+            node1 = node.variables.get(stmnt1.name);
+            node2 = stmnt2.compile(node);
         } else if(stmnt2.name) {
-            stmnt1 = stmnt1.compile(node);
-            stmnt2 = node.variables.get(stmnt2.name);
+            node1 = stmnt1.compile(node);
+            node2 = node.variables.get(stmnt2.name);
         } else {
-            stmnt1 = stmnt1.compile(node);
-            stmnt2 = stmnt2.compile(node);
+            node1 = stmnt1.compile(node);
+            node2 = stmnt2.compile(node);
         }
-
-        node.value = func(stmnt1, stmnt2);
+        node.value = func(node1, node2);
         return node;
     };
 };
@@ -447,13 +455,25 @@ exports.Block = function(first, last, stmnts) {
     AstNode.call(this, first, last);
     this.compile = function(node) {
         node = new PassNode(node);
-	var keys = node.variables.getKeys();
-	node = compile(stmnts, node);
-	node.variables.removeChildScope(keys);
+        var keys = node.variables.getKeys();
+        node = compile(stmnts, node);
+        //        node.variables.removeChildScope(keys);
         return node;
     };
 };
 exports.Block.prototype = Object.create(AstNode.prototype);
+
+exports.While = function(first, last, cond, block) {
+    AstNode.call(this, first, last);
+    this.compile = function(node) {
+        node = new PassNode(node);
+        while(cond.compile(node).value) {
+            node = block.compile(node);
+        }
+        return node;
+    };
+};
+exports.While.prototype = Object.create(AstNode.prototype);
 
 exports.Add = function(stmnt1, stmnt2) {
     return stmnt1.value + stmnt2.value;
@@ -485,6 +505,10 @@ exports.Inequal = function(stmnt1, stmnt2) {
 
 exports.LTE = function(stmnt1, stmnt2) {
     return stmnt1.value <= stmnt2.value;
+};
+
+exports.LT = function(stmnt1, stmnt2) {
+    return stmnt1.value < stmnt2.value;
 };
 
 exports.GTE = function(stmnt1, stmnt2) {
