@@ -33,7 +33,8 @@
             ["nil\\b",                  "return 'NULL'"],
             ["if",                      "return 'IF';"],
             ["else",                    "return 'ELSE';"],
-            ["while",                    "return 'WHILE';"],
+            ["while",                   "return 'WHILE';"],
+	    ["do",                      "return 'DO';"],
             ["[a-zA-Z][a-zA-Z0-9_]*",   "return 'VARIABLE';"],
             ["$",                       "return 'EOF';"],
             ["\n+",                     "return 'NEWLINE'"]
@@ -74,7 +75,8 @@
         ],
 
         "loop" :[
-            [ "WHILE ( cond ) block", "$$ = new yy.While(@1, @5, $3, $5);" ]
+            [ "WHILE ( cond ) block",     "$$ = new yy.While(@1, @5, $3, $5);" ],
+	    [ "DO block WHILE ( cond ) TERM", "$$ = new yy.DoWhile(@1, @7, $2, $5);" ]
         ],
 
         "block" :[

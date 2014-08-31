@@ -144,4 +144,9 @@ describe('parser', function() {
 	var program = "var a <- 1; while(a < 10) {a <- a + 1;} print(a);";
 	expect(parser.parse(program).print).toBe('10');
     });
+
+    it('should be able to perform a do while loop', function() {
+	var program = "var a <- 1; do {a <- a + 1;} while(a < 10); print(a);";
+	expect(parser.parse(program).print).toBe('10');
+    });
 });

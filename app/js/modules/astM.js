@@ -271,6 +271,19 @@ exports.While = function(first, last, cond, block) {
 };
 exports.While.prototype = Object.create(AstNode.prototype);
 
+exports.DoWhile = function(first, last, block, cond) {
+    AstNode.call(this, first, last);
+
+    this.compile = function(node) {
+        node = new PassNode(node);
+	do {
+	    node = block.compile(node);
+	} while(cond.compile(node).value);
+	return node;
+    };
+};
+exports.DoWhile.prototype = Object.create(AstNode.prototype);
+
 exports.Add = function(stmnt1, stmnt2) {
     return stmnt1.value + stmnt2.value;
 };

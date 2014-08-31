@@ -103,7 +103,8 @@ module.exports={
             ["nil\\b",                  "return 'NULL'"],
             ["if",                      "return 'IF';"],
             ["else",                    "return 'ELSE';"],
-            ["while",                    "return 'WHILE';"],
+            ["while",                   "return 'WHILE';"],
+	    ["do",                      "return 'DO';"],
             ["[a-zA-Z][a-zA-Z0-9_]*",   "return 'VARIABLE';"],
             ["$",                       "return 'EOF';"],
             ["\n+",                     "return 'NEWLINE'"]
@@ -144,7 +145,8 @@ module.exports={
         ],
 
         "loop" :[
-            [ "WHILE ( cond ) block", "$$ = new yy.While(@1, @5, $3, $5);" ]
+            [ "WHILE ( cond ) block",     "$$ = new yy.While(@1, @5, $3, $5);" ],
+	    [ "DO block WHILE ( cond ) TERM", "$$ = new yy.DoWhile(@1, @7, $2, $5);" ]
         ],
 
         "block" :[
@@ -419,10 +421,8 @@ exports.Expression = function(first, last, stmnt1, stmnt2, func) {
         node = new PassNode(node);
         new Animations().add(this.frame);
 
-	console.log(stmnt1);
-	console.log(stmnt2);
-	var node1;
-	var node2;
+        var node1;
+        var node2;
         if(stmnt1.name) {
             node1 = node.variables.get(stmnt1.name);
             node2 = stmnt2.compile(node);
@@ -457,7 +457,7 @@ exports.Block = function(first, last, stmnts) {
         node = new PassNode(node);
         var keys = node.variables.getKeys();
         node = compile(stmnts, node);
-        //        node.variables.removeChildScope(keys);
+        node.variables.removeChildScope(keys);
         return node;
     };
 };
@@ -474,6 +474,19 @@ exports.While = function(first, last, cond, block) {
     };
 };
 exports.While.prototype = Object.create(AstNode.prototype);
+
+exports.DoWhile = function(first, last, block, cond) {
+    AstNode.call(this, first, last);
+
+    this.compile = function(node) {
+        node = new PassNode(node);
+	do {
+	    node = block.compile(node);
+	} while(cond.compile(node).value);
+	return node;
+    };
+};
+exports.DoWhile.prototype = Object.create(AstNode.prototype);
 
 exports.Add = function(stmnt1, stmnt2) {
     return stmnt1.value + stmnt2.value;
