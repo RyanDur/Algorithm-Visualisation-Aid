@@ -159,4 +159,19 @@ describe('parser', function() {
 	var program = "var a <- 2; for(var i <- 0; i < 13; i++) {a <- a + 1;} print(i);print(a);";
 	expect(parser.parse(program).print).toBe('15');
     });
+
+    it('should be able to perform functions on objects already defined by javascript', function() {
+	var program = "var arr <- [1]; arr.push(1); print(arr);";
+	expect(parser.parse(program).print).toBe('1,1');
+    });
+
+    it('should be able to pass a variable to the inner scope of a loop', function() {
+	var program = "for(var i <- 0; i < 5; i++) {print(i);}";
+	expect(parser.parse(program).print).toBe('01234');
+    });
+
+    it('should be able to push onto an array from within an array', function() {
+	var program = "var arr <- [1]; for(var i <- 0; i < 5; i++) {arr.push(i);} print(arr);";
+	expect(parser.parse(program).print).toBe('1,0,1,2,3,4');
+    });
 });

@@ -76,6 +76,7 @@ module.exports={
             ["[0-9]+(?:\\.[0-9]+)?\\b", "return 'NUMBER';"],
             ["println",                 "return 'PRINT';"],
             ["print",                   "return 'PRINT';"],
+	    ["\\.",                     "return 'DOT';"],
             ["\\*",                     "return '*';"],
             ["\\/",                     "return '/';"],
             ["-",                       "return '-';"],
@@ -157,7 +158,7 @@ module.exports={
         ],
 
         "decl" :[
-            [ "TYPE decl",                  "$$ = $2" ],
+            [ "TYPE decl",             "$$ = $2" ],
             [ "var ASSIGN returnable", "$$ = new yy.Assign(@1, @3, $1, $3);" ]
         ],
 
@@ -172,8 +173,14 @@ module.exports={
         ],
 
         'func': [
-            [ "PRINT ( returnable )", "$$ = new yy.Output(@1, @4, $3, $1);" ]
+            [ "PRINT ( returnable )",        "$$ = new yy.Output(@1, @4, $3, $1);" ],
+	    [ "exp DOT VARIABLE ( params )", "$$ = new yy.FunctionCall(@1, @6, $1, $3, $5);" ]
         ],
+
+	"params" :[
+	    ["", ""],
+	    [ "exp", "$$ = $1;" ]
+	],
 
         'var' : [
             [ "VARIABLE",   "$$ = new yy.Variable(@1, $1);;"]
@@ -316,12 +323,10 @@ exports.compile = function(node) {
 
 exports.Line = function(line, column, val) {
     AstNode.call(this, line, column);
-
     this.compile = function(node) {
         new Animations().add(this.frame);
         node = new PassNode(node);
-        node = val.compile(node);
-        return node;
+        return val.compile(node);
     };
 };
 exports.Line.prototype = Object.create(AstNode.prototype);
@@ -342,7 +347,7 @@ exports.Variable = function (line, variable) {
     this.name = variable;
     this.compile = function(node) {
         node = new PassNode(node);
-        new Animations().add(this.frame);
+        node.value = node.variables.get(this.name).value;
         return node;
     };
 };
@@ -350,12 +355,10 @@ exports.Variable.prototype = Object.create(AstNode.prototype);
 
 exports.Assign = function(first, last, variable, value) {
     AstNode.call(this, first, last);
-
     this.compile = function(node) {
         node = new PassNode(node);
-        new Animations().add(this.frame);
-        value.name = variable.name;
         node.variables.add(variable.name, value.compile(node));
+        node.name = variable.name;
         return node;
     };
 };
@@ -366,14 +369,9 @@ exports.Output = function(first, last, toPrint, type) {
     this.compile = function(node) {
         node = new PassNode(node);
         node = toPrint.compile(node);
-        if(toPrint.name) {
-            toPrint = node.variables.get(toPrint.name);
-        } else {
-            toPrint = node;
-        }
         new Animations().add(this.frame);
-        if (type === 'print') {this.print = toPrint.value;}
-        else if (type === 'println') {this.print = toPrint.value + '\n';}
+        if (type === 'print') {this.print = node.value;}
+        else if (type === 'println') {this.print = node.value + '\n';}
         new Prints().add(this.print);
         return node;
     };
@@ -408,8 +406,9 @@ exports.Arr = function(line, list) {
         });
         node.value = arr;
         var highlight = this.highlight;
+        var data = arr.slice();
         new Animations().add(function($scope, editor) {
-            $scope.data = arr;
+            $scope.data = data;
             $scope.structure = 'array';
             highlight(editor);
         });
@@ -499,7 +498,6 @@ exports.Increment = function(line, stmnt) {
         node = new PassNode(node);
         var incrementable = node.variables.get(variable);
         incrementable.value++;
-	console.log(incrementable);
         return node;
     };
 };
@@ -509,16 +507,36 @@ exports.For =function(first, last, decl, cond, exp, block) {
     AstNode.call(this, first, last);
 
     this.compile = function(node) {
-	node = new PassNode(node);
-	node = decl.compile(node);
+        node = new PassNode(node);
+        var keys = node.variables.getKeys();
+        node = decl.compile(node);
         while(cond.compile(node).value) {
-	    node = block.compile(node);
-	    node = exp.compile(node);
-	}
+            node = block.compile(node);
+            node = exp.compile(node);
+        }
+        node.variables.removeChildScope(keys);
         return node;
     };
 };
 exports.Increment.prototype = Object.create(AstNode.prototype);
+
+exports.FunctionCall = function(first, last, obj, method, params) {
+    AstNode.call(this, first, last);
+    this.compile = function(node) {
+        node = new PassNode(node);
+        var o = node.variables.get(obj.name);
+        var value;
+        value = params.compile(node).value;
+        o.value[method](value);
+        var data = o.value.slice();
+        new Animations().add(function($scope, editor) {
+            $scope.data = data;
+            $scope.structure = 'array';
+        });
+        return node;
+    };
+};
+exports.FunctionCall.prototype = Object.create(AstNode.prototype);
 
 exports.Add = function(stmnt1, stmnt2) {
     return stmnt1.value + stmnt2.value;
