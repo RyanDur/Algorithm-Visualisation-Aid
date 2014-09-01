@@ -19,7 +19,7 @@ app.controller('EditorCtrl', ['$scope', '$timeout', editorCtrl]);
 
 app.directive('datastructure', dataStructure);
 
-},{"./controllers/editorCtrl":2,"./directives/dataStructure":3,"./grammars/grammar":4,"./modules/astM":5,"./modules/editor":6,"./modules/parser":12,"angular":13}],2:[function(require,module,exports){
+},{"./controllers/editorCtrl":2,"./directives/dataStructure":3,"./grammars/grammar":4,"./modules/astM":5,"./modules/editor":6,"./modules/parser":27,"angular":28}],2:[function(require,module,exports){
 'use strict';
 
 module.exports = function(editor, parser) {
@@ -216,10 +216,25 @@ module.exports={
 'use strict';
 
 var AstNode = require('./nodes/AstNode');
-var Variables = require('./nodes/Variables');
 var Prints = require('./nodes/Prints');
 var Animations = require('./nodes/Animations');
 var PassNode = require('./nodes/PassNode');
+
+exports.Line = require('./nodes/Line');
+exports.Number = require('./nodes/Number');
+exports.Variable = require('./nodes/Variable');
+exports.Assign = require('./nodes/Assign');
+exports.Output = require('./nodes/Output');
+exports.If = require('./nodes/If');
+exports.Arr = require('./nodes/Arr');
+exports.Expression = require('./nodes/Expression');
+exports.Boolean = require('./nodes/Boolean');
+exports.Block = require('./nodes/Block');
+exports.While = require('./nodes/While');
+exports.DoWhile = require('./nodes/DoWhile');
+exports.Increment = require('./nodes/Increment');
+exports.For = require('./nodes/For');
+exports.FunctionCall = require('./nodes/FunctionCall');
 
 var compile = function(stmnts, node) {
     var passNode = node;
@@ -228,8 +243,6 @@ var compile = function(stmnts, node) {
     }
     return passNode;
 };
-
-
 
 exports.compile = function(node) {
     compile(node);
@@ -241,223 +254,6 @@ exports.compile = function(node) {
     new Animations().clear();
     return result;
 };
-
-exports.Line = function(line, column, val) {
-    AstNode.call(this, line, column);
-    this.compile = function(node) {
-        new Animations().add(this.frame);
-        node = new PassNode(node);
-        return val.compile(node);
-    };
-};
-exports.Line.prototype = Object.create(AstNode.prototype);
-
-exports.Number = function(line, num) {
-    AstNode.call(this, line, line);
-    this.compile = function(node) {
-        new Animations().add(this.frame);
-        node = new PassNode(node);
-        node.value = Number(num);
-        return node;
-    };
-};
-exports.Number.prototype = Object.create(AstNode.prototype);
-
-exports.Variable = function (line, variable) {
-    AstNode.call(this, line, line);
-    this.name = variable;
-    this.compile = function(node) {
-        node = new PassNode(node);
-        node.value = node.variables.get(this.name).value;
-        return node;
-    };
-};
-exports.Variable.prototype = Object.create(AstNode.prototype);
-
-exports.Assign = function(first, last, variable, value) {
-    AstNode.call(this, first, last);
-    this.compile = function(node) {
-        node = new PassNode(node);
-        node.variables.add(variable.name, value.compile(node));
-        node.name = variable.name;
-        return node;
-    };
-};
-exports.Assign.prototype = Object.create(AstNode.prototype);
-
-exports.Output = function(first, last, toPrint, type) {
-    AstNode.call(this, first, last);
-    this.compile = function(node) {
-        node = new PassNode(node);
-        node = toPrint.compile(node);
-        new Animations().add(this.frame);
-        if (type === 'print') {this.print = node.value;}
-        else if (type === 'println') {this.print = node.value + '\n';}
-        new Prints().add(this.print);
-        return node;
-    };
-};
-exports.Output.prototype = Object.create(AstNode.prototype);
-
-exports.If = function(line, column, cond, block1, block2) {
-    AstNode.call(this, line, column);
-    this.compile = function(node) {
-        node = new PassNode(node);
-        var animations = new Animations();
-        if (cond.compile(node).value) {
-            node = block1.compile(node);
-        } else {
-            if(block2) {
-                node = block2.compile(node);
-            }
-        }
-        animations.add(this.frame);
-
-        return node;
-    };
-};
-exports.If.prototype = Object.create(AstNode.prototype);
-
-exports.Arr = function(line, list) {
-    AstNode.call(this, line, line);
-    this.compile = function(node) {
-        node = new PassNode(node);
-        var arr = list.replace(/\[(.*?)\]/g,"$1").split(',').map(function(item) {
-            return parseInt(item, 10);
-        });
-        node.value = arr;
-        var highlight = this.highlight;
-        var data = arr.slice();
-        new Animations().add(function($scope, editor) {
-            $scope.data = data;
-            $scope.structure = 'array';
-            highlight(editor);
-        });
-
-        return node;
-    };
-};
-exports.Arr.prototype = Object.create(AstNode.prototype);
-
-exports.Expression = function(first, last, stmnt1, stmnt2, func) {
-    AstNode.call(this, first, last);
-    this.compile = function(node) {
-        node = new PassNode(node);
-        new Animations().add(this.frame);
-
-        var node1;
-        var node2;
-        if(stmnt1.name) {
-            node1 = node.variables.get(stmnt1.name);
-            node2 = stmnt2.compile(node);
-        } else if(stmnt2.name) {
-            node1 = stmnt1.compile(node);
-            node2 = node.variables.get(stmnt2.name);
-        } else {
-            node1 = stmnt1.compile(node);
-            node2 = stmnt2.compile(node);
-        }
-        node.value = func(node1, node2);
-        return node;
-    };
-};
-exports.Expression.prototype = Object.create(AstNode.prototype);
-
-exports.Boolean = function(line, bool) {
-    AstNode.call(this, line, line);
-    this.compile = function(node) {
-        node = new PassNode(node);
-        new Animations().add(this.frame);
-        node.value = bool;
-
-        return node;
-    };
-};
-exports.Boolean.prototype = Object.create(AstNode.prototype);
-
-exports.Block = function(first, last, stmnts) {
-    AstNode.call(this, first, last);
-    this.compile = function(node) {
-        node = new PassNode(node);
-        var keys = node.variables.getKeys();
-        node = compile(stmnts, node);
-        node.variables.removeChildScope(keys);
-        return node;
-    };
-};
-exports.Block.prototype = Object.create(AstNode.prototype);
-
-exports.While = function(first, last, cond, block) {
-    AstNode.call(this, first, last);
-    this.compile = function(node) {
-        node = new PassNode(node);
-        while(cond.compile(node).value) {
-            node = block.compile(node);
-        }
-        return node;
-    };
-};
-exports.While.prototype = Object.create(AstNode.prototype);
-
-exports.DoWhile = function(first, last, block, cond) {
-    AstNode.call(this, first, last);
-
-    this.compile = function(node) {
-        node = new PassNode(node);
-        do {
-            node = block.compile(node);
-        } while(cond.compile(node).value);
-        return node;
-    };
-};
-exports.DoWhile.prototype = Object.create(AstNode.prototype);
-
-exports.Increment = function(line, stmnt) {
-    AstNode.call(this, line, line);
-    var variable = stmnt.replace('++', '');
-    this.compile = function(node) {
-        node = new PassNode(node);
-        var incrementable = node.variables.get(variable);
-        incrementable.value++;
-        return node;
-    };
-};
-exports.Increment.prototype = Object.create(AstNode.prototype);
-
-exports.For =function(first, last, decl, cond, exp, block) {
-    AstNode.call(this, first, last);
-
-    this.compile = function(node) {
-        node = new PassNode(node);
-        var keys = node.variables.getKeys();
-        node = decl.compile(node);
-        while(cond.compile(node).value) {
-            node = block.compile(node);
-            node = exp.compile(node);
-        }
-        node.variables.removeChildScope(keys);
-        return node;
-    };
-};
-exports.Increment.prototype = Object.create(AstNode.prototype);
-
-exports.FunctionCall = function(first, last, obj, method, params) {
-    AstNode.call(this, first, last);
-    this.compile = function(node) {
-        node = new PassNode(node);
-        var o = node.variables.get(obj.name);
-        var value;
-        value = params.compile(node).value;
-        o.value[method](value);
-        var data = o.value.slice();
-        new Animations().add(function($scope, editor) {
-            $scope.data = data;
-            $scope.structure = 'array';
-        });
-        return node;
-    };
-};
-exports.FunctionCall.prototype = Object.create(AstNode.prototype);
 
 exports.Add = function(stmnt1, stmnt2) {
     return stmnt1.value + stmnt2.value;
@@ -499,7 +295,7 @@ exports.GTE = function(stmnt1, stmnt2) {
     return stmnt1.value >= stmnt2.value;
 };
 
-},{"./nodes/Animations":7,"./nodes/AstNode":8,"./nodes/PassNode":9,"./nodes/Prints":10,"./nodes/Variables":11}],6:[function(require,module,exports){
+},{"./nodes/Animations":7,"./nodes/Arr":8,"./nodes/Assign":9,"./nodes/AstNode":10,"./nodes/Block":11,"./nodes/Boolean":12,"./nodes/DoWhile":13,"./nodes/Expression":14,"./nodes/For":15,"./nodes/FunctionCall":16,"./nodes/If":17,"./nodes/Increment":18,"./nodes/Line":19,"./nodes/Number":20,"./nodes/Output":21,"./nodes/PassNode":22,"./nodes/Prints":23,"./nodes/Variable":24,"./nodes/While":26}],6:[function(require,module,exports){
 'use strict';
 
 module.exports = function editor(elementId) {
@@ -532,7 +328,7 @@ module.exports = function editor(elementId) {
     };
 };
 
-},{"brace":15,"brace/theme/monokai":17}],7:[function(require,module,exports){
+},{"brace":30,"brace/theme/monokai":32}],7:[function(require,module,exports){
 'use strict';
 
 module.exports = function Animations() {
@@ -558,6 +354,54 @@ module.exports = function Animations() {
 },{}],8:[function(require,module,exports){
 'use strict';
 
+var AstNode = require('./AstNode');
+var Animations = require('./Animations');
+var PassNode = require('./PassNode');
+
+var Arr = function(line, list) {
+    AstNode.call(this, line, line);
+    this.compile = function(node) {
+        node = new PassNode(node);
+        var arr = list.replace(/\[(.*?)\]/g,"$1").split(',').map(function(item) {
+            return parseInt(item, 10);
+        });
+        node.value = arr;
+        var highlight = this.highlight;
+        var data = arr.slice();
+        new Animations().add(function($scope, editor) {
+            $scope.data = data;
+            $scope.structure = 'array';
+            highlight(editor);
+        });
+
+        return node;
+    };
+};
+Arr.prototype = Object.create(AstNode.prototype);
+
+module.exports = Arr;
+
+},{"./Animations":7,"./AstNode":10,"./PassNode":22}],9:[function(require,module,exports){
+'use strict';
+var AstNode = require('./AstNode');
+var PassNode = require('./PassNode');
+
+var Assign = function(first, last, variable, value) {
+    AstNode.call(this, first, last);
+    this.compile = function(node) {
+        node = new PassNode(node);
+        node.variables.add(variable.name, value.compile(node));
+        node.name = variable.name;
+        return node;
+    };
+};
+Assign.prototype = Object.create(AstNode.prototype);
+
+module.exports = Assign;
+
+},{"./AstNode":10,"./PassNode":22}],10:[function(require,module,exports){
+'use strict';
+
 module.exports = function (first, last) {
     this.highlight = function(editor) {
         editor.removeHighlight();
@@ -573,7 +417,273 @@ module.exports = function (first, last) {
     };
 };
 
-},{}],9:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
+'use strict';
+
+var AstNode = require('./AstNode');
+var PassNode = require('./PassNode');
+
+var compile = function(stmnts, node) {
+    var passNode = node;
+    for (var i = 0; i < stmnts.length; i++) {
+        passNode = stmnts[i].compile(passNode);
+    }
+    return passNode;
+};
+
+var Block = function(first, last, stmnts) {
+    AstNode.call(this, first, last);
+    this.compile = function(node) {
+        node = new PassNode(node);
+        var keys = node.variables.getKeys();
+        node = compile(stmnts, node);
+        node.variables.removeChildScope(keys);
+        return node;
+    };
+};
+Block.prototype = Object.create(AstNode.prototype);
+
+module.exports = Block;
+
+},{"./AstNode":10,"./PassNode":22}],12:[function(require,module,exports){
+'use strict';
+
+var AstNode = require('./AstNode');
+var Animations = require('./Animations');
+var PassNode = require('./PassNode');
+
+var BooleanNode = function(line, bool) {
+    AstNode.call(this, line, line);
+    this.compile = function(node) {
+        node = new PassNode(node);
+        new Animations().add(this.frame);
+        node.value = bool;
+
+        return node;
+    };
+};
+BooleanNode.prototype = Object.create(AstNode.prototype);
+
+module.exports = BooleanNode;
+
+},{"./Animations":7,"./AstNode":10,"./PassNode":22}],13:[function(require,module,exports){
+'use strict';
+
+var AstNode = require('./AstNode');
+var PassNode = require('./PassNode');
+
+var DoWhile = function(first, last, block, cond) {
+    AstNode.call(this, first, last);
+
+    this.compile = function(node) {
+        node = new PassNode(node);
+        do {
+            node = block.compile(node);
+        } while(cond.compile(node).value);
+        return node;
+    };
+};
+DoWhile.prototype = Object.create(AstNode.prototype);
+
+module.exports = DoWhile;
+
+},{"./AstNode":10,"./PassNode":22}],14:[function(require,module,exports){
+'use strict';
+
+var AstNode = require('./AstNode');
+var Animations = require('./Animations');
+var PassNode = require('./PassNode');
+
+var Expression = function(first, last, stmnt1, stmnt2, func) {
+    AstNode.call(this, first, last);
+    this.compile = function(node) {
+        node = new PassNode(node);
+        new Animations().add(this.frame);
+
+        var node1;
+        var node2;
+        if(stmnt1.name) {
+            node1 = node.variables.get(stmnt1.name);
+            node2 = stmnt2.compile(node);
+        } else if(stmnt2.name) {
+            node1 = stmnt1.compile(node);
+            node2 = node.variables.get(stmnt2.name);
+        } else {
+            node1 = stmnt1.compile(node);
+            node2 = stmnt2.compile(node);
+        }
+        node.value = func(node1, node2);
+        return node;
+    };
+};
+Expression.prototype = Object.create(AstNode.prototype);
+
+module.exports = Expression;
+
+},{"./Animations":7,"./AstNode":10,"./PassNode":22}],15:[function(require,module,exports){
+'use strict';
+
+var AstNode = require('./AstNode');
+var PassNode = require('./PassNode');
+
+var For = function(first, last, decl, cond, exp, block) {
+    AstNode.call(this, first, last);
+
+    this.compile = function(node) {
+        node = new PassNode(node);
+        var keys = node.variables.getKeys();
+        node = decl.compile(node);
+        while(cond.compile(node).value) {
+            node = block.compile(node);
+            node = exp.compile(node);
+        }
+        node.variables.removeChildScope(keys);
+        return node;
+    };
+};
+For.prototype = Object.create(AstNode.prototype);
+
+module.exports = For;
+
+},{"./AstNode":10,"./PassNode":22}],16:[function(require,module,exports){
+'use strict';
+
+var AstNode = require('./AstNode');
+var Animations = require('./Animations');
+var PassNode = require('./PassNode');
+
+var FunctionCall = function(first, last, obj, method, params) {
+    AstNode.call(this, first, last);
+    this.compile = function(node) {
+        node = new PassNode(node);
+        var o = node.variables.get(obj.name);
+        var value;
+        value = params.compile(node).value;
+        o.value[method](value);
+        var data = o.value.slice();
+        new Animations().add(function($scope, editor) {
+            $scope.data = data;
+            $scope.structure = 'array';
+        });
+        return node;
+    };
+};
+FunctionCall.prototype = Object.create(AstNode.prototype);
+
+module.exports = FunctionCall;
+
+},{"./Animations":7,"./AstNode":10,"./PassNode":22}],17:[function(require,module,exports){
+'use strict';
+
+var AstNode = require('./AstNode');
+var Animations = require('./Animations');
+var PassNode = require('./PassNode');
+
+var If = function(line, column, cond, block1, block2) {
+    AstNode.call(this, line, column);
+    this.compile = function(node) {
+        node = new PassNode(node);
+        var animations = new Animations();
+        if (cond.compile(node).value) {
+            node = block1.compile(node);
+        } else {
+            if(block2) {
+                node = block2.compile(node);
+            }
+        }
+        animations.add(this.frame);
+
+        return node;
+    };
+};
+If.prototype = Object.create(AstNode.prototype);
+
+module.exports = If;
+
+},{"./Animations":7,"./AstNode":10,"./PassNode":22}],18:[function(require,module,exports){
+'use strict';
+
+var AstNode = require('./AstNode');
+var PassNode = require('./PassNode');
+
+var Increment = function(line, stmnt) {
+    AstNode.call(this, line, line);
+    var variable = stmnt.replace('++', '');
+    this.compile = function(node) {
+        node = new PassNode(node);
+        var incrementable = node.variables.get(variable);
+        incrementable.value++;
+        return node;
+    };
+};
+Increment.prototype = Object.create(AstNode.prototype);
+
+module.exports = Increment;
+
+},{"./AstNode":10,"./PassNode":22}],19:[function(require,module,exports){
+'use strict';
+
+var AstNode = require('./AstNode');
+var Animations = require('./Animations');
+var PassNode = require('./PassNode');
+
+var Line = function(line, column, val) {
+    AstNode.call(this, line, column);
+    this.compile = function(node) {
+        new Animations().add(this.frame);
+        node = new PassNode(node);
+        return val.compile(node);
+    };
+};
+Line.prototype = Object.create(AstNode.prototype);
+
+module.exports = Line;
+
+},{"./Animations":7,"./AstNode":10,"./PassNode":22}],20:[function(require,module,exports){
+'use strict';
+
+var AstNode = require('./AstNode');
+var Animations = require('./Animations');
+var PassNode = require('./PassNode');
+
+var NumberNode = function(line, num) {
+    AstNode.call(this, line, line);
+    this.compile = function(node) {
+        new Animations().add(this.frame);
+        node = new PassNode(node);
+        node.value = Number(num);
+        return node;
+    };
+};
+NumberNode.prototype = Object.create(AstNode.prototype);
+
+module.exports = NumberNode;
+
+},{"./Animations":7,"./AstNode":10,"./PassNode":22}],21:[function(require,module,exports){
+'use strict';
+
+var AstNode = require('./AstNode');
+var Animations = require('./Animations');
+var PassNode = require('./PassNode');
+var Prints = require('./Prints');
+
+var Output = function(first, last, toPrint, type) {
+    AstNode.call(this, first, last);
+    this.compile = function(node) {
+        node = new PassNode(node);
+        node = toPrint.compile(node);
+        new Animations().add(this.frame);
+        if (type === 'print') {this.print = node.value;}
+        else if (type === 'println') {this.print = node.value + '\n';}
+        new Prints().add(this.print);
+        return node;
+    };
+};
+Output.prototype = Object.create(AstNode.prototype);
+
+module.exports = Output;
+
+},{"./Animations":7,"./AstNode":10,"./PassNode":22,"./Prints":23}],22:[function(require,module,exports){
 'use strict';
 var Variables = require('./Variables');
 
@@ -582,7 +692,7 @@ module.exports = function PassNode(node) {
     this.value = node ? node.value : null;
 };
 
-},{"./Variables":11}],10:[function(require,module,exports){
+},{"./Variables":25}],23:[function(require,module,exports){
 'use strict';
 
 module.exports = function Prints() {
@@ -605,7 +715,26 @@ module.exports = function Prints() {
     };
 };
 
-},{}],11:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
+'use strict';
+
+var AstNode = require('./AstNode');
+var PassNode = require('./PassNode');
+
+var Variable = function (line, variable) {
+    AstNode.call(this, line, line);
+    this.name = variable;
+    this.compile = function(node) {
+        node = new PassNode(node);
+        node.value = node.variables.get(this.name).value;
+        return node;
+    };
+};
+Variable.prototype = Object.create(AstNode.prototype);
+
+module.exports = Variable;
+
+},{"./AstNode":10,"./PassNode":22}],25:[function(require,module,exports){
 'use strict';
 
 module.exports = function() {
@@ -635,7 +764,27 @@ module.exports = function() {
     };
 };
 
-},{}],12:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
+'use strict';
+
+var AstNode = require('./AstNode');
+var PassNode = require('./PassNode');
+
+var While = function(first, last, cond, block) {
+    AstNode.call(this, first, last);
+    this.compile = function(node) {
+        node = new PassNode(node);
+        while(cond.compile(node).value) {
+            node = block.compile(node);
+        }
+        return node;
+    };
+};
+While.prototype = Object.create(AstNode.prototype);
+
+module.exports = While;
+
+},{"./AstNode":10,"./PassNode":22}],27:[function(require,module,exports){
 'use strict';
 var Parser = require("jison").Parser;
 
@@ -649,12 +798,12 @@ module.exports = function(grammar, ast) {
     };
 };
 
-},{"jison":21}],13:[function(require,module,exports){
+},{"jison":36}],28:[function(require,module,exports){
 require('./lib/angular.js');
 
 module.exports = angular;
 
-},{"./lib/angular.js":14}],14:[function(require,module,exports){
+},{"./lib/angular.js":29}],29:[function(require,module,exports){
 /**
  * @license AngularJS v1.2.21
  * (c) 2010-2014 Google, Inc. http://angularjs.org
@@ -22538,7 +22687,7 @@ var styleDirective = valueFn({
 })(window, document);
 
 !window.angular.$$csp() && window.angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide{display:none !important;}ng\\:form{display:block;}.ng-animate-block-transitions{transition:0s all!important;-webkit-transition:0s all!important;}.ng-hide-add-active,.ng-hide-remove{display:block!important;}</style>');
-},{}],15:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 /* ***** BEGIN LICENSE BLOCK *****
  * Distributed under the BSD license:
  *
@@ -40637,7 +40786,7 @@ exports.UndoManager = UndoManager;
             })();
         
 module.exports = window.ace.acequire("ace/ace");
-},{"w3c-blob":16}],16:[function(require,module,exports){
+},{"w3c-blob":31}],31:[function(require,module,exports){
 (function (global){
 module.exports = get_blob()
 
@@ -40669,7 +40818,7 @@ function get_blob() {
 }
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],17:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 ace.define("ace/theme/monokai",["require","exports","module","ace/lib/dom"], function(acequire, exports, module) {
 
 exports.isDark = true;
@@ -40777,9 +40926,9 @@ var dom = acequire("../lib/dom");
 dom.importCssString(exports.cssText, exports.cssClass);
 });
 
-},{}],18:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 
-},{}],19:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -41007,7 +41156,7 @@ var substr = 'ab'.substr(-1) === 'b'
 ;
 
 }).call(this,require("FWaASH"))
-},{"FWaASH":20}],20:[function(require,module,exports){
+},{"FWaASH":35}],35:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -41072,7 +41221,7 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],21:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 (function (process){
 // Jison, an LR(0), SLR(1), LARL(1), LR(1) Parser Generator
 // Zachary Carter <zach@carter.name>
@@ -42826,7 +42975,7 @@ return function Parser (g, options) {
 
 
 }).call(this,require("FWaASH"))
-},{"../package.json":46,"./util/set":22,"./util/typal":23,"FWaASH":20,"JSONSelect":24,"ebnf-parser":25,"escodegen":29,"esprima":42,"fs":18,"jison-lex":44,"path":19}],22:[function(require,module,exports){
+},{"../package.json":61,"./util/set":37,"./util/typal":38,"FWaASH":35,"JSONSelect":39,"ebnf-parser":40,"escodegen":44,"esprima":57,"fs":33,"jison-lex":59,"path":34}],37:[function(require,module,exports){
 // Set class to wrap arrays
 
 var typal = require("./typal").typal;
@@ -42921,7 +43070,7 @@ if (typeof exports !== 'undefined')
     exports.Set = Set;
 
 
-},{"./typal":23}],23:[function(require,module,exports){
+},{"./typal":38}],38:[function(require,module,exports){
 /*
  * Introduces a typal object to make classical/prototypal patterns easier
  * Plus some AOP sugar
@@ -43013,7 +43162,7 @@ return {
 if (typeof exports !== 'undefined')
     exports.typal = typal;
 
-},{}],24:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 /*! Copyright (c) 2011, Lloyd Hilaiel, ISC License */
 /*
  * This is the JSONSelect reference implementation, in javascript.  This
@@ -43587,7 +43736,7 @@ if (typeof exports !== 'undefined')
     exports.compile = compile;
 })(typeof exports === "undefined" ? (window.JSONSelect = {}) : exports);
 
-},{}],25:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 var bnf = require("./parser").parser,
     ebnf = require("./ebnf-transform"),
     jisonlex = require("lex-parser");
@@ -43630,7 +43779,7 @@ var parseLex = function (text) {
 };
 
 
-},{"./ebnf-transform":26,"./parser":27,"lex-parser":45}],26:[function(require,module,exports){
+},{"./ebnf-transform":41,"./parser":42,"lex-parser":60}],41:[function(require,module,exports){
 var EBNF = (function(){
     var parser = require('./transform-parser.js');
 
@@ -43767,7 +43916,7 @@ var EBNF = (function(){
 exports.transform = EBNF.transform;
 
 
-},{"./transform-parser.js":28}],27:[function(require,module,exports){
+},{"./transform-parser.js":43}],42:[function(require,module,exports){
 (function (process){
 /* parser generated by jison 0.4.11 */
 /*
@@ -44572,7 +44721,7 @@ if (typeof module !== 'undefined' && require.main === module) {
 }
 }
 }).call(this,require("FWaASH"))
-},{"./ebnf-transform":26,"FWaASH":20,"fs":18,"path":19}],28:[function(require,module,exports){
+},{"./ebnf-transform":41,"FWaASH":35,"fs":33,"path":34}],43:[function(require,module,exports){
 (function (process){
 /* parser generated by jison 0.4.11 */
 /*
@@ -45204,7 +45353,7 @@ if (typeof module !== 'undefined' && require.main === module) {
 }
 }
 }).call(this,require("FWaASH"))
-},{"FWaASH":20,"fs":18,"path":19}],29:[function(require,module,exports){
+},{"FWaASH":35,"fs":33,"path":34}],44:[function(require,module,exports){
 (function (global){
 /*
   Copyright (C) 2012 Michael Ficarra <escodegen.copyright@michael.ficarra.me>
@@ -47462,7 +47611,7 @@ if (typeof module !== 'undefined' && require.main === module) {
 /* vim: set sw=4 ts=4 et tw=80 : */
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./package.json":41,"estraverse":30,"source-map":31}],30:[function(require,module,exports){
+},{"./package.json":56,"estraverse":45,"source-map":46}],45:[function(require,module,exports){
 /*
   Copyright (C) 2012 Yusuke Suzuki <utatane.tea@gmail.com>
   Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
@@ -47779,7 +47928,7 @@ if (typeof module !== 'undefined' && require.main === module) {
 }));
 /* vim: set sw=4 ts=4 et tw=80 : */
 
-},{}],31:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 /*
  * Copyright 2009-2011 Mozilla Foundation and contributors
  * Licensed under the New BSD license. See LICENSE.txt or:
@@ -47789,7 +47938,7 @@ exports.SourceMapGenerator = require('./source-map/source-map-generator').Source
 exports.SourceMapConsumer = require('./source-map/source-map-consumer').SourceMapConsumer;
 exports.SourceNode = require('./source-map/source-node').SourceNode;
 
-},{"./source-map/source-map-consumer":36,"./source-map/source-map-generator":37,"./source-map/source-node":38}],32:[function(require,module,exports){
+},{"./source-map/source-map-consumer":51,"./source-map/source-map-generator":52,"./source-map/source-node":53}],47:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -47888,7 +48037,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./util":39,"amdefine":40}],33:[function(require,module,exports){
+},{"./util":54,"amdefine":55}],48:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -48034,7 +48183,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./base64":34,"amdefine":40}],34:[function(require,module,exports){
+},{"./base64":49,"amdefine":55}],49:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -48078,7 +48227,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":40}],35:[function(require,module,exports){
+},{"amdefine":55}],50:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -48161,7 +48310,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":40}],36:[function(require,module,exports){
+},{"amdefine":55}],51:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -48641,7 +48790,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./array-set":32,"./base64-vlq":33,"./binary-search":35,"./util":39,"amdefine":40}],37:[function(require,module,exports){
+},{"./array-set":47,"./base64-vlq":48,"./binary-search":50,"./util":54,"amdefine":55}],52:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -49046,7 +49195,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./array-set":32,"./base64-vlq":33,"./util":39,"amdefine":40}],38:[function(require,module,exports){
+},{"./array-set":47,"./base64-vlq":48,"./util":54,"amdefine":55}],53:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -49456,7 +49605,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./source-map-generator":37,"./util":39,"amdefine":40}],39:[function(require,module,exports){
+},{"./source-map-generator":52,"./util":54,"amdefine":55}],54:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -49777,7 +49926,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":40}],40:[function(require,module,exports){
+},{"amdefine":55}],55:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
  * @license amdefine 0.1.0 Copyright (c) 2011, The Dojo Foundation All Rights Reserved.
@@ -50080,7 +50229,7 @@ function amdefine(module, requireFn) {
 module.exports = amdefine;
 
 }).call(this,require("FWaASH"),"/../../node_modules/jison/node_modules/escodegen/node_modules/source-map/node_modules/amdefine/amdefine.js")
-},{"FWaASH":20,"path":19}],41:[function(require,module,exports){
+},{"FWaASH":35,"path":34}],56:[function(require,module,exports){
 module.exports={
   "name": "escodegen",
   "description": "ECMAScript code generator",
@@ -50146,7 +50295,7 @@ module.exports={
   "_resolved": "https://registry.npmjs.org/escodegen/-/escodegen-0.0.21.tgz"
 }
 
-},{}],42:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 /*
   Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
   Copyright (C) 2012 Mathias Bynens <mathias@qiwi.be>
@@ -54056,7 +54205,7 @@ parseStatement: true, parseSourceElement: true */
 }));
 /* vim: set sw=4 ts=4 et tw=80 : */
 
-},{}],43:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 module.exports={
   "author": {
     "name": "Zach Carter",
@@ -54125,7 +54274,7 @@ module.exports={
   "_resolved": "https://registry.npmjs.org/jison-lex/-/jison-lex-0.2.1.tgz"
 }
 
-},{}],44:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 // Basic Lexer implemented using JavaScript regular expressions
 // MIT Licensed
 
@@ -54698,7 +54847,7 @@ return RegExpLexer;
 module.exports = RegExpLexer;
 
 
-},{"./package.json":43,"lex-parser":45}],45:[function(require,module,exports){
+},{"./package.json":58,"lex-parser":60}],60:[function(require,module,exports){
 (function (process){
 /* parser generated by jison 0.4.6 */
 /*
@@ -55552,7 +55701,7 @@ if (typeof module !== 'undefined' && require.main === module) {
 }
 }
 }).call(this,require("FWaASH"))
-},{"FWaASH":20,"fs":18,"path":19}],46:[function(require,module,exports){
+},{"FWaASH":35,"fs":33,"path":34}],61:[function(require,module,exports){
 module.exports={
   "author": {
     "name": "Zach Carter",
