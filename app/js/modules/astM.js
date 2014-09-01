@@ -1,86 +1,10 @@
 'use strict';
 
-var AstNode = function (first, last) {
-    this.highlight = function(editor) {
-        editor.removeHighlight();
-        editor.setHighlight(first.first_line,
-                            last.last_line,
-                            first.first_column,
-                            last.last_column);
-    };
-    this.animation = [];
-    var highlight = this.highlight;
-    this.frame = function(scope, editor) {
-        highlight(editor);
-    };
-};
-
-var Variables = function() {
-    var variables = {};
-
-    this.add = function(key, value) {
-        variables[key] = value;
-    };
-    this.get = function(key) {
-        return variables[key] || {value: ''};
-    };
-    this.getKeys = function() {
-        var keys = [];
-        for(var key in variables) {
-            if(key) {
-                keys.push(key);
-            }
-        }
-        return keys;
-    };
-    this.removeChildScope = function(keys) {
-        for(var v in variables) {
-            if(keys.indexOf(v) < 0) {
-                delete variables[v];
-            }
-        }
-    };
-};
-
-var Prints = function() {
-    var prints = '';
-    if(Prints.prototype._instance) {
-        return Prints.prototype._instance;
-    }
-    Prints.prototype._instance = this;
-
-    this.add = function(print) {
-        prints += print;
-    };
-
-    this.get = function() {
-        return prints;
-    };
-
-    this.clear = function() {
-        prints = '';
-    };
-};
-
-var Animations = function() {
-    var animations = [];
-    if (Animations.prototype._instance) {
-        return Animations.prototype._instance;
-    }
-    Animations.prototype._instance = this;
-
-    this.add = function(frame) {
-        animations.push(frame);
-    };
-
-    this.get = function() {
-        return animations;
-    };
-
-    this.clear = function() {
-        animations = [];
-    };
-};
+var AstNode = require('./nodes/AstNode');
+var Variables = require('./nodes/Variables');
+var Prints = require('./nodes/Prints');
+var Animations = require('./nodes/Animations');
+var PassNode = require('./nodes/PassNode');
 
 var compile = function(stmnts, node) {
     var passNode = node;
@@ -90,10 +14,7 @@ var compile = function(stmnts, node) {
     return passNode;
 };
 
-var PassNode = function(node) {
-    this.variables = node ? node.variables : new Variables();
-    this.value = node ? node.value : null;
-};
+
 
 exports.compile = function(node) {
     compile(node);
