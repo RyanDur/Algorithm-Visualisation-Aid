@@ -152,7 +152,7 @@ module.exports={
             ["[0-9]+(?:\\.[0-9]+)?\\b", "return 'NUMBER';"],
             ["println",                 "return 'PRINT';"],
             ["print",                   "return 'PRINT';"],
-	    ["\\.",                     "return 'DOT';"],
+            ["\\.",                     "return 'DOT';"],
             ["\\*",                     "return '*';"],
             ["\\/",                     "return '/';"],
             ["-",                       "return '-';"],
@@ -163,7 +163,6 @@ module.exports={
             ["\\{",                     "return '{';"],
             ["\\}",                     "return '}';"],
             ["\\[.*?\\]",               "return 'ARRAY';"],
-            ["\\]",                     "return ']';"],
             ["PI\\b",                   "return 'PI';"],
             ["E\\b",                    "return 'E';"],
             ["<-",                      "return 'ASSIGN';"],
@@ -250,13 +249,13 @@ module.exports={
 
         'func': [
             [ "PRINT ( returnable )",        "$$ = new yy.func.Output(@1, @4, $3, $1);" ],
-	    [ "exp DOT VARIABLE ( params )", "$$ = new yy.func.FunctionCall(@1, @6, $1, $3, $5);" ]
+            [ "exp DOT VARIABLE ( params )", "$$ = new yy.func.FunctionCall(@1, @6, $1, $3, $5);" ]
         ],
 
-	"params" :[
-	    ["", ""],
-	    [ "exp", "$$ = $1;" ]
-	],
+        "params" :[
+            ["", ""],
+            [ "exp", "$$ = $1;" ]
+        ],
 
         'var' : [
             [ "VARIABLE",   "$$ = new yy.exp.Variable(@1, $1);;"]
@@ -266,14 +265,15 @@ module.exports={
             [ "var",        "$$ = $1"],
             [ "NUMBER",     "$$ = new yy.type.Number(@1,yytext);" ],
             [ "( exp )",    "$$ = $2;" ],
-	    [ "INC",        "$$ = new yy.exp.Increment(@1, $1);" ],
+            [ "INC",        "$$ = new yy.exp.Increment(@1, $1);" ],
             [ "exp + exp",  "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Add);" ],
             [ "exp - exp",  "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Subtract);" ],
             [ "exp * exp",  "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Multiply);" ],
             [ "exp / exp",  "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Divide);" ],
             [ "exp ^ exp",  "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Pow);" ],
             [ "E",          "$$ = Math.E;" ],
-            [ "PI",         "$$ = Math.PI;" ]
+            [ "PI",         "$$ = Math.PI;" ],
+            [ "var ARRAY",  "$$ = new yy.ArrayAccess(@1, @2, $1, $2);" ]
         ],
 
         "cond" :[
@@ -306,6 +306,20 @@ var compile = function(stmnts, node) {
     }
     return passNode;
 };
+var AstNode = require('./nodes/AstNode');
+var PassNode = require('./nodes/PassNode');
+exports.ArrayAccess = function(first,last, variable, arr) {
+    AstNode.call(this, first, last);
+    this.compile = function(node) {
+	node = new PassNode(node);
+	var a = variable.compile(node).value;
+	console.log();
+	var index = Number(arr.slice(1,2));
+	node.value = a[index];
+	return node;
+    };
+};
+exports.ArrayAccess.prototype = Object.create(AstNode.prototype);
 
 exports.compile = function(node) {
     compile(node);
@@ -381,7 +395,7 @@ exports.exp = {
     }
 };
 
-},{"../factories/expressionFactory":4,"../factories/flowFactory":5,"../factories/functionFactory":6,"../factories/statementFactory":7,"../factories/typeFactory":8,"./nodes/Animations":12,"./nodes/Prints":15}],11:[function(require,module,exports){
+},{"../factories/expressionFactory":4,"../factories/flowFactory":5,"../factories/functionFactory":6,"../factories/statementFactory":7,"../factories/typeFactory":8,"./nodes/Animations":12,"./nodes/AstNode":13,"./nodes/PassNode":14,"./nodes/Prints":15}],11:[function(require,module,exports){
 'use strict';
 
 module.exports = function editor(elementId) {

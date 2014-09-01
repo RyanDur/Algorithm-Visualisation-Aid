@@ -15,6 +15,20 @@ var compile = function(stmnts, node) {
     }
     return passNode;
 };
+var AstNode = require('./nodes/AstNode');
+var PassNode = require('./nodes/PassNode');
+exports.ArrayAccess = function(first,last, variable, arr) {
+    AstNode.call(this, first, last);
+    this.compile = function(node) {
+	node = new PassNode(node);
+	var a = variable.compile(node).value;
+	console.log();
+	var index = Number(arr.slice(1,2));
+	node.value = a[index];
+	return node;
+    };
+};
+exports.ArrayAccess.prototype = Object.create(AstNode.prototype);
 
 exports.compile = function(node) {
     compile(node);

@@ -178,4 +178,8 @@ describe('parser', function() {
     it('it should be able to create an empty array', function() {
 	expect(parser.parse("var arr <- []; print(arr);").print).toBe('');
     });
+
+    it('should be able to access an array', function() {
+	expect(parser.parse("var arr <- [5,2]; var result <- arr[0]; print(result);").print).toBe('5');
+    });
 });
