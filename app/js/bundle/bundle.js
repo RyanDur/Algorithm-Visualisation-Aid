@@ -217,21 +217,30 @@ module.exports={
 
 var Prints = require('./nodes/Prints');
 var Animations = require('./nodes/Animations');
+var AstNode = require('./nodes/AstNode');
+var PassNode = require('./nodes/PassNode');
 
-exports.Line = require('./nodes/Line');
-exports.Number = require('./nodes/Number');
-exports.Variable = require('./nodes/Variable');
-exports.Assign = require('./nodes/Assign');
-exports.Output = require('./nodes/Output');
-exports.If = require('./nodes/If');
-exports.Arr = require('./nodes/Arr');
-exports.Expression = require('./nodes/Expression');
-exports.Boolean = require('./nodes/Boolean');
-exports.Block = require('./nodes/Block');
-exports.While = require('./nodes/While');
-exports.DoWhile = require('./nodes/DoWhile');
-exports.Increment = require('./nodes/Increment');
-exports.For = require('./nodes/For');
+//Lines
+exports.Expression = require('./nodes/Expression')(AstNode, PassNode, Animations);
+exports.Block = require('./nodes/Block')(AstNode, PassNode);
+exports.Line = require('./nodes/Line')(AstNode, PassNode, Animations);
+
+//flow
+exports.If = require('./nodes/If')(AstNode, PassNode, Animations);
+exports.While = require('./nodes/While')(AstNode, PassNode);
+exports.For = require('./nodes/For')(AstNode, PassNode);
+exports.DoWhile = require('./nodes/DoWhile')(AstNode, PassNode);
+
+//Types
+exports.Arr = require('./nodes/Arr')(AstNode, PassNode, Animations);
+exports.Boolean = require('./nodes/Boolean')(AstNode, PassNode, Animations);
+exports.Number = require('./nodes/Number')(AstNode, PassNode, Animations);
+exports.Variable = require('./nodes/Variable')(AstNode, PassNode);
+
+//Functions
+exports.Increment = require('./nodes/Increment')(AstNode, PassNode);
+exports.Assign = require('./nodes/Assign')(AstNode, PassNode);
+exports.Output = require('./nodes/Output')(AstNode, PassNode, Animations, Prints);
 exports.FunctionCall = require('./nodes/FunctionCall');
 
 var compile = function(stmnts, node) {
@@ -289,7 +298,7 @@ exports.exp = {
     }
 };
 
-},{"./nodes/Animations":7,"./nodes/Arr":8,"./nodes/Assign":9,"./nodes/Block":11,"./nodes/Boolean":12,"./nodes/DoWhile":13,"./nodes/Expression":14,"./nodes/For":15,"./nodes/FunctionCall":16,"./nodes/If":17,"./nodes/Increment":18,"./nodes/Line":19,"./nodes/Number":20,"./nodes/Output":21,"./nodes/Prints":23,"./nodes/Variable":24,"./nodes/While":26}],6:[function(require,module,exports){
+},{"./nodes/Animations":7,"./nodes/Arr":8,"./nodes/Assign":9,"./nodes/AstNode":10,"./nodes/Block":11,"./nodes/Boolean":12,"./nodes/DoWhile":13,"./nodes/Expression":14,"./nodes/For":15,"./nodes/FunctionCall":16,"./nodes/If":17,"./nodes/Increment":18,"./nodes/Line":19,"./nodes/Number":20,"./nodes/Output":21,"./nodes/PassNode":22,"./nodes/Prints":23,"./nodes/Variable":24,"./nodes/While":26}],6:[function(require,module,exports){
 'use strict';
 
 module.exports = function editor(elementId) {
@@ -348,52 +357,48 @@ module.exports = function Animations() {
 },{}],8:[function(require,module,exports){
 'use strict';
 
-var AstNode = require('./AstNode');
-var Animations = require('./Animations');
-var PassNode = require('./PassNode');
+module.exports = function(AstNode, PassNode, Animations) {
+    var Arr = function(line, list) {
+	AstNode.call(this, line, line);
+	this.compile = function(node) {
+            node = new PassNode(node);
+            var arr = list.replace(/\[(.*?)\]/g,"$1").split(',').map(function(item) {
+		return parseInt(item, 10);
+            });
+            node.value = arr;
+            var highlight = this.highlight;
+            var data = arr.slice();
+            new Animations().add(function($scope, editor) {
+		$scope.data = data;
+		$scope.structure = 'array';
+		highlight(editor);
+            });
 
-var Arr = function(line, list) {
-    AstNode.call(this, line, line);
-    this.compile = function(node) {
-        node = new PassNode(node);
-        var arr = list.replace(/\[(.*?)\]/g,"$1").split(',').map(function(item) {
-            return parseInt(item, 10);
-        });
-        node.value = arr;
-        var highlight = this.highlight;
-        var data = arr.slice();
-        new Animations().add(function($scope, editor) {
-            $scope.data = data;
-            $scope.structure = 'array';
-            highlight(editor);
-        });
-
-        return node;
+            return node;
+	};
     };
+    Arr.prototype = Object.create(AstNode.prototype);
+    return Arr;
 };
-Arr.prototype = Object.create(AstNode.prototype);
 
-module.exports = Arr;
-
-},{"./Animations":7,"./AstNode":10,"./PassNode":22}],9:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
-var AstNode = require('./AstNode');
-var PassNode = require('./PassNode');
 
-var Assign = function(first, last, variable, value) {
-    AstNode.call(this, first, last);
-    this.compile = function(node) {
-        node = new PassNode(node);
-        node.variables.add(variable.name, value.compile(node));
-        node.name = variable.name;
-        return node;
+module.exports = function(AstNode, PassNode) {
+    var Assign = function(first, last, variable, value) {
+	AstNode.call(this, first, last);
+	this.compile = function(node) {
+            node = new PassNode(node);
+            node.variables.add(variable.name, value.compile(node));
+            node.name = variable.name;
+            return node;
+	};
     };
+    Assign.prototype = Object.create(AstNode.prototype);
+    return Assign;
 };
-Assign.prototype = Object.create(AstNode.prototype);
 
-module.exports = Assign;
-
-},{"./AstNode":10,"./PassNode":22}],10:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 'use strict';
 
 module.exports = function (first, last) {
@@ -414,9 +419,6 @@ module.exports = function (first, last) {
 },{}],11:[function(require,module,exports){
 'use strict';
 
-var AstNode = require('./AstNode');
-var PassNode = require('./PassNode');
-
 var compile = function(stmnts, node) {
     var passNode = node;
     for (var i = 0; i < stmnts.length; i++) {
@@ -425,259 +427,239 @@ var compile = function(stmnts, node) {
     return passNode;
 };
 
-var Block = function(first, last, stmnts) {
-    AstNode.call(this, first, last);
-    this.compile = function(node) {
-        node = new PassNode(node);
-        var keys = node.variables.getKeys();
-        node = compile(stmnts, node);
-        node.variables.removeChildScope(keys);
-        return node;
+module.exports = function(AstNode, PassNode) {
+    var Block = function(first, last, stmnts) {
+	AstNode.call(this, first, last);
+	this.compile = function(node) {
+            node = new PassNode(node);
+            var keys = node.variables.getKeys();
+            node = compile(stmnts, node);
+            node.variables.removeChildScope(keys);
+            return node;
+	};
     };
+    Block.prototype = Object.create(AstNode.prototype);
+    return Block;
 };
-Block.prototype = Object.create(AstNode.prototype);
 
-module.exports = Block;
-
-},{"./AstNode":10,"./PassNode":22}],12:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 'use strict';
 
 var AstNode = require('./AstNode');
 var Animations = require('./Animations');
 var PassNode = require('./PassNode');
 
-var BooleanNode = function(line, bool) {
-    AstNode.call(this, line, line);
-    this.compile = function(node) {
-        node = new PassNode(node);
-        new Animations().add(this.frame);
-        node.value = bool;
+module.exports = function(AstNode, PassNode, Animations) {
+    var BooleanNode = function(line, bool) {
+        AstNode.call(this, line, line);
+        this.compile = function(node) {
+            node = new PassNode(node);
+            new Animations().add(this.frame);
+            node.value = bool;
 
-        return node;
+            return node;
+        };
     };
+    BooleanNode.prototype = Object.create(AstNode.prototype);
+    return BooleanNode;
 };
-BooleanNode.prototype = Object.create(AstNode.prototype);
-
-module.exports = BooleanNode;
 
 },{"./Animations":7,"./AstNode":10,"./PassNode":22}],13:[function(require,module,exports){
 'use strict';
 
-var AstNode = require('./AstNode');
-var PassNode = require('./PassNode');
+module.exports = function(AstNode, PassNode) {
+    var DoWhile = function(first, last, block, cond) {
+	AstNode.call(this, first, last);
 
-var DoWhile = function(first, last, block, cond) {
-    AstNode.call(this, first, last);
-
-    this.compile = function(node) {
-        node = new PassNode(node);
-        do {
-            node = block.compile(node);
-        } while(cond.compile(node).value);
-        return node;
+	this.compile = function(node) {
+            node = new PassNode(node);
+            do {
+		node = block.compile(node);
+            } while(cond.compile(node).value);
+            return node;
+	};
     };
+    DoWhile.prototype = Object.create(AstNode.prototype);
+    return DoWhile;
 };
-DoWhile.prototype = Object.create(AstNode.prototype);
 
-module.exports = DoWhile;
-
-},{"./AstNode":10,"./PassNode":22}],14:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 'use strict';
 
-var AstNode = require('./AstNode');
-var Animations = require('./Animations');
-var PassNode = require('./PassNode');
+module.exports = function(AstNode, PassNode, Animations) {
+    var Expression = function(first, last, stmnt1, stmnt2, func) {
+	AstNode.call(this, first, last);
+	this.compile = function(node) {
+            node = new PassNode(node);
+            new Animations().add(this.frame);
 
-var Expression = function(first, last, stmnt1, stmnt2, func) {
-    AstNode.call(this, first, last);
-    this.compile = function(node) {
-        node = new PassNode(node);
-        new Animations().add(this.frame);
-
-        var node1;
-        var node2;
-        if(stmnt1.name) {
-            node1 = node.variables.get(stmnt1.name);
-            node2 = stmnt2.compile(node);
-        } else if(stmnt2.name) {
-            node1 = stmnt1.compile(node);
-            node2 = node.variables.get(stmnt2.name);
-        } else {
-            node1 = stmnt1.compile(node);
-            node2 = stmnt2.compile(node);
-        }
-        node.value = func(node1, node2);
-        return node;
+            var node1;
+            var node2;
+            if(stmnt1.name) {
+		node1 = node.variables.get(stmnt1.name);
+		node2 = stmnt2.compile(node);
+            } else if(stmnt2.name) {
+		node1 = stmnt1.compile(node);
+		node2 = node.variables.get(stmnt2.name);
+            } else {
+		node1 = stmnt1.compile(node);
+		node2 = stmnt2.compile(node);
+            }
+            node.value = func(node1, node2);
+            return node;
+	};
     };
+    Expression.prototype = Object.create(AstNode.prototype);
+    return Expression;
 };
-Expression.prototype = Object.create(AstNode.prototype);
 
-module.exports = Expression;
-
-},{"./Animations":7,"./AstNode":10,"./PassNode":22}],15:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 'use strict';
 
 var AstNode = require('./AstNode');
 var PassNode = require('./PassNode');
 
-var For = function(first, last, decl, cond, exp, block) {
-    AstNode.call(this, first, last);
+module.exports = function(AstNode, PassNode) {
+    var For = function(first, last, decl, cond, exp, block) {
+	AstNode.call(this, first, last);
 
-    this.compile = function(node) {
-        node = new PassNode(node);
-        var keys = node.variables.getKeys();
-        node = decl.compile(node);
-        while(cond.compile(node).value) {
-            node = block.compile(node);
-            node = exp.compile(node);
-        }
-        node.variables.removeChildScope(keys);
-        return node;
+	this.compile = function(node) {
+            node = new PassNode(node);
+            var keys = node.variables.getKeys();
+            node = decl.compile(node);
+            while(cond.compile(node).value) {
+		node = block.compile(node);
+		node = exp.compile(node);
+            }
+            node.variables.removeChildScope(keys);
+            return node;
+	};
     };
+    For.prototype = Object.create(AstNode.prototype);
+    return For;
 };
-For.prototype = Object.create(AstNode.prototype);
-
-module.exports = For;
 
 },{"./AstNode":10,"./PassNode":22}],16:[function(require,module,exports){
 'use strict';
 
-var AstNode = require('./AstNode');
-var Animations = require('./Animations');
-var PassNode = require('./PassNode');
-
-var FunctionCall = function(first, last, obj, method, params) {
-    AstNode.call(this, first, last);
-    this.compile = function(node) {
-        node = new PassNode(node);
-        var o = node.variables.get(obj.name);
-        var value;
-        value = params.compile(node).value;
-        o.value[method](value);
-        var data = o.value.slice();
-        new Animations().add(function($scope, editor) {
-            $scope.data = data;
-            $scope.structure = 'array';
-        });
-        return node;
+module.exports = function(AstNode, PassNode, Animations) {
+    var FunctionCall = function(first, last, obj, method, params) {
+	AstNode.call(this, first, last);
+	this.compile = function(node) {
+            node = new PassNode(node);
+            var o = node.variables.get(obj.name);
+            var value;
+            value = params.compile(node).value;
+            o.value[method](value);
+            var data = o.value.slice();
+            new Animations().add(function($scope, editor) {
+		$scope.data = data;
+		$scope.structure = 'array';
+            });
+            return node;
+	};
     };
+    FunctionCall.prototype = Object.create(AstNode.prototype);
+    return FunctionCall;
 };
-FunctionCall.prototype = Object.create(AstNode.prototype);
 
-module.exports = FunctionCall;
-
-},{"./Animations":7,"./AstNode":10,"./PassNode":22}],17:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 'use strict';
 
-var AstNode = require('./AstNode');
-var Animations = require('./Animations');
-var PassNode = require('./PassNode');
-
-var If = function(line, column, cond, block1, block2) {
-    AstNode.call(this, line, column);
-    this.compile = function(node) {
-        node = new PassNode(node);
-        var animations = new Animations();
-        if (cond.compile(node).value) {
-            node = block1.compile(node);
-        } else {
-            if(block2) {
-                node = block2.compile(node);
+module.exports = function(AstNode, PassNode, Animations) {
+    var If = function(line, column, cond, block1, block2) {
+	AstNode.call(this, line, column);
+	this.compile = function(node) {
+            node = new PassNode(node);
+            var animations = new Animations();
+            if (cond.compile(node).value) {
+		node = block1.compile(node);
+            } else {
+		if(block2) {
+                    node = block2.compile(node);
+		}
             }
-        }
-        animations.add(this.frame);
+            animations.add(this.frame);
 
-        return node;
+            return node;
+	};
     };
+    If.prototype = Object.create(AstNode.prototype);
+    return If;
 };
-If.prototype = Object.create(AstNode.prototype);
 
-module.exports = If;
-
-},{"./Animations":7,"./AstNode":10,"./PassNode":22}],18:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 'use strict';
 
-var AstNode = require('./AstNode');
-var PassNode = require('./PassNode');
-
-var Increment = function(line, stmnt) {
-    AstNode.call(this, line, line);
-    var variable = stmnt.replace('++', '');
-    this.compile = function(node) {
-        node = new PassNode(node);
-        var incrementable = node.variables.get(variable);
-        incrementable.value++;
-        return node;
+module.exports = function(AstNode, PassNode) {
+    var Increment = function(line, stmnt) {
+	AstNode.call(this, line, line);
+	var variable = stmnt.replace('++', '');
+	this.compile = function(node) {
+            node = new PassNode(node);
+            var incrementable = node.variables.get(variable);
+            incrementable.value++;
+            return node;
+	};
     };
+    Increment.prototype = Object.create(AstNode.prototype);
+    return Increment;
 };
-Increment.prototype = Object.create(AstNode.prototype);
 
-module.exports = Increment;
-
-},{"./AstNode":10,"./PassNode":22}],19:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 'use strict';
 
-var AstNode = require('./AstNode');
-var Animations = require('./Animations');
-var PassNode = require('./PassNode');
-
-var Line = function(line, column, val) {
-    AstNode.call(this, line, column);
-    this.compile = function(node) {
-        new Animations().add(this.frame);
-        node = new PassNode(node);
-        return val.compile(node);
+module.exports = function(AstNode, PassNode, Animations) {
+    var Line = function(line, column, val) {
+	AstNode.call(this, line, column);
+	this.compile = function(node) {
+            new Animations().add(this.frame);
+            node = new PassNode(node);
+            return val.compile(node);
+	};
     };
+    Line.prototype = Object.create(AstNode.prototype);
+    return Line;
 };
-Line.prototype = Object.create(AstNode.prototype);
 
-module.exports = Line;
-
-},{"./Animations":7,"./AstNode":10,"./PassNode":22}],20:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 'use strict';
 
-var AstNode = require('./AstNode');
-var Animations = require('./Animations');
-var PassNode = require('./PassNode');
-
-var NumberNode = function(line, num) {
-    AstNode.call(this, line, line);
-    this.compile = function(node) {
-        new Animations().add(this.frame);
-        node = new PassNode(node);
-        node.value = Number(num);
-        return node;
+module.exports = function(AstNode, PassNode, Animations) {
+    var NumberNode = function(line, num) {
+	AstNode.call(this, line, line);
+	this.compile = function(node) {
+            new Animations().add(this.frame);
+            node = new PassNode(node);
+            node.value = Number(num);
+            return node;
+	};
     };
+    NumberNode.prototype = Object.create(AstNode.prototype);
+    return NumberNode;
 };
-NumberNode.prototype = Object.create(AstNode.prototype);
 
-module.exports = NumberNode;
-
-},{"./Animations":7,"./AstNode":10,"./PassNode":22}],21:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 'use strict';
 
-var AstNode = require('./AstNode');
-var Animations = require('./Animations');
-var PassNode = require('./PassNode');
-var Prints = require('./Prints');
-
-var Output = function(first, last, toPrint, type) {
-    AstNode.call(this, first, last);
-    this.compile = function(node) {
-        node = new PassNode(node);
-        node = toPrint.compile(node);
-        new Animations().add(this.frame);
-        if (type === 'print') {this.print = node.value;}
-        else if (type === 'println') {this.print = node.value + '\n';}
-        new Prints().add(this.print);
-        return node;
+module.exports = function(AstNode, PassNode, Animations, Prints) {
+    var Output = function(first, last, toPrint, type) {
+	AstNode.call(this, first, last);
+	this.compile = function(node) {
+            node = new PassNode(node);
+            node = toPrint.compile(node);
+            new Animations().add(this.frame);
+            if (type === 'print') {this.print = node.value;}
+            else if (type === 'println') {this.print = node.value + '\n';}
+            new Prints().add(this.print);
+            return node;
+	};
     };
+    Output.prototype = Object.create(AstNode.prototype);
+    return Output;
 };
-Output.prototype = Object.create(AstNode.prototype);
 
-module.exports = Output;
-
-},{"./Animations":7,"./AstNode":10,"./PassNode":22,"./Prints":23}],22:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 'use strict';
 var Variables = require('./Variables');
 
@@ -712,23 +694,21 @@ module.exports = function Prints() {
 },{}],24:[function(require,module,exports){
 'use strict';
 
-var AstNode = require('./AstNode');
-var PassNode = require('./PassNode');
-
-var Variable = function (line, variable) {
-    AstNode.call(this, line, line);
-    this.name = variable;
-    this.compile = function(node) {
-        node = new PassNode(node);
-        node.value = node.variables.get(this.name).value;
-        return node;
+module.exports = function(AstNode, PassNode) {
+    var Variable = function (line, variable) {
+	AstNode.call(this, line, line);
+	this.name = variable;
+	this.compile = function(node) {
+            node = new PassNode(node);
+            node.value = node.variables.get(this.name).value;
+            return node;
+	};
     };
+    Variable.prototype = Object.create(AstNode.prototype);
+    return Variable;
 };
-Variable.prototype = Object.create(AstNode.prototype);
 
-module.exports = Variable;
-
-},{"./AstNode":10,"./PassNode":22}],25:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 'use strict';
 
 module.exports = function() {
@@ -761,24 +741,22 @@ module.exports = function() {
 },{}],26:[function(require,module,exports){
 'use strict';
 
-var AstNode = require('./AstNode');
-var PassNode = require('./PassNode');
-
-var While = function(first, last, cond, block) {
-    AstNode.call(this, first, last);
-    this.compile = function(node) {
-        node = new PassNode(node);
-        while(cond.compile(node).value) {
-            node = block.compile(node);
-        }
-        return node;
+module.exports = function(AstNode, PassNode) {
+    var While = function(first, last, cond, block) {
+	AstNode.call(this, first, last);
+	this.compile = function(node) {
+            node = new PassNode(node);
+            while(cond.compile(node).value) {
+		node = block.compile(node);
+            }
+            return node;
+	};
     };
+    While.prototype = Object.create(AstNode.prototype);
+    return While;
 };
-While.prototype = Object.create(AstNode.prototype);
 
-module.exports = While;
-
-},{"./AstNode":10,"./PassNode":22}],27:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 'use strict';
 var Parser = require("jison").Parser;
 

@@ -2,22 +2,31 @@
 
 var Prints = require('./nodes/Prints');
 var Animations = require('./nodes/Animations');
+var AstNode = require('./nodes/AstNode');
+var PassNode = require('./nodes/PassNode');
 
-exports.Line = require('./nodes/Line');
-exports.Number = require('./nodes/Number');
-exports.Variable = require('./nodes/Variable');
-exports.Assign = require('./nodes/Assign');
-exports.Output = require('./nodes/Output');
-exports.If = require('./nodes/If');
-exports.Arr = require('./nodes/Arr');
-exports.Expression = require('./nodes/Expression');
-exports.Boolean = require('./nodes/Boolean');
-exports.Block = require('./nodes/Block');
-exports.While = require('./nodes/While');
-exports.DoWhile = require('./nodes/DoWhile');
-exports.Increment = require('./nodes/Increment');
-exports.For = require('./nodes/For');
-exports.FunctionCall = require('./nodes/FunctionCall');
+//Lines
+exports.Expression = require('./nodes/Expression')(AstNode, PassNode, Animations);
+exports.Block = require('./nodes/Block')(AstNode, PassNode);
+exports.Line = require('./nodes/Line')(AstNode, PassNode, Animations);
+
+//flow
+exports.If = require('./nodes/If')(AstNode, PassNode, Animations);
+exports.While = require('./nodes/While')(AstNode, PassNode);
+exports.For = require('./nodes/For')(AstNode, PassNode);
+exports.DoWhile = require('./nodes/DoWhile')(AstNode, PassNode);
+
+//Types
+exports.Arr = require('./nodes/Arr')(AstNode, PassNode, Animations);
+exports.Boolean = require('./nodes/Boolean')(AstNode, PassNode, Animations);
+exports.Number = require('./nodes/Number')(AstNode, PassNode, Animations);
+exports.Variable = require('./nodes/Variable')(AstNode, PassNode);
+
+//Functions
+exports.Increment = require('./nodes/Increment')(AstNode, PassNode);
+exports.Assign = require('./nodes/Assign')(AstNode, PassNode);
+exports.Output = require('./nodes/Output')(AstNode, PassNode, Animations, Prints);
+exports.FunctionCall = require('./nodes/FunctionCall')(AstNode, PassNode, Animations);
 
 var compile = function(stmnts, node) {
     var passNode = node;
