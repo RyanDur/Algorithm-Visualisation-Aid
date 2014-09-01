@@ -2,7 +2,6 @@
 
 var Prints = require('./nodes/Prints');
 var Animations = require('./nodes/Animations');
-var PassNode = require('./nodes/PassNode');
 
 exports.Line = require('./nodes/Line');
 exports.Number = require('./nodes/Number');
@@ -39,42 +38,38 @@ exports.compile = function(node) {
     return result;
 };
 
-exports.Add = function(stmnt1, stmnt2) {
-    return stmnt1.value + stmnt2.value;
-};
-
-exports.Subtract = function(stmnt1, stmnt2) {
-    return stmnt1.value - stmnt2.value;
-};
-
-exports.Multiply = function(stmnt1, stmnt2) {
-    return stmnt1.value * stmnt2.value;
-};
-
-exports.Divide = function(stmnt1, stmnt2) {
-    return stmnt1.value / stmnt2.value;
-};
-
-exports.Pow = function(stmnt1, stmnt2) {
-    return Math.pow(stmnt1.value, stmnt2.value);
-};
-
-exports.Equal = function(stmnt1, stmnt2) {
-    return stmnt1.value === stmnt2.value;
-};
-
-exports.Inequal = function(stmnt1, stmnt2) {
-    return stmnt1.value !== stmnt2.value;
-};
-
-exports.LTE = function(stmnt1, stmnt2) {
-    return stmnt1.value <= stmnt2.value;
-};
-
-exports.LT = function(stmnt1, stmnt2) {
-    return stmnt1.value < stmnt2.value;
-};
-
-exports.GTE = function(stmnt1, stmnt2) {
-    return stmnt1.value >= stmnt2.value;
+exports.exp = {
+    Add: function(stmnt1, stmnt2) {
+        return stmnt1.value + stmnt2.value;
+    },
+    Subtract: function(stmnt1, stmnt2) {
+        return stmnt1.value - stmnt2.value;
+    },
+    Multiply: function(stmnt1, stmnt2) {
+        return stmnt1.value * stmnt2.value;
+    },
+    Divide: function(stmnt1, stmnt2) {
+        return stmnt1.value / stmnt2.value;
+    },
+    Pow: function(stmnt1, stmnt2) {
+        return Math.pow(stmnt1.value, stmnt2.value);
+    },
+    Equal: function(stmnt1, stmnt2) {
+        return stmnt1.value === stmnt2.value;
+    },
+    Inequal: function(stmnt1, stmnt2) {
+	return stmnt1.value !== stmnt2.value;
+    },
+    LTE: function(stmnt1, stmnt2) {
+	return stmnt1.value <= stmnt2.value;
+    },
+    LT: function(stmnt1, stmnt2) {
+	return stmnt1.value < stmnt2.value;
+    },
+    GTE: function(stmnt1, stmnt2) {
+	return stmnt1.value >= stmnt2.value;
+    },
+    GT: function(stmnt1, stmnt2) {
+	return stmnt1.value > stmnt2.value;
+    }
 };

@@ -191,21 +191,21 @@ module.exports={
             [ "NUMBER",     "$$ = new yy.Number(@1,yytext);" ],
             [ "( exp )",    "$$ = $2;" ],
 	    [ "INC",        "$$ = new yy.Increment(@1, $1);" ],
-            [ "exp + exp",  "$$ = new yy.Expression(@1, @3, $1, $3, yy.Add);" ],
-            [ "exp - exp",  "$$ = new yy.Expression(@1, @3, $1, $3, yy.Subtract);" ],
-            [ "exp * exp",  "$$ = new yy.Expression(@1, @3, $1, $3, yy.Multiply);" ],
-            [ "exp / exp",  "$$ = new yy.Expression(@1, @3, $1, $3, yy.Divide);" ],
-            [ "exp ^ exp",  "$$ = new yy.Expression(@1, @3, $1, $3, yy.Pow);" ],
+            [ "exp + exp",  "$$ = new yy.Expression(@1, @3, $1, $3, yy.exp.Add);" ],
+            [ "exp - exp",  "$$ = new yy.Expression(@1, @3, $1, $3, yy.exp.Subtract);" ],
+            [ "exp * exp",  "$$ = new yy.Expression(@1, @3, $1, $3, yy.exp.Multiply);" ],
+            [ "exp / exp",  "$$ = new yy.Expression(@1, @3, $1, $3, yy.exp.Divide);" ],
+            [ "exp ^ exp",  "$$ = new yy.Expression(@1, @3, $1, $3, yy.exp.Pow);" ],
             [ "E",          "$$ = Math.E;" ],
             [ "PI",         "$$ = Math.PI;" ]
         ],
 
         "cond" :[
-            [ "exp EQUALITY exp", "$$ = new yy.Expression(@1, @3, $1, $3, yy.Equal);" ],
-            [ "exp NOTEQUAL exp", "$$ = new yy.Expression(@1, @3, $1, $3, yy.Inequal);" ],
-            [ "exp LTE exp",      "$$ = new yy.Expression(@1, @3, $1, $3, yy.LTE);" ],
-            [ "exp GTE exp",      "$$ = new yy.Expression(@1, @3, $1, $3, yy.GTE);" ],
-            [ "exp LT exp",       "$$ = new yy.Expression(@1, @3, $1, $3, yy.LT);" ],
+            [ "exp EQUALITY exp", "$$ = new yy.Expression(@1, @3, $1, $3, yy.exp.Equal);" ],
+            [ "exp NOTEQUAL exp", "$$ = new yy.Expression(@1, @3, $1, $3, yy.exp.Inequal);" ],
+            [ "exp LTE exp",      "$$ = new yy.Expression(@1, @3, $1, $3, yy.exp.LTE);" ],
+            [ "exp GTE exp",      "$$ = new yy.Expression(@1, @3, $1, $3, yy.exp.GTE);" ],
+            [ "exp LT exp",       "$$ = new yy.Expression(@1, @3, $1, $3, yy.exp.LT);" ],
             [ "TRUE",             "$$ = new yy.Boolean(@1, true);"],
             [ "FALSE",            "$$ = new yy.Boolean(@1, false);"]
         ]
@@ -215,10 +215,8 @@ module.exports={
 },{}],5:[function(require,module,exports){
 'use strict';
 
-var AstNode = require('./nodes/AstNode');
 var Prints = require('./nodes/Prints');
 var Animations = require('./nodes/Animations');
-var PassNode = require('./nodes/PassNode');
 
 exports.Line = require('./nodes/Line');
 exports.Number = require('./nodes/Number');
@@ -255,47 +253,43 @@ exports.compile = function(node) {
     return result;
 };
 
-exports.Add = function(stmnt1, stmnt2) {
-    return stmnt1.value + stmnt2.value;
+exports.exp = {
+    Add: function(stmnt1, stmnt2) {
+        return stmnt1.value + stmnt2.value;
+    },
+    Subtract: function(stmnt1, stmnt2) {
+        return stmnt1.value - stmnt2.value;
+    },
+    Multiply: function(stmnt1, stmnt2) {
+        return stmnt1.value * stmnt2.value;
+    },
+    Divide: function(stmnt1, stmnt2) {
+        return stmnt1.value / stmnt2.value;
+    },
+    Pow: function(stmnt1, stmnt2) {
+        return Math.pow(stmnt1.value, stmnt2.value);
+    },
+    Equal: function(stmnt1, stmnt2) {
+        return stmnt1.value === stmnt2.value;
+    },
+    Inequal: function(stmnt1, stmnt2) {
+	return stmnt1.value !== stmnt2.value;
+    },
+    LTE: function(stmnt1, stmnt2) {
+	return stmnt1.value <= stmnt2.value;
+    },
+    LT: function(stmnt1, stmnt2) {
+	return stmnt1.value < stmnt2.value;
+    },
+    GTE: function(stmnt1, stmnt2) {
+	return stmnt1.value >= stmnt2.value;
+    },
+    GT: function(stmnt1, stmnt2) {
+	return stmnt1.value > stmnt2.value;
+    }
 };
 
-exports.Subtract = function(stmnt1, stmnt2) {
-    return stmnt1.value - stmnt2.value;
-};
-
-exports.Multiply = function(stmnt1, stmnt2) {
-    return stmnt1.value * stmnt2.value;
-};
-
-exports.Divide = function(stmnt1, stmnt2) {
-    return stmnt1.value / stmnt2.value;
-};
-
-exports.Pow = function(stmnt1, stmnt2) {
-    return Math.pow(stmnt1.value, stmnt2.value);
-};
-
-exports.Equal = function(stmnt1, stmnt2) {
-    return stmnt1.value === stmnt2.value;
-};
-
-exports.Inequal = function(stmnt1, stmnt2) {
-    return stmnt1.value !== stmnt2.value;
-};
-
-exports.LTE = function(stmnt1, stmnt2) {
-    return stmnt1.value <= stmnt2.value;
-};
-
-exports.LT = function(stmnt1, stmnt2) {
-    return stmnt1.value < stmnt2.value;
-};
-
-exports.GTE = function(stmnt1, stmnt2) {
-    return stmnt1.value >= stmnt2.value;
-};
-
-},{"./nodes/Animations":7,"./nodes/Arr":8,"./nodes/Assign":9,"./nodes/AstNode":10,"./nodes/Block":11,"./nodes/Boolean":12,"./nodes/DoWhile":13,"./nodes/Expression":14,"./nodes/For":15,"./nodes/FunctionCall":16,"./nodes/If":17,"./nodes/Increment":18,"./nodes/Line":19,"./nodes/Number":20,"./nodes/Output":21,"./nodes/PassNode":22,"./nodes/Prints":23,"./nodes/Variable":24,"./nodes/While":26}],6:[function(require,module,exports){
+},{"./nodes/Animations":7,"./nodes/Arr":8,"./nodes/Assign":9,"./nodes/Block":11,"./nodes/Boolean":12,"./nodes/DoWhile":13,"./nodes/Expression":14,"./nodes/For":15,"./nodes/FunctionCall":16,"./nodes/If":17,"./nodes/Increment":18,"./nodes/Line":19,"./nodes/Number":20,"./nodes/Output":21,"./nodes/Prints":23,"./nodes/Variable":24,"./nodes/While":26}],6:[function(require,module,exports){
 'use strict';
 
 module.exports = function editor(elementId) {
