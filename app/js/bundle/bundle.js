@@ -194,7 +194,7 @@ module.exports={
         ["left", "+", "-"],
         ["left", "*", "/"],
         ["left", "^"],
-        ["left", "UMINUS"]
+        ["left", "UMINUS"],
         ["nonassoc", "EQUALITY", "NOTEQUAL", "LTE", "GTE"]
     ],
 
