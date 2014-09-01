@@ -7,7 +7,7 @@ var Prints = require('../modules/nodes/Prints');
 
 module.exports = function() {
     return {
-	Output: require('../modules/nodes/Output')(AstNode, PassNode, Animations, Prints),
-	FunctionCall: require('../modules/nodes/FunctionCall')(AstNode, PassNode, Animations)
+	Output: require('../modules/nodes/func/Output')(AstNode, PassNode, Animations, Prints),
+	FunctionCall: require('../modules/nodes/func/FunctionCall')(AstNode, PassNode, Animations)
     };
 }();

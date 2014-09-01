@@ -6,9 +6,9 @@ var PassNode = require('../modules/nodes/PassNode');
 
 module.exports = function() {
     return {
-	If: require('../modules/nodes/If')(AstNode, PassNode, Animations),
-	While: require('../modules/nodes/While')(AstNode, PassNode),
-	For: require('../modules/nodes/For')(AstNode, PassNode),
-	DoWhile: require('../modules/nodes/DoWhile')(AstNode, PassNode)
+	If: require('../modules/nodes/flow/If')(AstNode, PassNode, Animations),
+	While: require('../modules/nodes/flow/While')(AstNode, PassNode),
+	For: require('../modules/nodes/flow/For')(AstNode, PassNode),
+	DoWhile: require('../modules/nodes/flow/DoWhile')(AstNode, PassNode)
     };
 }();

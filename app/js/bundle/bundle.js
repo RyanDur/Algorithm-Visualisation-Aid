@@ -76,14 +76,14 @@ var PassNode = require('../modules/nodes/PassNode');
 
 module.exports = function() {
     return {
-	Expression: require('../modules/nodes/Expression')(AstNode, PassNode, Animations),
-	Increment: require('../modules/nodes/Increment')(AstNode, PassNode),
-	Assign: require('../modules/nodes/Assign')(AstNode, PassNode),
-	Variable: require('../modules/nodes/Variable')(AstNode, PassNode, Animations)
+	Expression: require('../modules/nodes/exp/Expression')(AstNode, PassNode, Animations),
+	Increment: require('../modules/nodes/exp/Increment')(AstNode, PassNode),
+	Assign: require('../modules/nodes/exp/Assign')(AstNode, PassNode),
+	Variable: require('../modules/nodes/exp/Variable')(AstNode, PassNode, Animations)
     };
 }();
 
-},{"../modules/nodes/Animations":12,"../modules/nodes/Assign":14,"../modules/nodes/AstNode":15,"../modules/nodes/Expression":19,"../modules/nodes/Increment":23,"../modules/nodes/PassNode":27,"../modules/nodes/Variable":29}],5:[function(require,module,exports){
+},{"../modules/nodes/Animations":12,"../modules/nodes/AstNode":13,"../modules/nodes/PassNode":14,"../modules/nodes/exp/Assign":17,"../modules/nodes/exp/Expression":18,"../modules/nodes/exp/Increment":19,"../modules/nodes/exp/Variable":20}],5:[function(require,module,exports){
 'use strict';
 
 var Animations = require('../modules/nodes/Animations');
@@ -92,14 +92,14 @@ var PassNode = require('../modules/nodes/PassNode');
 
 module.exports = function() {
     return {
-	If: require('../modules/nodes/If')(AstNode, PassNode, Animations),
-	While: require('../modules/nodes/While')(AstNode, PassNode),
-	For: require('../modules/nodes/For')(AstNode, PassNode),
-	DoWhile: require('../modules/nodes/DoWhile')(AstNode, PassNode)
+	If: require('../modules/nodes/flow/If')(AstNode, PassNode, Animations),
+	While: require('../modules/nodes/flow/While')(AstNode, PassNode),
+	For: require('../modules/nodes/flow/For')(AstNode, PassNode),
+	DoWhile: require('../modules/nodes/flow/DoWhile')(AstNode, PassNode)
     };
 }();
 
-},{"../modules/nodes/Animations":12,"../modules/nodes/AstNode":15,"../modules/nodes/DoWhile":18,"../modules/nodes/For":20,"../modules/nodes/If":22,"../modules/nodes/PassNode":27,"../modules/nodes/While":31}],6:[function(require,module,exports){
+},{"../modules/nodes/Animations":12,"../modules/nodes/AstNode":13,"../modules/nodes/PassNode":14,"../modules/nodes/flow/DoWhile":21,"../modules/nodes/flow/For":22,"../modules/nodes/flow/If":23,"../modules/nodes/flow/While":24}],6:[function(require,module,exports){
 'use strict';
 
 var Animations = require('../modules/nodes/Animations');
@@ -109,12 +109,12 @@ var Prints = require('../modules/nodes/Prints');
 
 module.exports = function() {
     return {
-	Output: require('../modules/nodes/Output')(AstNode, PassNode, Animations, Prints),
-	FunctionCall: require('../modules/nodes/FunctionCall')(AstNode, PassNode, Animations)
+	Output: require('../modules/nodes/func/Output')(AstNode, PassNode, Animations, Prints),
+	FunctionCall: require('../modules/nodes/func/FunctionCall')(AstNode, PassNode, Animations)
     };
 }();
 
-},{"../modules/nodes/Animations":12,"../modules/nodes/AstNode":15,"../modules/nodes/FunctionCall":21,"../modules/nodes/Output":26,"../modules/nodes/PassNode":27,"../modules/nodes/Prints":28}],7:[function(require,module,exports){
+},{"../modules/nodes/Animations":12,"../modules/nodes/AstNode":13,"../modules/nodes/PassNode":14,"../modules/nodes/Prints":15,"../modules/nodes/func/FunctionCall":25,"../modules/nodes/func/Output":26}],7:[function(require,module,exports){
 'use strict';
 
 var Animations = require('../modules/nodes/Animations');
@@ -123,12 +123,12 @@ var PassNode = require('../modules/nodes/PassNode');
 
 module.exports = function() {
     return {
-	Block: require('../modules/nodes/Block')(AstNode, PassNode),
-	Line: require('../modules/nodes/Line')(AstNode, PassNode, Animations)
+	Block: require('../modules/nodes/stmnt/Block')(AstNode, PassNode),
+	Line: require('../modules/nodes/stmnt/Line')(AstNode, PassNode, Animations)
     };
 }();
 
-},{"../modules/nodes/Animations":12,"../modules/nodes/AstNode":15,"../modules/nodes/Block":16,"../modules/nodes/Line":24,"../modules/nodes/PassNode":27}],8:[function(require,module,exports){
+},{"../modules/nodes/Animations":12,"../modules/nodes/AstNode":13,"../modules/nodes/PassNode":14,"../modules/nodes/stmnt/Block":27,"../modules/nodes/stmnt/Line":28}],8:[function(require,module,exports){
 'use strict';
 
 var Animations = require('../modules/nodes/Animations');
@@ -137,13 +137,13 @@ var PassNode = require('../modules/nodes/PassNode');
 
 module.exports = function() {
     return {
-	Arr: require('../modules/nodes/Arr')(AstNode, PassNode, Animations),
-	Boolean: require('../modules/nodes/Boolean')(AstNode, PassNode, Animations),
-	Number: require('../modules/nodes/Number')(AstNode, PassNode, Animations)
+	Arr: require('../modules/nodes/type/Arr')(AstNode, PassNode, Animations),
+	Boolean: require('../modules/nodes/type/Boolean')(AstNode, PassNode, Animations),
+	Number: require('../modules/nodes/type/Number')(AstNode, PassNode, Animations)
     };
 }();
 
-},{"../modules/nodes/Animations":12,"../modules/nodes/Arr":13,"../modules/nodes/AstNode":15,"../modules/nodes/Boolean":17,"../modules/nodes/Number":25,"../modules/nodes/PassNode":27}],9:[function(require,module,exports){
+},{"../modules/nodes/Animations":12,"../modules/nodes/AstNode":13,"../modules/nodes/PassNode":14,"../modules/nodes/type/Arr":29,"../modules/nodes/type/Boolean":30,"../modules/nodes/type/Number":31}],9:[function(require,module,exports){
 module.exports={
     "lex": {
         "rules": [
@@ -381,7 +381,7 @@ exports.exp = {
     }
 };
 
-},{"../factories/expressionFactory":4,"../factories/flowFactory":5,"../factories/functionFactory":6,"../factories/statementFactory":7,"../factories/typeFactory":8,"./nodes/Animations":12,"./nodes/Prints":28}],11:[function(require,module,exports){
+},{"../factories/expressionFactory":4,"../factories/flowFactory":5,"../factories/functionFactory":6,"../factories/statementFactory":7,"../factories/typeFactory":8,"./nodes/Animations":12,"./nodes/Prints":15}],11:[function(require,module,exports){
 'use strict';
 
 module.exports = function editor(elementId) {
@@ -440,50 +440,6 @@ module.exports = function Animations() {
 },{}],13:[function(require,module,exports){
 'use strict';
 
-module.exports = function(AstNode, PassNode, Animations) {
-    var Arr = function(line, list) {
-	AstNode.call(this, line, line);
-	this.compile = function(node) {
-            node = new PassNode(node);
-            var arr = list.replace(/\[(.*?)\]/g,"$1").split(',').map(function(item) {
-		return parseInt(item, 10);
-            });
-            node.value = arr;
-            var highlight = this.highlight;
-            var data = arr.slice();
-            new Animations().add(function($scope, editor) {
-		$scope.data = data;
-		$scope.structure = 'array';
-		highlight(editor);
-            });
-
-            return node;
-	};
-    };
-    Arr.prototype = Object.create(AstNode.prototype);
-    return Arr;
-};
-
-},{}],14:[function(require,module,exports){
-'use strict';
-
-module.exports = function(AstNode, PassNode) {
-    var Assign = function(first, last, variable, value) {
-	AstNode.call(this, first, last);
-	this.compile = function(node) {
-            node = new PassNode(node);
-            node.variables.add(variable.name, value.compile(node));
-            node.name = variable.name;
-            return node;
-	};
-    };
-    Assign.prototype = Object.create(AstNode.prototype);
-    return Assign;
-};
-
-},{}],15:[function(require,module,exports){
-'use strict';
-
 module.exports = function (first, last) {
     this.highlight = function(editor) {
         editor.removeHighlight();
@@ -499,242 +455,7 @@ module.exports = function (first, last) {
     };
 };
 
-},{}],16:[function(require,module,exports){
-'use strict';
-
-var compile = function(stmnts, node) {
-    var passNode = node;
-    for (var i = 0; i < stmnts.length; i++) {
-        passNode = stmnts[i].compile(passNode);
-    }
-    return passNode;
-};
-
-module.exports = function(AstNode, PassNode) {
-    var Block = function(first, last, stmnts) {
-	AstNode.call(this, first, last);
-	this.compile = function(node) {
-            node = new PassNode(node);
-            var keys = node.variables.getKeys();
-            node = compile(stmnts, node);
-            node.variables.removeChildScope(keys);
-            return node;
-	};
-    };
-    Block.prototype = Object.create(AstNode.prototype);
-    return Block;
-};
-
-},{}],17:[function(require,module,exports){
-'use strict';
-
-module.exports = function(AstNode, PassNode, Animations) {
-    var BooleanNode = function(line, bool) {
-        AstNode.call(this, line, line);
-        this.compile = function(node) {
-            node = new PassNode(node);
-            new Animations().add(this.frame);
-            node.value = bool;
-            return node;
-        };
-    };
-    BooleanNode.prototype = Object.create(AstNode.prototype);
-    return BooleanNode;
-};
-
-},{}],18:[function(require,module,exports){
-'use strict';
-
-module.exports = function(AstNode, PassNode) {
-    var DoWhile = function(first, last, block, cond) {
-	AstNode.call(this, first, last);
-
-	this.compile = function(node) {
-            node = new PassNode(node);
-            do {
-		node = block.compile(node);
-            } while(cond.compile(node).value);
-            return node;
-	};
-    };
-    DoWhile.prototype = Object.create(AstNode.prototype);
-    return DoWhile;
-};
-
-},{}],19:[function(require,module,exports){
-'use strict';
-
-module.exports = function(AstNode, PassNode, Animations) {
-    var Expression = function(first, last, stmnt1, stmnt2, func) {
-	AstNode.call(this, first, last);
-	this.compile = function(node) {
-            node = new PassNode(node);
-            new Animations().add(this.frame);
-
-            var node1;
-            var node2;
-            if(stmnt1.name) {
-		node1 = node.variables.get(stmnt1.name);
-		node2 = stmnt2.compile(node);
-            } else if(stmnt2.name) {
-		node1 = stmnt1.compile(node);
-		node2 = node.variables.get(stmnt2.name);
-            } else {
-		node1 = stmnt1.compile(node);
-		node2 = stmnt2.compile(node);
-            }
-            node.value = func(node1, node2);
-            return node;
-	};
-    };
-    Expression.prototype = Object.create(AstNode.prototype);
-    return Expression;
-};
-
-},{}],20:[function(require,module,exports){
-'use strict';
-
-module.exports = function(AstNode, PassNode) {
-    var For = function(first, last, decl, cond, exp, block) {
-	AstNode.call(this, first, last);
-
-	this.compile = function(node) {
-            node = new PassNode(node);
-            var keys = node.variables.getKeys();
-            node = decl.compile(node);
-            while(cond.compile(node).value) {
-		node = block.compile(node);
-		node = exp.compile(node);
-            }
-            node.variables.removeChildScope(keys);
-            return node;
-	};
-    };
-    For.prototype = Object.create(AstNode.prototype);
-    return For;
-};
-
-},{}],21:[function(require,module,exports){
-'use strict';
-
-module.exports = function(AstNode, PassNode, Animations) {
-    var FunctionCall = function(first, last, obj, method, params) {
-	AstNode.call(this, first, last);
-	this.compile = function(node) {
-            node = new PassNode(node);
-            var o = node.variables.get(obj.name);
-            var value;
-            value = params.compile(node).value;
-            o.value[method](value);
-            var data = o.value.slice();
-            new Animations().add(function($scope, editor) {
-		$scope.data = data;
-		$scope.structure = 'array';
-            });
-            return node;
-	};
-    };
-    FunctionCall.prototype = Object.create(AstNode.prototype);
-    return FunctionCall;
-};
-
-},{}],22:[function(require,module,exports){
-'use strict';
-
-module.exports = function(AstNode, PassNode, Animations) {
-    var If = function(line, column, cond, block1, block2) {
-	AstNode.call(this, line, column);
-	this.compile = function(node) {
-            node = new PassNode(node);
-            var animations = new Animations();
-            if (cond.compile(node).value) {
-		node = block1.compile(node);
-            } else {
-		if(block2) {
-                    node = block2.compile(node);
-		}
-            }
-            animations.add(this.frame);
-
-            return node;
-	};
-    };
-    If.prototype = Object.create(AstNode.prototype);
-    return If;
-};
-
-},{}],23:[function(require,module,exports){
-'use strict';
-
-module.exports = function(AstNode, PassNode) {
-    var Increment = function(line, stmnt) {
-	AstNode.call(this, line, line);
-	var variable = stmnt.replace('++', '');
-	this.compile = function(node) {
-            node = new PassNode(node);
-            var incrementable = node.variables.get(variable);
-            incrementable.value++;
-            return node;
-	};
-    };
-    Increment.prototype = Object.create(AstNode.prototype);
-    return Increment;
-};
-
-},{}],24:[function(require,module,exports){
-'use strict';
-
-module.exports = function(AstNode, PassNode, Animations) {
-    var Line = function(line, column, val) {
-	AstNode.call(this, line, column);
-	this.compile = function(node) {
-            new Animations().add(this.frame);
-            node = new PassNode(node);
-            return val.compile(node);
-	};
-    };
-    Line.prototype = Object.create(AstNode.prototype);
-    return Line;
-};
-
-},{}],25:[function(require,module,exports){
-'use strict';
-
-module.exports = function(AstNode, PassNode, Animations) {
-    var NumberNode = function(line, num) {
-	AstNode.call(this, line, line);
-	this.compile = function(node) {
-            new Animations().add(this.frame);
-            node = new PassNode(node);
-            node.value = Number(num);
-            return node;
-	};
-    };
-    NumberNode.prototype = Object.create(AstNode.prototype);
-    return NumberNode;
-};
-
-},{}],26:[function(require,module,exports){
-'use strict';
-
-module.exports = function(AstNode, PassNode, Animations, Prints) {
-    var Output = function(first, last, toPrint, type) {
-	AstNode.call(this, first, last);
-	this.compile = function(node) {
-            node = new PassNode(node);
-            node = toPrint.compile(node);
-            new Animations().add(this.frame);
-            if (type === 'print') {this.print = node.value;}
-            else if (type === 'println') {this.print = node.value + '\n';}
-            new Prints().add(this.print);
-            return node;
-	};
-    };
-    Output.prototype = Object.create(AstNode.prototype);
-    return Output;
-};
-
-},{}],27:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 'use strict';
 var Variables = require('./Variables');
 
@@ -743,7 +464,7 @@ module.exports = function PassNode(node) {
     this.value = node ? node.value : null;
 };
 
-},{"./Variables":30}],28:[function(require,module,exports){
+},{"./Variables":16}],15:[function(require,module,exports){
 'use strict';
 
 module.exports = function Prints() {
@@ -766,24 +487,7 @@ module.exports = function Prints() {
     };
 };
 
-},{}],29:[function(require,module,exports){
-'use strict';
-
-module.exports = function(AstNode, PassNode) {
-    var Variable = function (line, variable) {
-	AstNode.call(this, line, line);
-	this.name = variable;
-	this.compile = function(node) {
-            node = new PassNode(node);
-            node.value = node.variables.get(this.name).value;
-            return node;
-	};
-    };
-    Variable.prototype = Object.create(AstNode.prototype);
-    return Variable;
-};
-
-},{}],30:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 'use strict';
 
 module.exports = function() {
@@ -813,7 +517,156 @@ module.exports = function() {
     };
 };
 
-},{}],31:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
+'use strict';
+
+module.exports = function(AstNode, PassNode) {
+    var Assign = function(first, last, variable, value) {
+	AstNode.call(this, first, last);
+	this.compile = function(node) {
+            node = new PassNode(node);
+            node.variables.add(variable.name, value.compile(node));
+            node.name = variable.name;
+            return node;
+	};
+    };
+    Assign.prototype = Object.create(AstNode.prototype);
+    return Assign;
+};
+
+},{}],18:[function(require,module,exports){
+'use strict';
+
+module.exports = function(AstNode, PassNode, Animations) {
+    var Expression = function(first, last, stmnt1, stmnt2, func) {
+	AstNode.call(this, first, last);
+	this.compile = function(node) {
+            node = new PassNode(node);
+            new Animations().add(this.frame);
+
+            var node1;
+            var node2;
+            if(stmnt1.name) {
+		node1 = node.variables.get(stmnt1.name);
+		node2 = stmnt2.compile(node);
+            } else if(stmnt2.name) {
+		node1 = stmnt1.compile(node);
+		node2 = node.variables.get(stmnt2.name);
+            } else {
+		node1 = stmnt1.compile(node);
+		node2 = stmnt2.compile(node);
+            }
+            node.value = func(node1, node2);
+            return node;
+	};
+    };
+    Expression.prototype = Object.create(AstNode.prototype);
+    return Expression;
+};
+
+},{}],19:[function(require,module,exports){
+'use strict';
+
+module.exports = function(AstNode, PassNode) {
+    var Increment = function(line, stmnt) {
+	AstNode.call(this, line, line);
+	var variable = stmnt.replace('++', '');
+	this.compile = function(node) {
+            node = new PassNode(node);
+            var incrementable = node.variables.get(variable);
+            incrementable.value++;
+            return node;
+	};
+    };
+    Increment.prototype = Object.create(AstNode.prototype);
+    return Increment;
+};
+
+},{}],20:[function(require,module,exports){
+'use strict';
+
+module.exports = function(AstNode, PassNode) {
+    var Variable = function (line, variable) {
+	AstNode.call(this, line, line);
+	this.name = variable;
+	this.compile = function(node) {
+            node = new PassNode(node);
+            node.value = node.variables.get(this.name).value;
+            return node;
+	};
+    };
+    Variable.prototype = Object.create(AstNode.prototype);
+    return Variable;
+};
+
+},{}],21:[function(require,module,exports){
+'use strict';
+
+module.exports = function(AstNode, PassNode) {
+    var DoWhile = function(first, last, block, cond) {
+	AstNode.call(this, first, last);
+
+	this.compile = function(node) {
+            node = new PassNode(node);
+            do {
+		node = block.compile(node);
+            } while(cond.compile(node).value);
+            return node;
+	};
+    };
+    DoWhile.prototype = Object.create(AstNode.prototype);
+    return DoWhile;
+};
+
+},{}],22:[function(require,module,exports){
+'use strict';
+
+module.exports = function(AstNode, PassNode) {
+    var For = function(first, last, decl, cond, exp, block) {
+	AstNode.call(this, first, last);
+
+	this.compile = function(node) {
+            node = new PassNode(node);
+            var keys = node.variables.getKeys();
+            node = decl.compile(node);
+            while(cond.compile(node).value) {
+		node = block.compile(node);
+		node = exp.compile(node);
+            }
+            node.variables.removeChildScope(keys);
+            return node;
+	};
+    };
+    For.prototype = Object.create(AstNode.prototype);
+    return For;
+};
+
+},{}],23:[function(require,module,exports){
+'use strict';
+
+module.exports = function(AstNode, PassNode, Animations) {
+    var If = function(line, column, cond, block1, block2) {
+	AstNode.call(this, line, column);
+	this.compile = function(node) {
+            node = new PassNode(node);
+            var animations = new Animations();
+            if (cond.compile(node).value) {
+		node = block1.compile(node);
+            } else {
+		if(block2) {
+                    node = block2.compile(node);
+		}
+            }
+            animations.add(this.frame);
+
+            return node;
+	};
+    };
+    If.prototype = Object.create(AstNode.prototype);
+    return If;
+};
+
+},{}],24:[function(require,module,exports){
 'use strict';
 
 module.exports = function(AstNode, PassNode) {
@@ -829,6 +682,153 @@ module.exports = function(AstNode, PassNode) {
     };
     While.prototype = Object.create(AstNode.prototype);
     return While;
+};
+
+},{}],25:[function(require,module,exports){
+'use strict';
+
+module.exports = function(AstNode, PassNode, Animations) {
+    var FunctionCall = function(first, last, obj, method, params) {
+	AstNode.call(this, first, last);
+	this.compile = function(node) {
+            node = new PassNode(node);
+            var o = node.variables.get(obj.name);
+            var value;
+            value = params.compile(node).value;
+            o.value[method](value);
+            var data = o.value.slice();
+            new Animations().add(function($scope, editor) {
+		$scope.data = data;
+		$scope.structure = 'array';
+            });
+            return node;
+	};
+    };
+    FunctionCall.prototype = Object.create(AstNode.prototype);
+    return FunctionCall;
+};
+
+},{}],26:[function(require,module,exports){
+'use strict';
+
+module.exports = function(AstNode, PassNode, Animations, Prints) {
+    var Output = function(first, last, toPrint, type) {
+	AstNode.call(this, first, last);
+	this.compile = function(node) {
+            node = new PassNode(node);
+            node = toPrint.compile(node);
+            new Animations().add(this.frame);
+            if (type === 'print') {this.print = node.value;}
+            else if (type === 'println') {this.print = node.value + '\n';}
+            new Prints().add(this.print);
+            return node;
+	};
+    };
+    Output.prototype = Object.create(AstNode.prototype);
+    return Output;
+};
+
+},{}],27:[function(require,module,exports){
+'use strict';
+
+var compile = function(stmnts, node) {
+    var passNode = node;
+    for (var i = 0; i < stmnts.length; i++) {
+        passNode = stmnts[i].compile(passNode);
+    }
+    return passNode;
+};
+
+module.exports = function(AstNode, PassNode) {
+    var Block = function(first, last, stmnts) {
+	AstNode.call(this, first, last);
+	this.compile = function(node) {
+            node = new PassNode(node);
+            var keys = node.variables.getKeys();
+            node = compile(stmnts, node);
+            node.variables.removeChildScope(keys);
+            return node;
+	};
+    };
+    Block.prototype = Object.create(AstNode.prototype);
+    return Block;
+};
+
+},{}],28:[function(require,module,exports){
+'use strict';
+
+module.exports = function(AstNode, PassNode, Animations) {
+    var Line = function(line, column, val) {
+	AstNode.call(this, line, column);
+	this.compile = function(node) {
+            new Animations().add(this.frame);
+            node = new PassNode(node);
+            return val.compile(node);
+	};
+    };
+    Line.prototype = Object.create(AstNode.prototype);
+    return Line;
+};
+
+},{}],29:[function(require,module,exports){
+'use strict';
+
+module.exports = function(AstNode, PassNode, Animations) {
+    var Arr = function(line, list) {
+	AstNode.call(this, line, line);
+	this.compile = function(node) {
+            node = new PassNode(node);
+            var arr = list.replace(/\[(.*?)\]/g,"$1").split(',').map(function(item) {
+		return parseInt(item, 10);
+            });
+            node.value = arr;
+            var highlight = this.highlight;
+            var data = arr.slice();
+            new Animations().add(function($scope, editor) {
+		$scope.data = data;
+		$scope.structure = 'array';
+		highlight(editor);
+            });
+
+            return node;
+	};
+    };
+    Arr.prototype = Object.create(AstNode.prototype);
+    return Arr;
+};
+
+},{}],30:[function(require,module,exports){
+'use strict';
+
+module.exports = function(AstNode, PassNode, Animations) {
+    var BooleanNode = function(line, bool) {
+        AstNode.call(this, line, line);
+        this.compile = function(node) {
+            node = new PassNode(node);
+            new Animations().add(this.frame);
+            node.value = bool;
+            return node;
+        };
+    };
+    BooleanNode.prototype = Object.create(AstNode.prototype);
+    return BooleanNode;
+};
+
+},{}],31:[function(require,module,exports){
+'use strict';
+
+module.exports = function(AstNode, PassNode, Animations) {
+    var NumberNode = function(line, num) {
+	AstNode.call(this, line, line);
+	this.compile = function(node) {
+            new Animations().add(this.frame);
+            node = new PassNode(node);
+            node.value = Number(num);
+            return node;
+	};
+    };
+    NumberNode.prototype = Object.create(AstNode.prototype);
+    return NumberNode;
 };
 
 },{}],32:[function(require,module,exports){

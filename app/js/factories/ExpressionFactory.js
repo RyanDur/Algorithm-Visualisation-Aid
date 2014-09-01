@@ -6,9 +6,9 @@ var PassNode = require('../modules/nodes/PassNode');
 
 module.exports = function() {
     return {
-	Expression: require('../modules/nodes/Expression')(AstNode, PassNode, Animations),
-	Increment: require('../modules/nodes/Increment')(AstNode, PassNode),
-	Assign: require('../modules/nodes/Assign')(AstNode, PassNode),
-	Variable: require('../modules/nodes/Variable')(AstNode, PassNode, Animations)
+	Expression: require('../modules/nodes/exp/Expression')(AstNode, PassNode, Animations),
+	Increment: require('../modules/nodes/exp/Increment')(AstNode, PassNode),
+	Assign: require('../modules/nodes/exp/Assign')(AstNode, PassNode),
+	Variable: require('../modules/nodes/exp/Variable')(AstNode, PassNode, Animations)
     };
 }();

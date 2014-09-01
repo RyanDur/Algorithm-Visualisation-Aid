@@ -6,7 +6,7 @@ var PassNode = require('../modules/nodes/PassNode');
 
 module.exports = function() {
     return {
-	Block: require('../modules/nodes/Block')(AstNode, PassNode),
-	Line: require('../modules/nodes/Line')(AstNode, PassNode, Animations)
+	Block: require('../modules/nodes/stmnt/Block')(AstNode, PassNode),
+	Line: require('../modules/nodes/stmnt/Line')(AstNode, PassNode, Animations)
     };
 }();
