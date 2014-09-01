@@ -781,6 +781,7 @@ module.exports = function(AstNode, PassNode, Animations) {
             var arr = list.replace(/\[(.*?)\]/g,"$1").split(',').map(function(item) {
 		return parseInt(item, 10);
             });
+	    if((arr+'') === 'NaN') {arr = new Array();}
             node.value = arr;
             var highlight = this.highlight;
             var data = arr.slice();

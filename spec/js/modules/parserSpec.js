@@ -174,4 +174,8 @@ describe('parser', function() {
 	var program = "var arr <- [1]; for(var i <- 0; i < 5; i++) {arr.push(i);} print(arr);";
 	expect(parser.parse(program).print).toBe('1,0,1,2,3,4');
     });
+
+    it('it should be able to create an empty array', function() {
+	expect(parser.parse("var arr <- []; print(arr);").print).toBe('');
+    });
 });
