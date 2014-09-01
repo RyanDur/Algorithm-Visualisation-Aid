@@ -1,8 +1,5 @@
 'use strict';
 
-var AstNode = require('./AstNode');
-var PassNode = require('./PassNode');
-
 module.exports = function(AstNode, PassNode) {
     var For = function(first, last, decl, cond, exp, block) {
 	AstNode.call(this, first, last);

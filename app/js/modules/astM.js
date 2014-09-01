@@ -1,32 +1,12 @@
 'use strict';
 
-var Prints = require('./nodes/Prints');
 var Animations = require('./nodes/Animations');
-var AstNode = require('./nodes/AstNode');
-var PassNode = require('./nodes/PassNode');
-
-//Lines
-exports.Expression = require('./nodes/Expression')(AstNode, PassNode, Animations);
-exports.Block = require('./nodes/Block')(AstNode, PassNode);
-exports.Line = require('./nodes/Line')(AstNode, PassNode, Animations);
-
-//flow
-exports.If = require('./nodes/If')(AstNode, PassNode, Animations);
-exports.While = require('./nodes/While')(AstNode, PassNode);
-exports.For = require('./nodes/For')(AstNode, PassNode);
-exports.DoWhile = require('./nodes/DoWhile')(AstNode, PassNode);
-
-//Types
-exports.Arr = require('./nodes/Arr')(AstNode, PassNode, Animations);
-exports.Boolean = require('./nodes/Boolean')(AstNode, PassNode, Animations);
-exports.Number = require('./nodes/Number')(AstNode, PassNode, Animations);
-exports.Variable = require('./nodes/Variable')(AstNode, PassNode);
-
-//Functions
-exports.Increment = require('./nodes/Increment')(AstNode, PassNode);
-exports.Assign = require('./nodes/Assign')(AstNode, PassNode);
-exports.Output = require('./nodes/Output')(AstNode, PassNode, Animations, Prints);
-exports.FunctionCall = require('./nodes/FunctionCall')(AstNode, PassNode, Animations);
+var Prints = require('./nodes/Prints');
+var type = require('../factories/typeFactory');
+var flow = require('../factories/flowFactory');
+var expression = require('../factories/expressionFactory');
+var func = require('../factories/functionFactory');
+var statement = require('../factories/statementFactory');
 
 var compile = function(stmnts, node) {
     var passNode = node;
@@ -47,7 +27,34 @@ exports.compile = function(node) {
     return result;
 };
 
+exports.stmnt = {
+    Block: statement.Block,
+    Line: statement.Line
+};
+
+exports.func = {
+    Output: func.Output,
+    FunctionCall: func.FunctionCall
+};
+
+exports.flow = {
+    If: flow.If,
+    While: flow.While,
+    For: flow.For,
+    DoWhile: flow.DoWhile
+};
+
+exports.type = {
+    Arr: type.Arr,
+    Boolean: type.Boolean,
+    Number: type.Number
+};
+
 exports.exp = {
+    Expression: expression.Expression,
+    Increment: expression.Increment,
+    Assign: expression.Assign,
+    Variable: expression.Variable,
     Add: function(stmnt1, stmnt2) {
         return stmnt1.value + stmnt2.value;
     },

@@ -19,7 +19,7 @@ app.controller('EditorCtrl', ['$scope', '$timeout', editorCtrl]);
 
 app.directive('datastructure', dataStructure);
 
-},{"./controllers/editorCtrl":2,"./directives/dataStructure":3,"./grammars/grammar":4,"./modules/astM":5,"./modules/editor":6,"./modules/parser":27,"angular":28}],2:[function(require,module,exports){
+},{"./controllers/editorCtrl":2,"./directives/dataStructure":3,"./grammars/grammar":9,"./modules/astM":10,"./modules/editor":11,"./modules/parser":32,"angular":33}],2:[function(require,module,exports){
 'use strict';
 
 module.exports = function(editor, parser) {
@@ -68,6 +68,82 @@ module.exports = function() {
 };
 
 },{}],4:[function(require,module,exports){
+'use strict';
+
+var Animations = require('../modules/nodes/Animations');
+var AstNode = require('../modules/nodes/AstNode');
+var PassNode = require('../modules/nodes/PassNode');
+
+module.exports = function() {
+    return {
+	Expression: require('../modules/nodes/Expression')(AstNode, PassNode, Animations),
+	Increment: require('../modules/nodes/Increment')(AstNode, PassNode),
+	Assign: require('../modules/nodes/Assign')(AstNode, PassNode),
+	Variable: require('../modules/nodes/Variable')(AstNode, PassNode, Animations)
+    };
+}();
+
+},{"../modules/nodes/Animations":12,"../modules/nodes/Assign":14,"../modules/nodes/AstNode":15,"../modules/nodes/Expression":19,"../modules/nodes/Increment":23,"../modules/nodes/PassNode":27,"../modules/nodes/Variable":29}],5:[function(require,module,exports){
+'use strict';
+
+var Animations = require('../modules/nodes/Animations');
+var AstNode = require('../modules/nodes/AstNode');
+var PassNode = require('../modules/nodes/PassNode');
+
+module.exports = function() {
+    return {
+	If: require('../modules/nodes/If')(AstNode, PassNode, Animations),
+	While: require('../modules/nodes/While')(AstNode, PassNode),
+	For: require('../modules/nodes/For')(AstNode, PassNode),
+	DoWhile: require('../modules/nodes/DoWhile')(AstNode, PassNode)
+    };
+}();
+
+},{"../modules/nodes/Animations":12,"../modules/nodes/AstNode":15,"../modules/nodes/DoWhile":18,"../modules/nodes/For":20,"../modules/nodes/If":22,"../modules/nodes/PassNode":27,"../modules/nodes/While":31}],6:[function(require,module,exports){
+'use strict';
+
+var Animations = require('../modules/nodes/Animations');
+var AstNode = require('../modules/nodes/AstNode');
+var PassNode = require('../modules/nodes/PassNode');
+var Prints = require('../modules/nodes/Prints');
+
+module.exports = function() {
+    return {
+	Output: require('../modules/nodes/Output')(AstNode, PassNode, Animations, Prints),
+	FunctionCall: require('../modules/nodes/FunctionCall')(AstNode, PassNode, Animations)
+    };
+}();
+
+},{"../modules/nodes/Animations":12,"../modules/nodes/AstNode":15,"../modules/nodes/FunctionCall":21,"../modules/nodes/Output":26,"../modules/nodes/PassNode":27,"../modules/nodes/Prints":28}],7:[function(require,module,exports){
+'use strict';
+
+var Animations = require('../modules/nodes/Animations');
+var AstNode = require('../modules/nodes/AstNode');
+var PassNode = require('../modules/nodes/PassNode');
+
+module.exports = function() {
+    return {
+	Block: require('../modules/nodes/Block')(AstNode, PassNode),
+	Line: require('../modules/nodes/Line')(AstNode, PassNode, Animations)
+    };
+}();
+
+},{"../modules/nodes/Animations":12,"../modules/nodes/AstNode":15,"../modules/nodes/Block":16,"../modules/nodes/Line":24,"../modules/nodes/PassNode":27}],8:[function(require,module,exports){
+'use strict';
+
+var Animations = require('../modules/nodes/Animations');
+var AstNode = require('../modules/nodes/AstNode');
+var PassNode = require('../modules/nodes/PassNode');
+
+module.exports = function() {
+    return {
+	Arr: require('../modules/nodes/Arr')(AstNode, PassNode, Animations),
+	Boolean: require('../modules/nodes/Boolean')(AstNode, PassNode, Animations),
+	Number: require('../modules/nodes/Number')(AstNode, PassNode, Animations)
+    };
+}();
+
+},{"../modules/nodes/Animations":12,"../modules/nodes/Arr":13,"../modules/nodes/AstNode":15,"../modules/nodes/Boolean":17,"../modules/nodes/Number":25,"../modules/nodes/PassNode":27}],9:[function(require,module,exports){
 module.exports={
     "lex": {
         "rules": [
@@ -142,39 +218,39 @@ module.exports={
         ],
 
         "if" :[
-            [ "IF ( cond ) block",                "$$ = new yy.If(@1, @4, $3, $5);" ],
-            [ "IF ( cond ) block ELSE if",        "$$ = new yy.If(@1, @4, $3, $5, $7);" ],
-            [ "IF ( cond ) block ELSE block",     "$$ = new yy.If(@1, @4, $3, $5, $7);" ]
+            [ "IF ( cond ) block",                "$$ = new yy.flow.If(@1, @4, $3, $5);" ],
+            [ "IF ( cond ) block ELSE if",        "$$ = new yy.flow.If(@1, @4, $3, $5, $7);" ],
+            [ "IF ( cond ) block ELSE block",     "$$ = new yy.flow.If(@1, @4, $3, $5, $7);" ]
         ],
 
         "loop" :[
-            [ "WHILE ( cond ) block",                  "$$ = new yy.While(@1, @5, $3, $5);" ],
-            [ "DO block WHILE ( cond ) TERM",          "$$ = new yy.DoWhile(@1, @7, $2, $5);" ],
-            [ "FOR ( decl TERM cond TERM exp ) block", "$$ = new yy.For(@1, @8, $3, $5, $7, $9);" ]
+            [ "WHILE ( cond ) block",                  "$$ = new yy.flow.While(@1, @5, $3, $5);" ],
+            [ "DO block WHILE ( cond ) TERM",          "$$ = new yy.flow.DoWhile(@1, @7, $2, $5);" ],
+            [ "FOR ( decl TERM cond TERM exp ) block", "$$ = new yy.flow.For(@1, @8, $3, $5, $7, $9);" ]
         ],
 
         "block" :[
-            [ "{ stmnt }", "$$ = new yy.Block(@1, @3, $2);" ]
+            [ "{ stmnt }", "$$ = new yy.stmnt.Block(@1, @3, $2);" ]
         ],
 
         "decl" :[
             [ "TYPE decl",             "$$ = $2" ],
-            [ "var ASSIGN returnable", "$$ = new yy.Assign(@1, @3, $1, $3);" ]
+            [ "var ASSIGN returnable", "$$ = new yy.exp.Assign(@1, @3, $1, $3);" ]
         ],
 
         "line": [
-            [ "returnable TERM",           "$$ = new yy.Line(@1, @2, $1);" ],
-            [ "decl TERM",                 "$$ = new yy.Line(@1, @2, $1);" ],
-            [ "func TERM",                 "$$ = new yy.Line(@1, @2, $1);" ]
+            [ "returnable TERM",           "$$ = new yy.stmnt.Line(@1, @2, $1);" ],
+            [ "decl TERM",                 "$$ = new yy.stmnt.Line(@1, @2, $1);" ],
+            [ "func TERM",                 "$$ = new yy.stmnt.Line(@1, @2, $1);" ]
         ],
 
         'structure' : [
-            [ "ARRAY",      "$$ = new yy.Arr(@1, $1)" ]
+            [ "ARRAY",      "$$ = new yy.type.Arr(@1, $1)" ]
         ],
 
         'func': [
-            [ "PRINT ( returnable )",        "$$ = new yy.Output(@1, @4, $3, $1);" ],
-	    [ "exp DOT VARIABLE ( params )", "$$ = new yy.FunctionCall(@1, @6, $1, $3, $5);" ]
+            [ "PRINT ( returnable )",        "$$ = new yy.func.Output(@1, @4, $3, $1);" ],
+	    [ "exp DOT VARIABLE ( params )", "$$ = new yy.func.FunctionCall(@1, @6, $1, $3, $5);" ]
         ],
 
 	"params" :[
@@ -183,65 +259,45 @@ module.exports={
 	],
 
         'var' : [
-            [ "VARIABLE",   "$$ = new yy.Variable(@1, $1);;"]
+            [ "VARIABLE",   "$$ = new yy.exp.Variable(@1, $1);;"]
         ],
 
         "exp" :[
             [ "var",        "$$ = $1"],
-            [ "NUMBER",     "$$ = new yy.Number(@1,yytext);" ],
+            [ "NUMBER",     "$$ = new yy.type.Number(@1,yytext);" ],
             [ "( exp )",    "$$ = $2;" ],
-	    [ "INC",        "$$ = new yy.Increment(@1, $1);" ],
-            [ "exp + exp",  "$$ = new yy.Expression(@1, @3, $1, $3, yy.exp.Add);" ],
-            [ "exp - exp",  "$$ = new yy.Expression(@1, @3, $1, $3, yy.exp.Subtract);" ],
-            [ "exp * exp",  "$$ = new yy.Expression(@1, @3, $1, $3, yy.exp.Multiply);" ],
-            [ "exp / exp",  "$$ = new yy.Expression(@1, @3, $1, $3, yy.exp.Divide);" ],
-            [ "exp ^ exp",  "$$ = new yy.Expression(@1, @3, $1, $3, yy.exp.Pow);" ],
+	    [ "INC",        "$$ = new yy.exp.Increment(@1, $1);" ],
+            [ "exp + exp",  "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Add);" ],
+            [ "exp - exp",  "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Subtract);" ],
+            [ "exp * exp",  "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Multiply);" ],
+            [ "exp / exp",  "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Divide);" ],
+            [ "exp ^ exp",  "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Pow);" ],
             [ "E",          "$$ = Math.E;" ],
             [ "PI",         "$$ = Math.PI;" ]
         ],
 
         "cond" :[
-            [ "exp EQUALITY exp", "$$ = new yy.Expression(@1, @3, $1, $3, yy.exp.Equal);" ],
-            [ "exp NOTEQUAL exp", "$$ = new yy.Expression(@1, @3, $1, $3, yy.exp.Inequal);" ],
-            [ "exp LTE exp",      "$$ = new yy.Expression(@1, @3, $1, $3, yy.exp.LTE);" ],
-            [ "exp GTE exp",      "$$ = new yy.Expression(@1, @3, $1, $3, yy.exp.GTE);" ],
-            [ "exp LT exp",       "$$ = new yy.Expression(@1, @3, $1, $3, yy.exp.LT);" ],
-            [ "TRUE",             "$$ = new yy.Boolean(@1, true);"],
-            [ "FALSE",            "$$ = new yy.Boolean(@1, false);"]
+            [ "exp EQUALITY exp", "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Equal);" ],
+            [ "exp NOTEQUAL exp", "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Inequal);" ],
+            [ "exp LTE exp",      "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.LTE);" ],
+            [ "exp GTE exp",      "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.GTE);" ],
+            [ "exp LT exp",       "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.LT);" ],
+            [ "TRUE",             "$$ = new yy.type.Boolean(@1, true);"],
+            [ "FALSE",            "$$ = new yy.type.Boolean(@1, false);"]
         ]
     }
 };
 
-},{}],5:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 'use strict';
 
-var Prints = require('./nodes/Prints');
 var Animations = require('./nodes/Animations');
-var AstNode = require('./nodes/AstNode');
-var PassNode = require('./nodes/PassNode');
-
-//Lines
-exports.Expression = require('./nodes/Expression')(AstNode, PassNode, Animations);
-exports.Block = require('./nodes/Block')(AstNode, PassNode);
-exports.Line = require('./nodes/Line')(AstNode, PassNode, Animations);
-
-//flow
-exports.If = require('./nodes/If')(AstNode, PassNode, Animations);
-exports.While = require('./nodes/While')(AstNode, PassNode);
-exports.For = require('./nodes/For')(AstNode, PassNode);
-exports.DoWhile = require('./nodes/DoWhile')(AstNode, PassNode);
-
-//Types
-exports.Arr = require('./nodes/Arr')(AstNode, PassNode, Animations);
-exports.Boolean = require('./nodes/Boolean')(AstNode, PassNode, Animations);
-exports.Number = require('./nodes/Number')(AstNode, PassNode, Animations);
-exports.Variable = require('./nodes/Variable')(AstNode, PassNode);
-
-//Functions
-exports.Increment = require('./nodes/Increment')(AstNode, PassNode);
-exports.Assign = require('./nodes/Assign')(AstNode, PassNode);
-exports.Output = require('./nodes/Output')(AstNode, PassNode, Animations, Prints);
-exports.FunctionCall = require('./nodes/FunctionCall');
+var Prints = require('./nodes/Prints');
+var type = require('../factories/typeFactory');
+var flow = require('../factories/flowFactory');
+var expression = require('../factories/expressionFactory');
+var func = require('../factories/functionFactory');
+var statement = require('../factories/statementFactory');
 
 var compile = function(stmnts, node) {
     var passNode = node;
@@ -262,7 +318,34 @@ exports.compile = function(node) {
     return result;
 };
 
+exports.stmnt = {
+    Block: statement.Block,
+    Line: statement.Line
+};
+
+exports.func = {
+    Output: func.Output,
+    FunctionCall: func.FunctionCall
+};
+
+exports.flow = {
+    If: flow.If,
+    While: flow.While,
+    For: flow.For,
+    DoWhile: flow.DoWhile
+};
+
+exports.type = {
+    Arr: type.Arr,
+    Boolean: type.Boolean,
+    Number: type.Number
+};
+
 exports.exp = {
+    Expression: expression.Expression,
+    Increment: expression.Increment,
+    Assign: expression.Assign,
+    Variable: expression.Variable,
     Add: function(stmnt1, stmnt2) {
         return stmnt1.value + stmnt2.value;
     },
@@ -298,7 +381,7 @@ exports.exp = {
     }
 };
 
-},{"./nodes/Animations":7,"./nodes/Arr":8,"./nodes/Assign":9,"./nodes/AstNode":10,"./nodes/Block":11,"./nodes/Boolean":12,"./nodes/DoWhile":13,"./nodes/Expression":14,"./nodes/For":15,"./nodes/FunctionCall":16,"./nodes/If":17,"./nodes/Increment":18,"./nodes/Line":19,"./nodes/Number":20,"./nodes/Output":21,"./nodes/PassNode":22,"./nodes/Prints":23,"./nodes/Variable":24,"./nodes/While":26}],6:[function(require,module,exports){
+},{"../factories/expressionFactory":4,"../factories/flowFactory":5,"../factories/functionFactory":6,"../factories/statementFactory":7,"../factories/typeFactory":8,"./nodes/Animations":12,"./nodes/Prints":28}],11:[function(require,module,exports){
 'use strict';
 
 module.exports = function editor(elementId) {
@@ -331,7 +414,7 @@ module.exports = function editor(elementId) {
     };
 };
 
-},{"brace":30,"brace/theme/monokai":32}],7:[function(require,module,exports){
+},{"brace":35,"brace/theme/monokai":37}],12:[function(require,module,exports){
 'use strict';
 
 module.exports = function Animations() {
@@ -354,7 +437,7 @@ module.exports = function Animations() {
     };
 };
 
-},{}],8:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 'use strict';
 
 module.exports = function(AstNode, PassNode, Animations) {
@@ -381,7 +464,7 @@ module.exports = function(AstNode, PassNode, Animations) {
     return Arr;
 };
 
-},{}],9:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 'use strict';
 
 module.exports = function(AstNode, PassNode) {
@@ -398,7 +481,7 @@ module.exports = function(AstNode, PassNode) {
     return Assign;
 };
 
-},{}],10:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 'use strict';
 
 module.exports = function (first, last) {
@@ -416,7 +499,7 @@ module.exports = function (first, last) {
     };
 };
 
-},{}],11:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 'use strict';
 
 var compile = function(stmnts, node) {
@@ -442,12 +525,8 @@ module.exports = function(AstNode, PassNode) {
     return Block;
 };
 
-},{}],12:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 'use strict';
-
-var AstNode = require('./AstNode');
-var Animations = require('./Animations');
-var PassNode = require('./PassNode');
 
 module.exports = function(AstNode, PassNode, Animations) {
     var BooleanNode = function(line, bool) {
@@ -456,7 +535,6 @@ module.exports = function(AstNode, PassNode, Animations) {
             node = new PassNode(node);
             new Animations().add(this.frame);
             node.value = bool;
-
             return node;
         };
     };
@@ -464,7 +542,7 @@ module.exports = function(AstNode, PassNode, Animations) {
     return BooleanNode;
 };
 
-},{"./Animations":7,"./AstNode":10,"./PassNode":22}],13:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 'use strict';
 
 module.exports = function(AstNode, PassNode) {
@@ -483,7 +561,7 @@ module.exports = function(AstNode, PassNode) {
     return DoWhile;
 };
 
-},{}],14:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 'use strict';
 
 module.exports = function(AstNode, PassNode, Animations) {
@@ -513,11 +591,8 @@ module.exports = function(AstNode, PassNode, Animations) {
     return Expression;
 };
 
-},{}],15:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 'use strict';
-
-var AstNode = require('./AstNode');
-var PassNode = require('./PassNode');
 
 module.exports = function(AstNode, PassNode) {
     var For = function(first, last, decl, cond, exp, block) {
@@ -539,7 +614,7 @@ module.exports = function(AstNode, PassNode) {
     return For;
 };
 
-},{"./AstNode":10,"./PassNode":22}],16:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 'use strict';
 
 module.exports = function(AstNode, PassNode, Animations) {
@@ -563,7 +638,7 @@ module.exports = function(AstNode, PassNode, Animations) {
     return FunctionCall;
 };
 
-},{}],17:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 'use strict';
 
 module.exports = function(AstNode, PassNode, Animations) {
@@ -588,7 +663,7 @@ module.exports = function(AstNode, PassNode, Animations) {
     return If;
 };
 
-},{}],18:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 'use strict';
 
 module.exports = function(AstNode, PassNode) {
@@ -606,7 +681,7 @@ module.exports = function(AstNode, PassNode) {
     return Increment;
 };
 
-},{}],19:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 'use strict';
 
 module.exports = function(AstNode, PassNode, Animations) {
@@ -622,7 +697,7 @@ module.exports = function(AstNode, PassNode, Animations) {
     return Line;
 };
 
-},{}],20:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 'use strict';
 
 module.exports = function(AstNode, PassNode, Animations) {
@@ -639,7 +714,7 @@ module.exports = function(AstNode, PassNode, Animations) {
     return NumberNode;
 };
 
-},{}],21:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 'use strict';
 
 module.exports = function(AstNode, PassNode, Animations, Prints) {
@@ -659,7 +734,7 @@ module.exports = function(AstNode, PassNode, Animations, Prints) {
     return Output;
 };
 
-},{}],22:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 'use strict';
 var Variables = require('./Variables');
 
@@ -668,7 +743,7 @@ module.exports = function PassNode(node) {
     this.value = node ? node.value : null;
 };
 
-},{"./Variables":25}],23:[function(require,module,exports){
+},{"./Variables":30}],28:[function(require,module,exports){
 'use strict';
 
 module.exports = function Prints() {
@@ -691,7 +766,7 @@ module.exports = function Prints() {
     };
 };
 
-},{}],24:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 'use strict';
 
 module.exports = function(AstNode, PassNode) {
@@ -708,7 +783,7 @@ module.exports = function(AstNode, PassNode) {
     return Variable;
 };
 
-},{}],25:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 'use strict';
 
 module.exports = function() {
@@ -738,7 +813,7 @@ module.exports = function() {
     };
 };
 
-},{}],26:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 'use strict';
 
 module.exports = function(AstNode, PassNode) {
@@ -756,7 +831,7 @@ module.exports = function(AstNode, PassNode) {
     return While;
 };
 
-},{}],27:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 'use strict';
 var Parser = require("jison").Parser;
 
@@ -770,12 +845,12 @@ module.exports = function(grammar, ast) {
     };
 };
 
-},{"jison":36}],28:[function(require,module,exports){
+},{"jison":41}],33:[function(require,module,exports){
 require('./lib/angular.js');
 
 module.exports = angular;
 
-},{"./lib/angular.js":29}],29:[function(require,module,exports){
+},{"./lib/angular.js":34}],34:[function(require,module,exports){
 /**
  * @license AngularJS v1.2.21
  * (c) 2010-2014 Google, Inc. http://angularjs.org
@@ -22659,7 +22734,7 @@ var styleDirective = valueFn({
 })(window, document);
 
 !window.angular.$$csp() && window.angular.element(document).find('head').prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide{display:none !important;}ng\\:form{display:block;}.ng-animate-block-transitions{transition:0s all!important;-webkit-transition:0s all!important;}.ng-hide-add-active,.ng-hide-remove{display:block!important;}</style>');
-},{}],30:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 /* ***** BEGIN LICENSE BLOCK *****
  * Distributed under the BSD license:
  *
@@ -40758,7 +40833,7 @@ exports.UndoManager = UndoManager;
             })();
         
 module.exports = window.ace.acequire("ace/ace");
-},{"w3c-blob":31}],31:[function(require,module,exports){
+},{"w3c-blob":36}],36:[function(require,module,exports){
 (function (global){
 module.exports = get_blob()
 
@@ -40790,7 +40865,7 @@ function get_blob() {
 }
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],32:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 ace.define("ace/theme/monokai",["require","exports","module","ace/lib/dom"], function(acequire, exports, module) {
 
 exports.isDark = true;
@@ -40898,9 +40973,9 @@ var dom = acequire("../lib/dom");
 dom.importCssString(exports.cssText, exports.cssClass);
 });
 
-},{}],33:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 
-},{}],34:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 (function (process){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -41128,7 +41203,7 @@ var substr = 'ab'.substr(-1) === 'b'
 ;
 
 }).call(this,require("FWaASH"))
-},{"FWaASH":35}],35:[function(require,module,exports){
+},{"FWaASH":40}],40:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -41193,7 +41268,7 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],36:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 (function (process){
 // Jison, an LR(0), SLR(1), LARL(1), LR(1) Parser Generator
 // Zachary Carter <zach@carter.name>
@@ -42947,7 +43022,7 @@ return function Parser (g, options) {
 
 
 }).call(this,require("FWaASH"))
-},{"../package.json":61,"./util/set":37,"./util/typal":38,"FWaASH":35,"JSONSelect":39,"ebnf-parser":40,"escodegen":44,"esprima":57,"fs":33,"jison-lex":59,"path":34}],37:[function(require,module,exports){
+},{"../package.json":66,"./util/set":42,"./util/typal":43,"FWaASH":40,"JSONSelect":44,"ebnf-parser":45,"escodegen":49,"esprima":62,"fs":38,"jison-lex":64,"path":39}],42:[function(require,module,exports){
 // Set class to wrap arrays
 
 var typal = require("./typal").typal;
@@ -43042,7 +43117,7 @@ if (typeof exports !== 'undefined')
     exports.Set = Set;
 
 
-},{"./typal":38}],38:[function(require,module,exports){
+},{"./typal":43}],43:[function(require,module,exports){
 /*
  * Introduces a typal object to make classical/prototypal patterns easier
  * Plus some AOP sugar
@@ -43134,7 +43209,7 @@ return {
 if (typeof exports !== 'undefined')
     exports.typal = typal;
 
-},{}],39:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 /*! Copyright (c) 2011, Lloyd Hilaiel, ISC License */
 /*
  * This is the JSONSelect reference implementation, in javascript.  This
@@ -43708,7 +43783,7 @@ if (typeof exports !== 'undefined')
     exports.compile = compile;
 })(typeof exports === "undefined" ? (window.JSONSelect = {}) : exports);
 
-},{}],40:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 var bnf = require("./parser").parser,
     ebnf = require("./ebnf-transform"),
     jisonlex = require("lex-parser");
@@ -43751,7 +43826,7 @@ var parseLex = function (text) {
 };
 
 
-},{"./ebnf-transform":41,"./parser":42,"lex-parser":60}],41:[function(require,module,exports){
+},{"./ebnf-transform":46,"./parser":47,"lex-parser":65}],46:[function(require,module,exports){
 var EBNF = (function(){
     var parser = require('./transform-parser.js');
 
@@ -43888,7 +43963,7 @@ var EBNF = (function(){
 exports.transform = EBNF.transform;
 
 
-},{"./transform-parser.js":43}],42:[function(require,module,exports){
+},{"./transform-parser.js":48}],47:[function(require,module,exports){
 (function (process){
 /* parser generated by jison 0.4.11 */
 /*
@@ -44693,7 +44768,7 @@ if (typeof module !== 'undefined' && require.main === module) {
 }
 }
 }).call(this,require("FWaASH"))
-},{"./ebnf-transform":41,"FWaASH":35,"fs":33,"path":34}],43:[function(require,module,exports){
+},{"./ebnf-transform":46,"FWaASH":40,"fs":38,"path":39}],48:[function(require,module,exports){
 (function (process){
 /* parser generated by jison 0.4.11 */
 /*
@@ -45325,7 +45400,7 @@ if (typeof module !== 'undefined' && require.main === module) {
 }
 }
 }).call(this,require("FWaASH"))
-},{"FWaASH":35,"fs":33,"path":34}],44:[function(require,module,exports){
+},{"FWaASH":40,"fs":38,"path":39}],49:[function(require,module,exports){
 (function (global){
 /*
   Copyright (C) 2012 Michael Ficarra <escodegen.copyright@michael.ficarra.me>
@@ -47583,7 +47658,7 @@ if (typeof module !== 'undefined' && require.main === module) {
 /* vim: set sw=4 ts=4 et tw=80 : */
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./package.json":56,"estraverse":45,"source-map":46}],45:[function(require,module,exports){
+},{"./package.json":61,"estraverse":50,"source-map":51}],50:[function(require,module,exports){
 /*
   Copyright (C) 2012 Yusuke Suzuki <utatane.tea@gmail.com>
   Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
@@ -47900,7 +47975,7 @@ if (typeof module !== 'undefined' && require.main === module) {
 }));
 /* vim: set sw=4 ts=4 et tw=80 : */
 
-},{}],46:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 /*
  * Copyright 2009-2011 Mozilla Foundation and contributors
  * Licensed under the New BSD license. See LICENSE.txt or:
@@ -47910,7 +47985,7 @@ exports.SourceMapGenerator = require('./source-map/source-map-generator').Source
 exports.SourceMapConsumer = require('./source-map/source-map-consumer').SourceMapConsumer;
 exports.SourceNode = require('./source-map/source-node').SourceNode;
 
-},{"./source-map/source-map-consumer":51,"./source-map/source-map-generator":52,"./source-map/source-node":53}],47:[function(require,module,exports){
+},{"./source-map/source-map-consumer":56,"./source-map/source-map-generator":57,"./source-map/source-node":58}],52:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -48009,7 +48084,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./util":54,"amdefine":55}],48:[function(require,module,exports){
+},{"./util":59,"amdefine":60}],53:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -48155,7 +48230,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./base64":49,"amdefine":55}],49:[function(require,module,exports){
+},{"./base64":54,"amdefine":60}],54:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -48199,7 +48274,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":55}],50:[function(require,module,exports){
+},{"amdefine":60}],55:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -48282,7 +48357,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":55}],51:[function(require,module,exports){
+},{"amdefine":60}],56:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -48762,7 +48837,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./array-set":47,"./base64-vlq":48,"./binary-search":50,"./util":54,"amdefine":55}],52:[function(require,module,exports){
+},{"./array-set":52,"./base64-vlq":53,"./binary-search":55,"./util":59,"amdefine":60}],57:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -49167,7 +49242,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./array-set":47,"./base64-vlq":48,"./util":54,"amdefine":55}],53:[function(require,module,exports){
+},{"./array-set":52,"./base64-vlq":53,"./util":59,"amdefine":60}],58:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -49577,7 +49652,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./source-map-generator":52,"./util":54,"amdefine":55}],54:[function(require,module,exports){
+},{"./source-map-generator":57,"./util":59,"amdefine":60}],59:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -49898,7 +49973,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":55}],55:[function(require,module,exports){
+},{"amdefine":60}],60:[function(require,module,exports){
 (function (process,__filename){
 /** vim: et:ts=4:sw=4:sts=4
  * @license amdefine 0.1.0 Copyright (c) 2011, The Dojo Foundation All Rights Reserved.
@@ -50201,7 +50276,7 @@ function amdefine(module, requireFn) {
 module.exports = amdefine;
 
 }).call(this,require("FWaASH"),"/../../node_modules/jison/node_modules/escodegen/node_modules/source-map/node_modules/amdefine/amdefine.js")
-},{"FWaASH":35,"path":34}],56:[function(require,module,exports){
+},{"FWaASH":40,"path":39}],61:[function(require,module,exports){
 module.exports={
   "name": "escodegen",
   "description": "ECMAScript code generator",
@@ -50267,7 +50342,7 @@ module.exports={
   "_resolved": "https://registry.npmjs.org/escodegen/-/escodegen-0.0.21.tgz"
 }
 
-},{}],57:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 /*
   Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
   Copyright (C) 2012 Mathias Bynens <mathias@qiwi.be>
@@ -54177,7 +54252,7 @@ parseStatement: true, parseSourceElement: true */
 }));
 /* vim: set sw=4 ts=4 et tw=80 : */
 
-},{}],58:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 module.exports={
   "author": {
     "name": "Zach Carter",
@@ -54246,7 +54321,7 @@ module.exports={
   "_resolved": "https://registry.npmjs.org/jison-lex/-/jison-lex-0.2.1.tgz"
 }
 
-},{}],59:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 // Basic Lexer implemented using JavaScript regular expressions
 // MIT Licensed
 
@@ -54819,7 +54894,7 @@ return RegExpLexer;
 module.exports = RegExpLexer;
 
 
-},{"./package.json":58,"lex-parser":60}],60:[function(require,module,exports){
+},{"./package.json":63,"lex-parser":65}],65:[function(require,module,exports){
 (function (process){
 /* parser generated by jison 0.4.6 */
 /*
@@ -55673,7 +55748,7 @@ if (typeof module !== 'undefined' && require.main === module) {
 }
 }
 }).call(this,require("FWaASH"))
-},{"FWaASH":35,"fs":33,"path":34}],61:[function(require,module,exports){
+},{"FWaASH":40,"fs":38,"path":39}],66:[function(require,module,exports){
 module.exports={
   "author": {
     "name": "Zach Carter",

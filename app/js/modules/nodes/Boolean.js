@@ -1,9 +1,5 @@
 'use strict';
 
-var AstNode = require('./AstNode');
-var Animations = require('./Animations');
-var PassNode = require('./PassNode');
-
 module.exports = function(AstNode, PassNode, Animations) {
     var BooleanNode = function(line, bool) {
         AstNode.call(this, line, line);
@@ -11,7 +7,6 @@ module.exports = function(AstNode, PassNode, Animations) {
             node = new PassNode(node);
             new Animations().add(this.frame);
             node.value = bool;
-
             return node;
         };
     };
