@@ -311,12 +311,11 @@ module.exports={
 
         'sep': [
             ["", ""],
-	    ["COMMA", "$$ = yytext"]
+            ["COMMA", "$$ = yytext"]
         ],
 
         'func': [
-            [ "PRINT ( returnable )",        "$$ = new yy.func.Output(@1, @4, $3, $1);" ],
-            [ "exp DOT VARIABLE ( params )", "$$ = new yy.func.FunctionCall(@1, @6, $1, $3, $5);" ]
+            [ "PRINT ( returnable )",        "$$ = new yy.func.Output(@1, @4, $3, $1);" ]
         ],
 
         "params" :[
@@ -327,6 +326,10 @@ module.exports={
         'var' : [
             [ "VARIABLE",   "$$ = new yy.exp.Variable(@1, $1);;"]
         ],
+
+	'method': [
+	    ["VARIABLE", "$$ = yytext"]
+	],
 
         "exp" :[
             [ "var",        "$$ = $1"],
@@ -340,7 +343,8 @@ module.exports={
             [ "exp ^ exp",  "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Pow);" ],
             [ "E",          "$$ = Math.E;" ],
             [ "PI",         "$$ = Math.PI;" ],
-            [ "var [ elems ]",  "$$ = new yy.func.ArrayAccess(@1, @2, $1, $3);" ]
+            [ "var [ elems ]",  "$$ = new yy.func.ArrayAccess(@1, @2, $1, $3);" ],
+            [ "var DOT method ( params )", "$$ = new yy.func.FunctionCall(@1, @6, $1, $3, $5);" ]
         ],
 
         "cond" :[
@@ -764,10 +768,8 @@ module.exports = function (AstNode, PassNode, Animations) {
         this.compile = function(node) {
             node = new PassNode(node);
             var a = variable.compile(node).value;
-	    var index = arr.compile(node).value;
-	    console.log(a);
+	    var index = arr[0].compile(node).value;
             node.value = a[index];
-	    console.log(index);
 	    new Animations().add(function($scope, editor) {
 		$scope.search = index;
 	    });
@@ -788,8 +790,13 @@ module.exports = function(AstNode, PassNode, Animations) {
             node = new PassNode(node);
             var o = node.variables.get(obj.name);
             var value;
-            value = params.compile(node).value;
-            o.value[method](value);
+	    if (params.length === 0) {
+		value = params.compile(node).value;
+		o.value[method](value);
+	    } else {
+		o.value[method];
+	    }
+
             var data = o.value.slice();
             new Animations().add(function($scope, editor) {
 		$scope.data = data;
@@ -873,8 +880,10 @@ module.exports = function(AstNode, PassNode, Animations) {
 	this.compile = function(node) {
             node = new PassNode(node);
 	    var arr = [];
-            for(var i = 0; i < list.length; i++) {
-		arr.push(list[i].compile(node).value);
+	    if(list) {
+		for(var i = 0; i < list.length; i++) {
+		    arr.push(list[i].compile(node).value);
+		}
 	    }
             node.value = arr;
             var highlight = this.highlight;
