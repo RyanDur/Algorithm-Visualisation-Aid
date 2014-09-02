@@ -14,12 +14,9 @@ module.exports = function($timeout) {
             var old = [];
             scope.data = [];
             scope.array = undefined;
-	    scope.$watch('search', function() {
-		console.log('hello');
-	    });
             scope.$watch('data', function(newVal, oldVal) {
-                scope.push = false;
                 if(!newVal.equals(oldVal)) {
+		    scope.push = false;
 		    if(old.length === 0) {
 			scope.push = true;
 		    }else {

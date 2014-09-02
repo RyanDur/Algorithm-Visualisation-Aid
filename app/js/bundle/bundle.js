@@ -69,12 +69,9 @@ module.exports = function($timeout) {
             var old = [];
             scope.data = [];
             scope.array = undefined;
-	    scope.$watch('search', function() {
-		console.log('hello');
-	    });
             scope.$watch('data', function(newVal, oldVal) {
-                scope.push = false;
                 if(!newVal.equals(oldVal)) {
+		    scope.push = false;
 		    if(old.length === 0) {
 			scope.push = true;
 		    }else {
@@ -790,13 +787,18 @@ module.exports = function(AstNode, PassNode, Animations) {
             node = new PassNode(node);
             var o = node.variables.get(obj.name);
             var value;
-	    if (params.length === 0) {
+	    var ret;
+	    if (params) {
 		value = params.compile(node).value;
-		o.value[method](value);
+		ret = o.value[method](value);
 	    } else {
-		o.value[method];
+		if(typeof o.value === 'function') {
+		    ret = o.value[method]();
+		} else {
+		    ret = o.value[method];
+		}
 	    }
-
+	    node.value = ret;
             var data = o.value.slice();
             new Animations().add(function($scope, editor) {
 		$scope.data = data;
@@ -885,7 +887,7 @@ module.exports = function(AstNode, PassNode, Animations) {
 		    arr.push(list[i].compile(node).value);
 		}
 	    }
-            node.value = arr;
+            node.value = arr.slice();
             var highlight = this.highlight;
             var data = arr;
             new Animations().add(function($scope, editor) {

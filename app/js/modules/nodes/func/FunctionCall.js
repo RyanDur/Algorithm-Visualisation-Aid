@@ -7,18 +7,19 @@ module.exports = function(AstNode, PassNode, Animations) {
             node = new PassNode(node);
             var o = node.variables.get(obj.name);
             var value;
+	    var ret;
 	    if (params) {
 		value = params.compile(node).value;
-		value = o.value[method](value);
+		ret = o.value[method](value);
 	    } else {
 		if(typeof o.value === 'function') {
-		    value = o.value[method]();
+		    ret = o.value[method]();
 		} else {
-		    value = o.value[method];
+		    ret = o.value[method];
 		}
 	    }
-	    node.value = value;
-            var data = value;
+	    node.value = ret;
+            var data = o.value.slice();
             new Animations().add(function($scope, editor) {
 		$scope.data = data;
 		$scope.structure = 'array';

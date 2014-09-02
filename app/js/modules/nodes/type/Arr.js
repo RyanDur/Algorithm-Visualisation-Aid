@@ -11,7 +11,7 @@ module.exports = function(AstNode, PassNode, Animations) {
 		    arr.push(list[i].compile(node).value);
 		}
 	    }
-            node.value = arr;
+            node.value = arr.slice();
             var highlight = this.highlight;
             var data = arr;
             new Animations().add(function($scope, editor) {
