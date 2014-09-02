@@ -9,7 +9,10 @@ module.exports = function editor(elementId) {
     require('brace/theme/monokai');
     codeEditor = ace.edit(elementId);
     codeEditor.setTheme('ace/theme/monokai');
-    codeEditor.setValue(["var arr <- [1,2,3,4,5];",
+    codeEditor.setValue(["var arr <- [];",
+			 "for(var i <- 0; i < 5; i++) {",
+			 "\tarr.push(i);",
+			 "}",
                          "print(arr);"].join('\n'));
     codeEditor.clearSelection();
     session = codeEditor.session;

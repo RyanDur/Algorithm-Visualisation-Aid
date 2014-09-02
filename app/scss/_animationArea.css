@@ -16,9 +16,19 @@
     right: 0; }
     #animationArea datastructure ul {
       padding-top: 25px;
-      text-align: center; }
+      text-align: center;
+      position: relative; }
+      #animationArea datastructure ul li {
+        position: relative;
+        transition: all 2s ease-out; }
       #animationArea datastructure ul .array {
         display: inline;
         list-style-type: none;
         padding: 20px;
         border: 1px solid black; }
+      #animationArea datastructure ul .ready {
+        left: 150px;
+        opacity: 0; }
+      #animationArea datastructure ul .push {
+        left: 0px;
+        opacity: 1; }

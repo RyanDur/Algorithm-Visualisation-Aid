@@ -1,5 +1,5 @@
 <ul>
-  <li class="{{structure}}" ng-repeat="elem in data track by $index">
+  <li class="index{{$index}} {{structure}}" ng-repeat="elem in array track by $index" ng-class="{ready: $last, push: push}">
     {{elem}}
   </li>
 </ul>

@@ -9,8 +9,11 @@ describe('editor', function() {
     });
 
     it('should be able to retrieve the users content', function() {
-	var content = ["var arr <- [1,2,3,4,5];",
-		       "print(arr);"].join('\n');
+	var content = ["var arr <- [];",
+		       "for(var i <- 0; i < 5; i++) {",
+		       "\tarr.push(i);",
+		       "}",
+                       "print(arr);"].join('\n');
 	expect(editor.getContent()).toBe(content);
     });
 
