@@ -6,13 +6,17 @@ module.exports = function($timeout) {
         replace: false,
         scope: {
             data: "=",
-            structure: "@"
+            structure: "@",
+	    search: "="
         },
         templateUrl: "templates/data_array.html",
         link: function(scope, elem, attrs) {
             var old = [];
             scope.data = [];
             scope.array = undefined;
+	    scope.$watch('search', function() {
+		console.log('hello');
+	    });
             scope.$watch('data', function(newVal, oldVal) {
                 scope.push = false;
                 if(!newVal.equals(oldVal)) {

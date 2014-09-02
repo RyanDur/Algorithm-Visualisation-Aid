@@ -9,6 +9,6 @@ module.exports = function() {
     return {
 	Output: require('../modules/nodes/func/Output')(AstNode, PassNode, Animations, Prints),
 	FunctionCall: require('../modules/nodes/func/FunctionCall')(AstNode, PassNode, Animations),
-	ArrayAccess: require('../modules/nodes/func/ArrayAccess')(AstNode, PassNode)
+	ArrayAccess: require('../modules/nodes/func/ArrayAccess')(AstNode, PassNode, Animations)
     };
 }();

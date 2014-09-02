@@ -1,4 +1,4 @@
-
+@import "compass/css3";
 #animationArea {
     width: 100%;
     height: 571px;
@@ -13,14 +13,16 @@
         margin: auto;
         position: absolute;
         top: 0; left: 0; bottom: 0; right: 0;
+        transition: all 2s ease-in-out;
 
         ul {
             padding-top: 25px;
             text-align: center;
             position: relative;
+            transition: all 2s ease-in-out;
             li {
                 position: relative;
-                transition: all 2s ease-out;
+                transition: all 2s ease-in-out;
             }
             .array {
                 display: inline;
@@ -30,12 +32,15 @@
             }
             .ready {
                 left: 150px;
-		opacity: 0;
+                opacity: 0;
             }
             .push {
                 left: 0px;
-		opacity: 1;
+                opacity: 1;
             }
+	    .search {
+		background: green;
+	    }
         }
     }
 }

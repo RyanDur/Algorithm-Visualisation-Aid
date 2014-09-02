@@ -61,13 +61,17 @@ module.exports = function($timeout) {
         replace: false,
         scope: {
             data: "=",
-            structure: "@"
+            structure: "@",
+	    search: "="
         },
         templateUrl: "templates/data_array.html",
         link: function(scope, elem, attrs) {
             var old = [];
             scope.data = [];
             scope.array = undefined;
+	    scope.$watch('search', function() {
+		console.log('hello');
+	    });
             scope.$watch('data', function(newVal, oldVal) {
                 scope.push = false;
                 if(!newVal.equals(oldVal)) {
@@ -161,7 +165,7 @@ module.exports = function() {
     return {
 	Output: require('../modules/nodes/func/Output')(AstNode, PassNode, Animations, Prints),
 	FunctionCall: require('../modules/nodes/func/FunctionCall')(AstNode, PassNode, Animations),
-	ArrayAccess: require('../modules/nodes/func/ArrayAccess')(AstNode, PassNode)
+	ArrayAccess: require('../modules/nodes/func/ArrayAccess')(AstNode, PassNode, Animations)
     };
 }();
 
@@ -742,14 +746,27 @@ module.exports = function(AstNode, PassNode) {
 },{}],26:[function(require,module,exports){
 'use strict';
 
-module.exports = function (AstNode, PassNode) {
+module.exports = function (AstNode, PassNode, Animations) {
     var ArrayAccess = function(first,last, variable, arr) {
         AstNode.call(this, first, last);
         this.compile = function(node) {
             node = new PassNode(node);
             var a = variable.compile(node).value;
-            var index = Number(arr.slice(1,2));
+	    var i = arr.slice(1,2);
+	    var index;
+	    console.log(i);
+	    if(!isNaN(i)) {
+		index = Number(i);
+	    } else {
+		index = node.variables.get(i).value;
+	    }
             node.value = a[index];
+	    console.log(index);
+	    new Animations().add(function($scope, editor) {
+		console.log('Access');
+		$scope.search = index;
+		console.log(index);
+	    });
             return node;
         };
     };
