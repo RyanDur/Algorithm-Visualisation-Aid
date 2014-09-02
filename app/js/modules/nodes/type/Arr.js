@@ -5,13 +5,15 @@ module.exports = function(AstNode, PassNode, Animations) {
 	AstNode.call(this, line, line);
 	this.compile = function(node) {
             node = new PassNode(node);
-            var arr = list.replace(/\[(.*?)\]/g,"$1").split(',').map(function(item) {
-		return parseInt(item, 10);
-            });
-	    if((arr+'') === 'NaN') {arr = [];}
+	    var arr = [];
+	    if(list) {
+		for(var i = 0; i < list.length; i++) {
+		    arr.push(list[i].compile(node).value);
+		}
+	    }
             node.value = arr;
             var highlight = this.highlight;
-            var data = arr.slice();
+            var data = arr;
             new Animations().add(function($scope, editor) {
 		$scope.data = data;
 		$scope.structure = 'array';

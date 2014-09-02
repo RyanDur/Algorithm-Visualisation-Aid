@@ -217,8 +217,10 @@ module.exports={
             ["\\)",                     "return ')';"],
             ["\\{",                     "return '{';"],
             ["\\}",                     "return '}';"],
-            ["\\[.*?\\]",               "return 'ARRAY';"],
+            ["\\[",                     "return '[';"],
+            ["\\]",                     "return ']';"],
             ["PI\\b",                   "return 'PI';"],
+            ["\\,",                     "return 'COMMA';"],
             ["E\\b",                    "return 'E';"],
             ["<-",                      "return 'ASSIGN';"],
             ["=",                       "return 'EQUALITY';"],
@@ -299,7 +301,17 @@ module.exports={
         ],
 
         'structure' : [
-            [ "ARRAY",      "$$ = new yy.type.Arr(@1, $1)" ]
+            [ "[ elems ]",      "$$ = new yy.type.Arr(@1, $2);" ]
+        ],
+
+        'elems': [
+            ["", ""],
+            ["exp sep elems", "$$ = ($3 !== undefined) ? [$1].concat($3) : [$1];"]
+        ],
+
+        'sep': [
+            ["", ""],
+	    ["COMMA", "$$ = yytext"]
         ],
 
         'func': [
@@ -328,7 +340,7 @@ module.exports={
             [ "exp ^ exp",  "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Pow);" ],
             [ "E",          "$$ = Math.E;" ],
             [ "PI",         "$$ = Math.PI;" ],
-            [ "var ARRAY",  "$$ = new yy.func.ArrayAccess(@1, @2, $1, $2);" ]
+            [ "var [ elems ]",  "$$ = new yy.func.ArrayAccess(@1, @2, $1, $3);" ]
         ],
 
         "cond" :[
@@ -752,20 +764,12 @@ module.exports = function (AstNode, PassNode, Animations) {
         this.compile = function(node) {
             node = new PassNode(node);
             var a = variable.compile(node).value;
-	    var i = arr.slice(1,2);
-	    var index;
-	    console.log(i);
-	    if(!isNaN(i)) {
-		index = Number(i);
-	    } else {
-		index = node.variables.get(i).value;
-	    }
+	    var index = arr.compile(node).value;
+	    console.log(a);
             node.value = a[index];
 	    console.log(index);
 	    new Animations().add(function($scope, editor) {
-		console.log('Access');
 		$scope.search = index;
-		console.log(index);
 	    });
             return node;
         };
@@ -868,13 +872,13 @@ module.exports = function(AstNode, PassNode, Animations) {
 	AstNode.call(this, line, line);
 	this.compile = function(node) {
             node = new PassNode(node);
-            var arr = list.replace(/\[(.*?)\]/g,"$1").split(',').map(function(item) {
-		return parseInt(item, 10);
-            });
-	    if((arr+'') === 'NaN') {arr = [];}
+	    var arr = [];
+            for(var i = 0; i < list.length; i++) {
+		arr.push(list[i].compile(node).value);
+	    }
             node.value = arr;
             var highlight = this.highlight;
-            var data = arr.slice();
+            var data = arr;
             new Animations().add(function($scope, editor) {
 		$scope.data = data;
 		$scope.structure = 'array';

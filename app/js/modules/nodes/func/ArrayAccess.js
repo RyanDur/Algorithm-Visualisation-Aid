@@ -6,20 +6,10 @@ module.exports = function (AstNode, PassNode, Animations) {
         this.compile = function(node) {
             node = new PassNode(node);
             var a = variable.compile(node).value;
-	    var i = arr.slice(1,2);
-	    var index;
-	    console.log(i);
-	    if(!isNaN(i)) {
-		index = Number(i);
-	    } else {
-		index = node.variables.get(i).value;
-	    }
+	    var index = arr[0].compile(node).value;
             node.value = a[index];
-	    console.log(index);
 	    new Animations().add(function($scope, editor) {
-		console.log('Access');
 		$scope.search = index;
-		console.log(index);
 	    });
             return node;
         };

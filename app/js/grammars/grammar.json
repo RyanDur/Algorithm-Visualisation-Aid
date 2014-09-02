@@ -16,8 +16,10 @@
             ["\\)",                     "return ')';"],
             ["\\{",                     "return '{';"],
             ["\\}",                     "return '}';"],
-            ["\\[.*?\\]",               "return 'ARRAY';"],
+            ["\\[",                     "return '[';"],
+            ["\\]",                     "return ']';"],
             ["PI\\b",                   "return 'PI';"],
+            ["\\,",                     "return 'COMMA';"],
             ["E\\b",                    "return 'E';"],
             ["<-",                      "return 'ASSIGN';"],
             ["=",                       "return 'EQUALITY';"],
@@ -98,7 +100,17 @@
         ],
 
         'structure' : [
-            [ "ARRAY",      "$$ = new yy.type.Arr(@1, $1)" ]
+            [ "[ elems ]",      "$$ = new yy.type.Arr(@1, $2);" ]
+        ],
+
+        'elems': [
+            ["", ""],
+            ["exp sep elems", "$$ = ($3 !== undefined) ? [$1].concat($3) : [$1];"]
+        ],
+
+        'sep': [
+            ["", ""],
+	    ["COMMA", "$$ = yytext"]
         ],
 
         'func': [
@@ -127,7 +139,7 @@
             [ "exp ^ exp",  "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Pow);" ],
             [ "E",          "$$ = Math.E;" ],
             [ "PI",         "$$ = Math.PI;" ],
-            [ "var ARRAY",  "$$ = new yy.func.ArrayAccess(@1, @2, $1, $2);" ]
+            [ "var [ elems ]",  "$$ = new yy.func.ArrayAccess(@1, @2, $1, $3);" ]
         ],
 
         "cond" :[
