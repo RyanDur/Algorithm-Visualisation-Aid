@@ -5,7 +5,8 @@ module.exports = function(AstNode, PassNode) {
 	AstNode.call(this, first, last);
 	this.compile = function(node) {
             node = new PassNode(node);
-            node.variables.add(variable.name, value.compile(node));
+	    node = value.compile(node);
+            node.variables.add(variable.name, node);
             node.name = variable.name;
             return node;
 	};

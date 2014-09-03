@@ -11,15 +11,11 @@ module.exports = function(AstNode, PassNode, Animations) {
 		    arr.push(list[i].compile(node).value);
 		}
 	    }
-            node.value = arr.slice();
-            var highlight = this.highlight;
-            var data = arr;
-            new Animations().add(function($scope, editor) {
-		$scope.data = data;
+	    new Animations().add(function($scope, editor) {
+		$scope.data = arr.slice();
 		$scope.structure = 'array';
-		highlight(editor);
-            });
-
+	    });
+            node.value = arr.slice();
             return node;
 	};
     };

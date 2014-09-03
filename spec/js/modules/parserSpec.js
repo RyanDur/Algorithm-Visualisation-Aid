@@ -180,7 +180,7 @@ describe('parser', function() {
     });
 
     it('should be able to access an array', function() {
-	expect(parser.parse("var arr <- [5,2]; var result <- arr[0]; print(result);").print).toBe('5');
+	expect(parser.parse("var arr <- [5,2]; var result <- arr[0] + arr[1]; print(result);").print).toBe('7');
     });
 
     it('should be able to access a property of an object like a function', function() {

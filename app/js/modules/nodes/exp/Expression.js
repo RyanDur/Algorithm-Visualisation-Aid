@@ -1,12 +1,10 @@
 'use strict';
 
-module.exports = function(AstNode, PassNode, Animations) {
+module.exports = function(AstNode, PassNode) {
     var Expression = function(first, last, stmnt1, stmnt2, func) {
 	AstNode.call(this, first, last);
 	this.compile = function(node) {
             node = new PassNode(node);
-            new Animations().add(this.frame);
-
             var node1;
             var node2;
             if(stmnt1.name) {

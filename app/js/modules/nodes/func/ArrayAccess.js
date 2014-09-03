@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function (AstNode, PassNode, Animations) {
+module.exports = function (AstNode, PassNode, Searches) {
     var ArrayAccess = function(first,last, variable, arr) {
         AstNode.call(this, first, last);
         this.compile = function(node) {
@@ -8,9 +8,7 @@ module.exports = function (AstNode, PassNode, Animations) {
             var a = variable.compile(node).value;
 	    var index = arr[0].compile(node).value;
             node.value = a[index];
-	    new Animations().add(function($scope, editor) {
-		$scope.search = index;
-	    });
+	    new Searches().add(index);
             return node;
         };
     };

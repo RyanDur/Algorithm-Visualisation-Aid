@@ -25,7 +25,7 @@ module.exports = function(editor, parser) {
 		editor.removeHighlight();
 	    });
             $scope.output = result.print;
-            executeAsynchronously(ani, 750);
+            executeAsynchronously(ani, 1000);
 	};
     };
 };

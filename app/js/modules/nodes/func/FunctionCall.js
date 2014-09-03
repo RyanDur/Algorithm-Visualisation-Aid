@@ -6,24 +6,21 @@ module.exports = function(AstNode, PassNode, Animations) {
 	this.compile = function(node) {
             node = new PassNode(node);
             var o = node.variables.get(obj.name);
-            var value;
-	    var ret;
 	    if (params) {
-		value = params.compile(node).value;
-		ret = o.value[method](value);
+		var value = params.compile(node).value;
+		node.value = o.value[method](value);
 	    } else {
 		if(typeof o.value === 'function') {
-		    ret = o.value[method]();
+		    node.value = o.value[method]();
 		} else {
-		    ret = o.value[method];
+		    node.value = o.value[method];
 		}
 	    }
-	    node.value = ret;
-            var data = o.value.slice();
-            new Animations().add(function($scope, editor) {
+	    var data = o.value.slice();
+	    new Animations().add(function($scope, editor){
 		$scope.data = data;
 		$scope.structure = 'array';
-            });
+	    });
             return node;
 	};
     };

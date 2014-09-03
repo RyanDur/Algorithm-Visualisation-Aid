@@ -8,7 +8,7 @@ module.exports = function() {
     return {
 	If: require('../modules/nodes/flow/If')(AstNode, PassNode, Animations),
 	While: require('../modules/nodes/flow/While')(AstNode, PassNode),
-	For: require('../modules/nodes/flow/For')(AstNode, PassNode),
+	For: require('../modules/nodes/flow/For')(AstNode, PassNode, Animations),
 	DoWhile: require('../modules/nodes/flow/DoWhile')(AstNode, PassNode)
     };
 }();
