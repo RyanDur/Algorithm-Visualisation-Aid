@@ -220,6 +220,7 @@ module.exports=
             ["[0-9]+(?:\\.[0-9]+)?\\b", "return 'NUMBER';"],
             ["println",                 "return 'PRINT';"],
             ["print",                   "return 'PRINT';"],
+	    ["break",                   "return 'BREAK';"],
             ["\\.",                     "return 'DOT';"],
             ["\\*",                     "return '*';"],
             ["\\/",                     "return '/';"],
@@ -320,7 +321,8 @@ module.exports=
             [ "answer TERM",               "$$ = new yy.stmnt.Line(@1, @2, $1);" ],
             [ "decl TERM",                 "$$ = new yy.stmnt.Line(@1, @2, $1);" ],
             [ "func TERM",                 "$$ = new yy.stmnt.Line(@1, @2, $1);" ],
-            [ "return TERM",               "$$ = new yy.stmnt.Line(@1, @2, $1);" ]
+            [ "return TERM",               "$$ = new yy.stmnt.Line(@1, @2, $1);" ],
+	    [ "BREAK TERM",                "$$ = new yy.Break(@1, @2, $1);" ]
         ],
 
         'structure' : [
@@ -416,6 +418,8 @@ exports.Return = function(first, last, returnable) {
     };
 };
 exports.Return.prototype = Object.create(AstNode.prototype);
+
+exports.Break = function(first, last) {};
 
 exports.compile = function(node) {
     compile(node);

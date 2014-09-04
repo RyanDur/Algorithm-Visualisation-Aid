@@ -187,8 +187,8 @@ describe('parser', function() {
 	expect(parser.parse("var arr <- [1,2,3]; print(arr.length());").print).toBe('3');
     });
 
-    it('should be able to return from a block', function() {
-	var program = "var a <- 0; for(var i <- 0; i < 5; i++) { a <- a + i; if(a > 2) {return;} } print(a);";
+    it('should be able to break from a loop', function() {
+	var program = "var a <- 0; for(var i <- 0; i < 5; i++) { a <- a + i; if(a > 2) {break;} } print(a);";
 	expect(parser.parse(program).print).toBe('3');
     });
 });

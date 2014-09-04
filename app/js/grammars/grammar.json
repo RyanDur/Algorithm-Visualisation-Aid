@@ -7,6 +7,7 @@
             ["[0-9]+(?:\\.[0-9]+)?\\b", "return 'NUMBER';"],
             ["println",                 "return 'PRINT';"],
             ["print",                   "return 'PRINT';"],
+	    ["break",                   "return 'BREAK';"],
             ["\\.",                     "return 'DOT';"],
             ["\\*",                     "return '*';"],
             ["\\/",                     "return '/';"],
@@ -107,7 +108,8 @@
             [ "answer TERM",               "$$ = new yy.stmnt.Line(@1, @2, $1);" ],
             [ "decl TERM",                 "$$ = new yy.stmnt.Line(@1, @2, $1);" ],
             [ "func TERM",                 "$$ = new yy.stmnt.Line(@1, @2, $1);" ],
-            [ "return TERM",               "$$ = new yy.stmnt.Line(@1, @2, $1);" ]
+            [ "return TERM",               "$$ = new yy.stmnt.Line(@1, @2, $1);" ],
+	    [ "BREAK TERM",                "$$ = new yy.Break(@1, @2);" ]
         ],
 
         'structure' : [
