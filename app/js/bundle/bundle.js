@@ -153,17 +153,18 @@ module.exports = function() {
 var Animations = require('../modules/nodes/Animations');
 var AstNode = require('../modules/nodes/AstNode');
 var PassNode = require('../modules/nodes/PassNode');
+var Searches = require('../modules/nodes/Searches');
 
 module.exports = function() {
     return {
-	If: require('../modules/nodes/flow/If')(AstNode, PassNode, Animations),
+	If: require('../modules/nodes/flow/If')(AstNode, PassNode, Animations, Searches),
 	While: require('../modules/nodes/flow/While')(AstNode, PassNode),
 	For: require('../modules/nodes/flow/For')(AstNode, PassNode, Animations),
 	DoWhile: require('../modules/nodes/flow/DoWhile')(AstNode, PassNode)
     };
 }();
 
-},{"../modules/nodes/Animations":13,"../modules/nodes/AstNode":14,"../modules/nodes/PassNode":15,"../modules/nodes/flow/DoWhile":23,"../modules/nodes/flow/For":24,"../modules/nodes/flow/If":25,"../modules/nodes/flow/While":26}],7:[function(require,module,exports){
+},{"../modules/nodes/Animations":13,"../modules/nodes/AstNode":14,"../modules/nodes/PassNode":15,"../modules/nodes/Searches":17,"../modules/nodes/flow/DoWhile":23,"../modules/nodes/flow/For":24,"../modules/nodes/flow/If":25,"../modules/nodes/flow/While":26}],7:[function(require,module,exports){
 'use strict';
 
 var AstNode = require('../modules/nodes/AstNode');
@@ -322,7 +323,7 @@ module.exports=
             [ "decl TERM",                 "$$ = new yy.stmnt.Line(@1, @2, $1);" ],
             [ "func TERM",                 "$$ = new yy.stmnt.Line(@1, @2, $1);" ],
             [ "return TERM",               "$$ = new yy.stmnt.Line(@1, @2, $1);" ],
-	    [ "BREAK TERM",                "$$ = new yy.Break(@1, @2, $1);" ]
+	    [ "BREAK TERM",                "$$ = new yy.Break(@1, @2);" ]
         ],
 
         'structure' : [
@@ -357,18 +358,18 @@ module.exports=
         ],
 
         "exp" :[
-            [ "var",        "$$ = $1"],
-            [ "NUMBER",     "$$ = new yy.type.Number(@1,yytext);" ],
-            [ "( exp )",    "$$ = $2;" ],
-            [ "INC",        "$$ = new yy.exp.Increment(@1, $1);" ],
-            [ "exp + exp",  "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Add);" ],
-            [ "exp - exp",  "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Subtract);" ],
-            [ "exp * exp",  "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Multiply);" ],
-            [ "exp / exp",  "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Divide);" ],
-            [ "exp ^ exp",  "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Pow);" ],
-            [ "E",          "$$ = Math.E;" ],
-            [ "PI",         "$$ = Math.PI;" ],
-            [ "var [ elems ]",  "$$ = new yy.func.ArrayAccess(@1, @2, $1, $3);" ],
+            [ "var",                       "$$ = $1"],
+            [ "NUMBER",                    "$$ = new yy.type.Number(@1,yytext);" ],
+            [ "( exp )",                   "$$ = $2;" ],
+            [ "INC",                       "$$ = new yy.exp.Increment(@1, $1);" ],
+            [ "exp + exp",                 "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Add);" ],
+            [ "exp - exp",                 "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Subtract);" ],
+            [ "exp * exp",                 "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Multiply);" ],
+            [ "exp / exp",                 "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Divide);" ],
+            [ "exp ^ exp",                 "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Pow);" ],
+            [ "E",                         "$$ = Math.E;" ],
+            [ "PI",                        "$$ = Math.PI;" ],
+            [ "var [ elems ]",             "$$ = new yy.func.ArrayAccess(@1, @2, $1, $3);" ],
             [ "var DOT method ( params )", "$$ = new yy.func.FunctionCall(@1, @6, $1, $3, $5);" ]
         ],
 
@@ -419,7 +420,15 @@ exports.Return = function(first, last, returnable) {
 };
 exports.Return.prototype = Object.create(AstNode.prototype);
 
-exports.Break = function(first, last) {};
+exports.Break = function(first, last) {
+    AstNode.call(this, first, last);
+    this.compile = function(node) {
+	node = new PassNode(node);
+	node.ret = true;
+	return node;
+    };
+};
+exports.Break.prototype = Object.create(AstNode.prototype);
 
 exports.compile = function(node) {
     compile(node);
@@ -715,7 +724,7 @@ module.exports = function(AstNode, PassNode) {
 	this.compile = function(node) {
             node = new PassNode(node);
             node = node.variables.get(variable);
-            node.value += 1;
+            node.value++;
 	    node.variables.add(variable, node);
             return node;
 	};
@@ -792,21 +801,29 @@ module.exports = function(AstNode, PassNode, Animations) {
 },{}],25:[function(require,module,exports){
 'use strict';
 
-module.exports = function(AstNode, PassNode, Animations) {
+module.exports = function(AstNode, PassNode, Animations, Searches) {
     var If = function(line, column, cond, block1, block2) {
 	AstNode.call(this, line, column);
 	this.compile = function(node) {
             node = new PassNode(node);
-            var animations = new Animations();
-            if (cond.compile(node).value) {
+	    node = cond.compile(node);
+
+	    var searches = new Searches();
+	    var searched = searches.get();
+	    searches.clear();
+	    var frame = this.frame;
+	    new Animations().add(function($scope, editor) {
+                $scope.searches = searched;
+                frame($scope, editor);
+            });
+
+            if (node.value) {
 		node = block1.compile(node);
             } else {
 		if(block2) {
                     node = block2.compile(node);
 		}
             }
-            animations.add(this.frame);
-
             return node;
 	};
     };
