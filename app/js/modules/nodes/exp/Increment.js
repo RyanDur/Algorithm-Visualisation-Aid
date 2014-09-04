@@ -6,8 +6,9 @@ module.exports = function(AstNode, PassNode) {
 	var variable = stmnt.replace('++', '');
 	this.compile = function(node) {
             node = new PassNode(node);
-            var incrementable = node.variables.get(variable);
-            incrementable.value++;
+            node = node.variables.get(variable);
+            node.value += 1;
+	    node.variables.add(variable, node);
             return node;
 	};
     };

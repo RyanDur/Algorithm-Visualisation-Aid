@@ -21,9 +21,9 @@ module.exports = function($timeout) {
 		    for(var i = 0; i < children.length; i++) {
 			angular.element(children[i]).removeClass('search');
 		    }
-                    for(var i = 0; i < children.length; i++) {
-                        if(scope.searches.indexOf(i) >= 0) {
-			    angular.element(children[i]).addClass('search');
+                    for(var j = 0; j < children.length; j++) {
+                        if(scope.searches.indexOf(j) >= 0) {
+			    angular.element(children[j]).addClass('search');
                         }
                     }
                 }

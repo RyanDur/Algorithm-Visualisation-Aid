@@ -76,9 +76,9 @@ module.exports = function($timeout) {
 		    for(var i = 0; i < children.length; i++) {
 			angular.element(children[i]).removeClass('search');
 		    }
-                    for(var i = 0; i < children.length; i++) {
-                        if(scope.searches.indexOf(i) >= 0) {
-			    angular.element(children[i]).addClass('search');
+                    for(var j = 0; j < children.length; j++) {
+                        if(scope.searches.indexOf(j) >= 0) {
+			    angular.element(children[j]).addClass('search');
                         }
                     }
                 }
@@ -241,6 +241,7 @@ module.exports=
             ["≤",                       "return 'LTE';"],
             ["<",                       "return 'LT';"],
             ["≥",                       "return 'GTE';"],
+            [">",                       "return 'GT';"],
             ["(\n|\;)",                 "return 'TERM';"],
             ["return",                  "return 'RET';"],
             ["var",                     "return 'TYPE';"],
@@ -280,10 +281,18 @@ module.exports=
         ],
 
         "returnable" :[
-            [ "RET returnable", "$$ = $2;" ],
-            [ "cond",           "$$ = $1;" ],
+	    [ "", "" ],
+            [ "answer", "$$ = $1;" ]
+        ],
+
+	"answer": [
+	    [ "cond",           "$$ = $1;" ],
             [ "exp",            "$$ = $1;" ],
             [ "structure",      "$$ = $1;" ]
+	],
+
+        "return": [
+            [ "RET returnable", "$$ = new yy.Return(@1, @2, $2);" ],
         ],
 
         "if" :[
@@ -304,13 +313,14 @@ module.exports=
 
         "decl" :[
             [ "TYPE decl",                    "$$ = $2" ],
-            [ "returnable ASSIGN returnable", "$$ = new yy.exp.Assign(@1, @3, $1, $3);" ]
+            [ "var ASSIGN answer", "$$ = new yy.exp.Assign(@1, @3, $1, $3);" ]
         ],
 
         "line": [
-            [ "returnable TERM",           "$$ = new yy.stmnt.Line(@1, @2, $1);" ],
+            [ "answer TERM",               "$$ = new yy.stmnt.Line(@1, @2, $1);" ],
             [ "decl TERM",                 "$$ = new yy.stmnt.Line(@1, @2, $1);" ],
-            [ "func TERM",                 "$$ = new yy.stmnt.Line(@1, @2, $1);" ]
+            [ "func TERM",                 "$$ = new yy.stmnt.Line(@1, @2, $1);" ],
+            [ "return TERM",               "$$ = new yy.stmnt.Line(@1, @2, $1);" ]
         ],
 
         'structure' : [
@@ -328,7 +338,7 @@ module.exports=
         ],
 
         'func': [
-            [ "PRINT ( returnable )",        "$$ = new yy.func.Output(@1, @4, $3, $1);" ]
+            [ "PRINT ( answer )",        "$$ = new yy.func.Output(@1, @4, $3, $1);" ]
         ],
 
         "params" :[
@@ -340,9 +350,9 @@ module.exports=
             [ "VARIABLE",   "$$ = new yy.exp.Variable(@1, $1);;"]
         ],
 
-	'method': [
-	    ["VARIABLE", "$$ = yytext"]
-	],
+        'method': [
+            ["VARIABLE", "$$ = yytext"]
+        ],
 
         "exp" :[
             [ "var",        "$$ = $1"],
@@ -366,6 +376,7 @@ module.exports=
             [ "exp LTE exp",      "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.LTE);" ],
             [ "exp GTE exp",      "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.GTE);" ],
             [ "exp LT exp",       "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.LT);" ],
+            [ "exp GT exp",       "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.GT);" ],
             [ "TRUE",             "$$ = new yy.type.Boolean(@1, true);"],
             [ "FALSE",            "$$ = new yy.type.Boolean(@1, false);"]
         ]
@@ -390,6 +401,21 @@ var compile = function(stmnts, node) {
     }
     return passNode;
 };
+
+var AstNode = require('./nodes/AstNode');
+var PassNode = require('./nodes/PassNode');
+exports.Return = function(first, last, returnable) {
+    AstNode.call(this, first, last);
+    this.compile = function(node) {
+	node = new PassNode(node);
+	if(returnable) {
+	    node = returnable.compile(node);
+	}
+	node.ret = true;
+	return node;
+    };
+};
+exports.Return.prototype = Object.create(AstNode.prototype);
 
 exports.compile = function(node) {
     compile(node);
@@ -466,7 +492,7 @@ exports.exp = {
     }
 };
 
-},{"../factories/expressionFactory":5,"../factories/flowFactory":6,"../factories/functionFactory":7,"../factories/statementFactory":8,"../factories/typeFactory":9,"./nodes/Animations":13,"./nodes/Prints":16}],12:[function(require,module,exports){
+},{"../factories/expressionFactory":5,"../factories/flowFactory":6,"../factories/functionFactory":7,"../factories/statementFactory":8,"../factories/typeFactory":9,"./nodes/Animations":13,"./nodes/AstNode":14,"./nodes/PassNode":15,"./nodes/Prints":16}],12:[function(require,module,exports){
 'use strict';
 
 module.exports = function editor(elementId) {
@@ -550,6 +576,7 @@ var Variables = require('./Variables');
 module.exports = function PassNode(node) {
     this.variables = node ? node.variables : new Variables();
     this.value = node ? node.value : null;
+    this.ret = node ? node.ret : false;
 };
 
 },{"./Variables":18}],16:[function(require,module,exports){
@@ -683,8 +710,9 @@ module.exports = function(AstNode, PassNode) {
 	var variable = stmnt.replace('++', '');
 	this.compile = function(node) {
             node = new PassNode(node);
-            var incrementable = node.variables.get(variable);
-            incrementable.value++;
+            node = node.variables.get(variable);
+            node.value += 1;
+	    node.variables.add(variable, node);
             return node;
 	};
     };
@@ -739,9 +767,14 @@ module.exports = function(AstNode, PassNode, Animations) {
             node = new PassNode(node);
             var keys = node.variables.getKeys();
             node = decl.compile(node);
+
             while(cond.compile(node).value) {
 		new Animations().add(this.frame);
 		node = block.compile(node);
+		if(node.ret) {
+		    node.ret = false;
+		    return node;
+		}
 		node = exp.compile(node);
             }
             node.variables.removeChildScope(keys);
@@ -870,21 +903,24 @@ module.exports = function(AstNode, PassNode, Prints) {
 var compile = function(stmnts, node) {
     var passNode = node;
     for (var i = 0; i < stmnts.length; i++) {
-        passNode = stmnts[i].compile(passNode);
+	passNode = stmnts[i].compile(passNode);
+        if (passNode.ret === true) {
+            return passNode;
+        }
     }
     return passNode;
 };
 
 module.exports = function(AstNode, PassNode) {
     var Block = function(first, last, stmnts) {
-	AstNode.call(this, first, last);
-	this.compile = function(node) {
+        AstNode.call(this, first, last);
+        this.compile = function(node) {
             node = new PassNode(node);
             var keys = node.variables.getKeys();
             node = compile(stmnts, node);
             node.variables.removeChildScope(keys);
             return node;
-	};
+        };
     };
     Block.prototype = Object.create(AstNode.prototype);
     return Block;

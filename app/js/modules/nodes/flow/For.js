@@ -8,9 +8,14 @@ module.exports = function(AstNode, PassNode, Animations) {
             node = new PassNode(node);
             var keys = node.variables.getKeys();
             node = decl.compile(node);
+
             while(cond.compile(node).value) {
 		new Animations().add(this.frame);
 		node = block.compile(node);
+		if(node.ret) {
+		    node.ret = false;
+		    return node;
+		}
 		node = exp.compile(node);
             }
             node.variables.removeChildScope(keys);

@@ -16,6 +16,21 @@ var compile = function(stmnts, node) {
     return passNode;
 };
 
+var AstNode = require('./nodes/AstNode');
+var PassNode = require('./nodes/PassNode');
+exports.Return = function(first, last, returnable) {
+    AstNode.call(this, first, last);
+    this.compile = function(node) {
+	node = new PassNode(node);
+	if(returnable) {
+	    node = returnable.compile(node);
+	}
+	node.ret = true;
+	return node;
+    };
+};
+exports.Return.prototype = Object.create(AstNode.prototype);
+
 exports.compile = function(node) {
     compile(node);
     var result = {
