@@ -1,5 +1,5 @@
 <ul>
-  <li class="index{{$index}} {{structure}}" ng-repeat="elem in array track by $index" ng-class="{ready: $last, push: push}">
-    {{elem}}
-  </li>
+  <none ng-if="method==''"></none>
+  <pop ng-if="method=='pop'"></pop>
+  <push ng-if="method=='push'"></push>
 </ul>

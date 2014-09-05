@@ -11,9 +11,16 @@ var parser = require('./modules/parser')(grammar, ast);
 
 var editorCtrl = require('./controllers/editorCtrl')(editor, parser);
 var dataStructure = require('./directives/dataStructure');
+var push = require('./directives/push');
+var pop = require('./directives/pop');
+var none = require('./directives/none');
 
 
 var app = angular.module('ava', []);
 app.controller('EditorCtrl', ['$scope', '$timeout', editorCtrl]);
 
-app.directive('datastructure', ['$timeout', dataStructure]);
+app.directive('datastructure', ['$timeout', '$compile', dataStructure]);
+
+app.directive('push', push);
+app.directive('pop', pop);
+app.directive('none', none);

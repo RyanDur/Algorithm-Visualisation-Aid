@@ -13,16 +13,16 @@
         margin: auto;
         position: absolute;
         top: 0; left: 0; bottom: 0; right: 0;
-        transition: all 2s ease-in-out;
+        @include transition(all, 1s, ease-in-out);
 
         ul {
             padding-top: 25px;
             text-align: center;
             position: relative;
-            transition: all 2s ease-in-out;
+            @include transition(all, 1s, ease-in-out);
             li {
                 position: relative;
-                transition: all 2s ease-in-out;
+                @include transition(all, 1s, ease-in-out);
             }
             .array {
                 display: inline;
@@ -38,9 +38,13 @@
                 left: 0px;
                 opacity: 1;
             }
-	    .search {
-		background: green;
-	    }
+            .pop {
+                left: 150px;
+                opacity: 0;
+            }
+            .search {
+                background: green;
+            }
         }
     }
 }
