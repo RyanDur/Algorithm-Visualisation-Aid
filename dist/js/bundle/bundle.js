@@ -112,14 +112,13 @@ module.exports = function($timeout, $compile) {
                     }, 100);
                 },
                 pop: function() {
-                    scope.pop = false;
-                    var f = [function() {scope.pop = false;},
-                             function() {scope.pop = true;},
+		    scope.pop = false;
+                    var f = [function() {scope.pop = true;},
                              function() {
                                  scope.array = scope.data;
                                  old = scope.data;
                              }];
-                    executeAsynchronously(f, 1000);
+                    executeAsynchronously(f, 1500);
                 }
             };
 
