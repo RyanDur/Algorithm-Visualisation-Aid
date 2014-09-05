@@ -12,7 +12,7 @@ var gulp = require('gulp'),
     karmaParseConfig = require('karma/lib/config').parseConfig,
     karma = require('karma'),
     rename = require('gulp-rename'),
-    clean = require('gulp-clean');
+    clean = require('gulp-rimraf');
 
 
 function runKarma(configFilePath, options, cb) {
