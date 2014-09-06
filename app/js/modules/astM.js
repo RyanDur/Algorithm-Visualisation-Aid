@@ -31,8 +31,8 @@ exports.Return = function(first, last, returnable) {
 };
 exports.Return.prototype = Object.create(AstNode.prototype);
 
-exports.Break = function(first, last) {
-    AstNode.call(this, first, last);
+exports.Break = function(line) {
+    AstNode.call(this, line);
     this.compile = function(node) {
 	node = new PassNode(node);
 	node.ret = true;

@@ -302,7 +302,7 @@ module.exports=
             ["[0-9]+(?:\\.[0-9]+)?\\b", "return 'NUMBER';"],
             ["println",                 "return 'PRINT';"],
             ["print",                   "return 'PRINT';"],
-	    ["break",                   "return 'BREAK';"],
+            ["break",                   "return 'BREAK';"],
             ["\\.",                     "return 'DOT';"],
             ["\\*",                     "return '*';"],
             ["\\/",                     "return '/';"],
@@ -364,18 +364,14 @@ module.exports=
         ],
 
         "returnable" :[
-	    [ "", "" ],
+            [ "", "" ],
             [ "answer", "$$ = $1;" ]
         ],
 
-	"answer": [
-	    [ "cond",           "$$ = $1;" ],
+        "answer": [
+            [ "cond",           "$$ = $1;" ],
             [ "exp",            "$$ = $1;" ],
             [ "structure",      "$$ = $1;" ]
-	],
-
-        "return": [
-            [ "RET returnable", "$$ = new yy.Return(@1, @2, $2);" ],
         ],
 
         "if" :[
@@ -396,15 +392,13 @@ module.exports=
 
         "decl" :[
             [ "TYPE decl",                    "$$ = $2" ],
-            [ "var ASSIGN answer", "$$ = new yy.exp.Assign(@1, @3, $1, $3);" ]
+            [ "assignable ASSIGN answer", "$$ = new yy.exp.Assign(@1, @3, $1, $3);" ]
         ],
 
         "line": [
             [ "answer TERM",               "$$ = new yy.stmnt.Line(@1, @2, $1);" ],
             [ "decl TERM",                 "$$ = new yy.stmnt.Line(@1, @2, $1);" ],
-            [ "func TERM",                 "$$ = new yy.stmnt.Line(@1, @2, $1);" ],
-            [ "return TERM",               "$$ = new yy.stmnt.Line(@1, @2, $1);" ],
-	    [ "BREAK TERM",                "$$ = new yy.Break(@1, @2);" ]
+            [ "reserved TERM",             "$$ = new yy.stmnt.Line(@1, @2, $1);" ]
         ],
 
         'structure' : [
@@ -421,8 +415,10 @@ module.exports=
             ["COMMA", "$$ = yytext"]
         ],
 
-        'func': [
-            [ "PRINT ( answer )",        "$$ = new yy.func.Output(@1, @4, $3, $1);" ]
+        'reserved': [
+	    [ "RET returnable",   "$$ = new yy.Return(@1, @2, $2);" ],
+            [ "BREAK",            "$$ = new yy.Break(@1);" ],
+            [ "PRINT ( answer )", "$$ = new yy.func.Output(@1, @4, $3, $1);" ]
         ],
 
         "params" :[
@@ -430,8 +426,9 @@ module.exports=
             [ "exp", "$$ = $1;" ]
         ],
 
-        'var' : [
-            [ "VARIABLE",   "$$ = new yy.exp.Variable(@1, $1);;"]
+        'assignable': [
+            [ "VARIABLE",              "$$ = new yy.exp.Variable(@1, $1);;"],
+            [ "assignable [ elems ]",  "$$ = new yy.func.ArrayAccess(@1, @2, $1, $3);" ]
         ],
 
         'method': [
@@ -439,19 +436,18 @@ module.exports=
         ],
 
         "exp" :[
-            [ "var",                       "$$ = $1"],
-            [ "NUMBER",                    "$$ = new yy.type.Number(@1,yytext);" ],
-            [ "( exp )",                   "$$ = $2;" ],
-            [ "INC",                       "$$ = new yy.exp.Increment(@1, $1);" ],
-            [ "exp + exp",                 "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Add);" ],
-            [ "exp - exp",                 "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Subtract);" ],
-            [ "exp * exp",                 "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Multiply);" ],
-            [ "exp / exp",                 "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Divide);" ],
-            [ "exp ^ exp",                 "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Pow);" ],
-            [ "E",                         "$$ = Math.E;" ],
-            [ "PI",                        "$$ = Math.PI;" ],
-            [ "var [ elems ]",             "$$ = new yy.func.ArrayAccess(@1, @2, $1, $3);" ],
-            [ "var DOT method ( params )", "$$ = new yy.func.FunctionCall(@1, @6, $1, $3, $5);" ]
+            [ "assignable",                       "$$ = $1" ],
+            [ "NUMBER",                           "$$ = new yy.type.Number(@1,yytext);" ],
+            [ "( exp )",                          "$$ = $2;" ],
+            [ "INC",                              "$$ = new yy.exp.Increment(@1, $1);" ],
+            [ "exp + exp",                        "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Add);" ],
+            [ "exp - exp",                        "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Subtract);" ],
+            [ "exp * exp",                        "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Multiply);" ],
+            [ "exp / exp",                        "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Divide);" ],
+            [ "exp ^ exp",                        "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Pow);" ],
+            [ "E",                                "$$ = Math.E;" ],
+            [ "PI",                               "$$ = Math.PI;" ],
+            [ "assignable DOT method ( params )", "$$ = new yy.func.FunctionCall(@1, @6, $1, $3, $5);" ]
         ],
 
         "cond" :[
@@ -501,8 +497,8 @@ exports.Return = function(first, last, returnable) {
 };
 exports.Return.prototype = Object.create(AstNode.prototype);
 
-exports.Break = function(first, last) {
-    AstNode.call(this, first, last);
+exports.Break = function(line) {
+    AstNode.call(this, line);
     this.compile = function(node) {
 	node = new PassNode(node);
 	node.ret = true;
