@@ -6,7 +6,8 @@ module.exports = function(AstNode, PassNode) {
 	this.name = variable;
 	this.compile = function(node) {
             node = new PassNode(node);
-            node.value = node.variables.get(this.name).value;
+	    var value = node.variables.get(this.name).value;
+            node.value = value;
             return node;
 	};
     };

@@ -195,4 +195,8 @@ describe('parser', function() {
     it('should be able to pop an element off an array', function() {
 	expect(parser.parse("var arr <- [1,2,3]; arr.pop(); print(arr.length());").print).toBe('2');
     });
+
+    it('should be able to declare a variable woithout assinging it', function() {
+	expect(parser.parse("var a; a <- 3; print(a);").print).toBe('3');
+    });
 });

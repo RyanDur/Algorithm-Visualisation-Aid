@@ -1,4 +1,5 @@
 'use strict';
+var scope = require('./controllers/ScopeCtrl');
 
 var Animations = require('./nodes/Animations');
 var Prints = require('./nodes/Prints');
@@ -7,6 +8,7 @@ var flow = require('../factories/flowFactory');
 var expression = require('../factories/expressionFactory');
 var func = require('../factories/functionFactory');
 var statement = require('../factories/statementFactory');
+
 
 var compile = function(stmnts, node) {
     var passNode = node;
