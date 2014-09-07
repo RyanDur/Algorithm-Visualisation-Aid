@@ -1,6 +1,6 @@
 'use strict';
 
-var ScopeCtrl = function (Animations, Prints, Searches) {
+var ScopeCtrl = function (Animations, Prints) {
     var variables = {};
     var loopBreak = false;
     var child = [];
@@ -45,14 +45,6 @@ var ScopeCtrl = function (Animations, Prints, Searches) {
         var prints = Prints.get();
         Prints.clear();
         return prints;
-    };
-    this.addSearch = function (search) {
-        Searches.add(search);
-    };
-    this.getSearches = function () {
-        var searched = Searches.get();
-        Searches.clear();
-        return searched;
     };
 
     var transfer = function (parent, child) {

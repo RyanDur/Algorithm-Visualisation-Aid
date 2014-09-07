@@ -7,7 +7,6 @@ module.exports = function () {
         this.compile = function (scope) {
             var a = variable.compile(scope).getValue();
             var index = arr[0].compile(scope).getValue();
-            scope.addSearch(index);
             scope.setValue(a[index]);
             var frame = this.frame;
             scope.addAnimation(function($scope, editor) {

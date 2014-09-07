@@ -1,9 +1,8 @@
 'use strict';
-var Scope = require('./controllers/ScopeCtrl'),
-    Animations = require('./nodes/Animations'),
-    Prints = require('./nodes/Prints'),
-    Searches = require('./nodes/Searches'),
-    scope = new Scope(new Animations(), new Prints(), new Searches());
+var ScopeCtrl = require('./controllers/ScopeCtrl'),
+    AnimationCtrl = require('./controllers/AnimationCtrl'),
+    PrintCtrl = require('./controllers/PrintCtrl'),
+    scope = new ScopeCtrl(new AnimationCtrl(), new PrintCtrl());
 
 exports.stmnt = require('../factories/statementFactory');
 exports.func = require('../factories/functionFactory');
