@@ -1,8 +1,8 @@
 'use strict';
-var scope = require('./controllers/ScopeCtrl');
-
+var Scope = require('./controllers/ScopeCtrl');
 var Animations = require('./nodes/Animations');
 var Prints = require('./nodes/Prints');
+var scope = new Scope();
 var type = require('../factories/typeFactory');
 var flow = require('../factories/flowFactory');
 var expression = require('../factories/expressionFactory');
@@ -10,41 +10,32 @@ var func = require('../factories/functionFactory');
 var statement = require('../factories/statementFactory');
 
 
-var compile = function(stmnts, node) {
-    var passNode = node;
+var compile = function(stmnts, scope) {
     for (var i = 0; i < stmnts.length; i++) {
-        passNode = stmnts[i].compile(passNode);
+        scope = stmnts[i].compile(scope);
     }
-    return passNode;
 };
 
 var AstNode = require('./nodes/AstNode');
-var PassNode = require('./nodes/PassNode');
 exports.Return = function(first, last, returnable) {
     AstNode.call(this, first, last);
-    this.compile = function(node) {
-	node = new PassNode(node);
-	if(returnable) {
-	    node = returnable.compile(node);
-	}
-	node.ret = true;
-	return node;
+    this.compile = function(scope) {
+        return returnable.compile(scope);
     };
 };
 exports.Return.prototype = Object.create(AstNode.prototype);
 
 exports.Break = function(line) {
     AstNode.call(this, line);
-    this.compile = function(node) {
-	node = new PassNode(node);
-	node.ret = true;
-	return node;
+    this.compile = function(scope) {
+        scope.toggleBreak();
+        return scope;
     };
 };
 exports.Break.prototype = Object.create(AstNode.prototype);
 
 exports.compile = function(node) {
-    compile(node);
+    compile(node, scope);
     var result = {
         animation: new Animations().get(),
         print: new Prints().get()
@@ -83,37 +74,67 @@ exports.exp = {
     Increment: expression.Increment,
     Assign: expression.Assign,
     Variable: expression.Variable,
-    Add: function(stmnt1, stmnt2) {
-        return stmnt1.value + stmnt2.value;
+    Add: function(left, right) {
+        return left + right;
     },
-    Subtract: function(stmnt1, stmnt2) {
-        return stmnt1.value - stmnt2.value;
+    /**
+     * @return {number}
+     */
+    Subtract: function(left, right) {
+        return left - right;
     },
-    Multiply: function(stmnt1, stmnt2) {
-        return stmnt1.value * stmnt2.value;
+    /**
+     * @return {number}
+     */
+    Multiply: function(left, right) {
+        return left * right;
     },
-    Divide: function(stmnt1, stmnt2) {
-        return stmnt1.value / stmnt2.value;
+    /**
+     * @return {number}
+     */
+    Divide: function(left, right) {
+        return left / right;
     },
-    Pow: function(stmnt1, stmnt2) {
-        return Math.pow(stmnt1.value, stmnt2.value);
+    /**
+     * @return {number}
+     */
+    Pow: function(left, right) {
+        return Math.pow(left, right);
     },
-    Equal: function(stmnt1, stmnt2) {
-        return stmnt1.value === stmnt2.value;
+    /**
+     * @return {boolean}
+     */
+    Equal: function(left, right) {
+        return left === right;
     },
-    Inequal: function(stmnt1, stmnt2) {
-	return stmnt1.value !== stmnt2.value;
+    /**
+     * @return {boolean}
+     */
+    Inequal: function(left, right) {
+        return left !== right;
     },
-    LTE: function(stmnt1, stmnt2) {
-	return stmnt1.value <= stmnt2.value;
+    /**
+     * @return {boolean}
+     */
+    LTE: function(left, right) {
+        return left <= right;
     },
-    LT: function(stmnt1, stmnt2) {
-	return stmnt1.value < stmnt2.value;
+    /**
+     * @return {boolean}
+     */
+    LT: function(left, right) {
+        return left < right;
     },
-    GTE: function(stmnt1, stmnt2) {
-	return stmnt1.value >= stmnt2.value;
+    /**
+     * @return {boolean}
+     */
+    GTE: function(left, right) {
+        return left >= right;
     },
-    GT: function(stmnt1, stmnt2) {
-	return stmnt1.value > stmnt2.value;
+    /**
+     * @return {boolean}
+     */
+    GT: function(left, right) {
+        return left > right;
     }
 };

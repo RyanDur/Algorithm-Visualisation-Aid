@@ -1,15 +1,14 @@
 'use strict';
 
-module.exports = function (AstNode, PassNode, Searches) {
-    var ArrayAccess = function(first,last, variable, arr) {
+module.exports = function (AstNode, Searches) {
+    var ArrayAccess = function (first, last, variable, arr) {
         AstNode.call(this, first, last);
-        this.compile = function(node) {
-            node = new PassNode(node);
-            var a = variable.compile(node).value;
-	    var index = arr[0].compile(node).value;
-            node.value = a[index];
-	    new Searches().add(index);
-            return node;
+        this.compile = function (scope) {
+            var a = variable.compile(scope).getValue();
+            var index = arr[0].compile(scope).getValue();
+            new Searches().add(index);
+            scope.setValue(a[index]);
+            return scope;
         };
     };
     ArrayAccess.prototype = Object.create(AstNode.prototype);

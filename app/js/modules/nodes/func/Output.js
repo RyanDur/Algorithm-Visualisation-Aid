@@ -1,16 +1,20 @@
 'use strict';
 
-module.exports = function(AstNode, PassNode, Prints) {
-    var Output = function(first, last, toPrint, type) {
-	AstNode.call(this, first, last);
-	this.compile = function(node) {
-            node = new PassNode(node);
-            node = toPrint.compile(node);
-            if (type === 'print') {this.print = node.value;}
-            else if (type === 'println') {this.print = node.value + '\n';}
-            new Prints().add(this.print);
-            return node;
-	};
+module.exports = function (AstNode, Prints) {
+    var Output = function (first, last, toPrint, type) {
+        AstNode.call(this, first, last);
+        this.compile = function (scope) {
+            scope = toPrint.compile(scope);
+            if(scope.getValue() !== undefined) {
+                if (type === 'print') {
+                    new Prints().add(scope.getValue());
+                }
+                else if (type === 'println') {
+                    new Prints().add(scope.getValue() + '\n');
+                }
+            }
+            return scope;
+        };
     };
     Output.prototype = Object.create(AstNode.prototype);
     return Output;

@@ -8,7 +8,6 @@ module.exports = function (first, last) {
                             first.first_column,
                             last.last_column);
     };
-    this.animation = [];
     var highlight = this.highlight;
     this.frame = function(scope, editor) {
         highlight(editor);

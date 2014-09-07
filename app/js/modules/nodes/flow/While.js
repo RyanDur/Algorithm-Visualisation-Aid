@@ -1,15 +1,18 @@
 'use strict';
 
-module.exports = function(AstNode, PassNode) {
-    var While = function(first, last, cond, block) {
-	AstNode.call(this, first, last);
-	this.compile = function(node) {
-            node = new PassNode(node);
-            while(cond.compile(node).value) {
-		node = block.compile(node);
+module.exports = function (AstNode) {
+    var While = function (first, last, cond, block) {
+        AstNode.call(this, first, last);
+        this.compile = function (scope) {
+            scope = cond.compile(scope);
+            while (scope.getValue()) {
+                scope.childScope();
+                scope = block.compile(scope);
+                scope.parentScope();
+                scope = cond.compile(scope);
             }
-            return node;
-	};
+            return scope;
+        };
     };
     While.prototype = Object.create(AstNode.prototype);
     return While;

@@ -1,16 +1,15 @@
 'use strict';
 
-module.exports = function(AstNode, PassNode) {
-    var Increment = function(line, stmnt) {
-	AstNode.call(this, line, line);
-	var variable = stmnt.replace('++', '');
-	this.compile = function(node) {
-            node = new PassNode(node);
-            node = node.variables.get(variable);
-            node.value++;
-	    node.variables.add(variable, node);
-            return node;
-	};
+module.exports = function (AstNode) {
+    var Increment = function (line, stmnt) {
+        AstNode.call(this, line, line);
+        var variable = stmnt.replace('++', '');
+        this.compile = function (scope) {
+            var value = scope.getVariable(variable);
+            value += 1;
+            scope.addVariable(variable, value);
+            return scope;
+        };
     };
     Increment.prototype = Object.create(AstNode.prototype);
     return Increment;

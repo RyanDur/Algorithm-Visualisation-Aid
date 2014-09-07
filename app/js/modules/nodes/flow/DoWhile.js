@@ -1,16 +1,16 @@
 'use strict';
 
-module.exports = function(AstNode, PassNode) {
-    var DoWhile = function(first, last, block, cond) {
-	AstNode.call(this, first, last);
+module.exports = function (AstNode) {
+    var DoWhile = function (first, last, block, cond) {
+        AstNode.call(this, first, last);
 
-	this.compile = function(node) {
-            node = new PassNode(node);
+        this.compile = function (scope) {
             do {
-		node = block.compile(node);
-            } while(cond.compile(node).value);
-            return node;
-	};
+                scope = block.compile(scope);
+                scope = cond.compile(scope);
+            } while (scope.getValue());
+            return scope;
+        };
     };
     DoWhile.prototype = Object.create(AstNode.prototype);
     return DoWhile;
