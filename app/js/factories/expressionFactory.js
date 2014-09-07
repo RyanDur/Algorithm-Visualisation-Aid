@@ -4,6 +4,7 @@ var Exp = require('../modules/nodes/exp/Expression');
 var Inc = require('../modules/nodes/exp/Increment');
 var Assign = require('../modules/nodes/exp/Assign');
 var Variable = require('../modules/nodes/exp/Variable');
+var Decl = require('../modules/nodes/exp/Decl');
 
 module.exports = function () {
     return {
@@ -18,6 +19,9 @@ module.exports = function () {
         },
         Variable: function (line, variable) {
             return new Variable(line, variable);
+        },
+        Decl: function(first, last, variable) {
+            return new Decl(first, last, variable);
         }
     };
 }();

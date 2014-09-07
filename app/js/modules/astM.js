@@ -10,6 +10,7 @@ var flow = require('../factories/flowFactory');
 var expression = require('../factories/expressionFactory');
 var func = require('../factories/functionFactory');
 var statement = require('../factories/statementFactory');
+var reserved = require('../factories/reserveFactory');
 
 
 var compile = function (stmnts, scope) {
@@ -18,33 +19,6 @@ var compile = function (stmnts, scope) {
     }
     return scope;
 };
-
-var AstNode = require('./nodes/AstNode');
-exports.Return = function (first, last, returnable) {
-    AstNode.call(this, first, last);
-    this.compile = function (scope) {
-        return returnable.compile(scope);
-    };
-};
-exports.Return.prototype = Object.create(AstNode.prototype);
-
-exports.Break = function (line) {
-    AstNode.call(this, line, line);
-    this.compile = function (scope) {
-        scope.toggleBreak();
-        return scope;
-    };
-};
-exports.Break.prototype = Object.create(AstNode.prototype);
-
-exports.Decl = function(first, last, variable) {
-    AstNode.call(this, first, last);
-    this.compile = function(scope) {
-        scope.addVariable(variable.name, variable.compile(scope));
-        return scope;
-    };
-};
-exports.Decl.prototype = Object.create(AstNode.prototype);
 
 exports.compile = function (node) {
     var returned = compile(node, scope);
@@ -78,11 +52,17 @@ exports.type = {
     Number: type.Number
 };
 
+exports.reserved = {
+    Break: reserved.Break,
+    Return: reserved.Return
+};
+
 exports.exp = {
     Expression: expression.Expression,
     Increment: expression.Increment,
     Assign: expression.Assign,
     Variable: expression.Variable,
+    Decl: expression.Decl,
     Add: function (left, right) {
         return left + right;
     },
