@@ -216,71 +216,97 @@ Array.prototype.equals = function (array) {
 },{}],8:[function(require,module,exports){
 'use strict';
 
-var AstNode = require('../modules/nodes/AstNode');
+var Exp = require('../modules/nodes/exp/Expression');
+var Inc = require('../modules/nodes/exp/Increment');
+var Assign = require('../modules/nodes/exp/Assign');
+var Variable = require('../modules/nodes/exp/Variable');
 
-module.exports = function() {
+module.exports = function () {
     return {
-	Expression: require('../modules/nodes/exp/Expression')(AstNode),
-	Increment: require('../modules/nodes/exp/Increment')(AstNode),
-	Assign: require('../modules/nodes/exp/Assign')(AstNode),
-	Variable: require('../modules/nodes/exp/Variable')(AstNode)
+        Expression: function (first, last, stmnt1, stmnt2, func) {
+            return new Exp(first, last, stmnt1, stmnt2, func);
+        },
+        Increment: function (line, variable) {
+            return new Inc(line, variable);
+        },
+        Assign: function (first, last, variable, value) {
+            return new Assign(first, last, variable, value);
+        },
+        Variable: function (line, variable) {
+            return new Variable(line, variable);
+        }
     };
 }();
 
-},{"../modules/nodes/AstNode":18,"../modules/nodes/exp/Assign":21,"../modules/nodes/exp/Expression":22,"../modules/nodes/exp/Increment":23,"../modules/nodes/exp/Variable":24}],9:[function(require,module,exports){
+},{"../modules/nodes/exp/Assign":21,"../modules/nodes/exp/Expression":22,"../modules/nodes/exp/Increment":23,"../modules/nodes/exp/Variable":24}],9:[function(require,module,exports){
 'use strict';
 
-var Animations = require('../modules/nodes/Animations');
-var AstNode = require('../modules/nodes/AstNode');
-var Searches = require('../modules/nodes/Searches');
+var IfStmnt = require('../modules/nodes/flow/If');
+var While = require('../modules/nodes/flow/While');
+var For = require('../modules/nodes/flow/For');
+var DoWhile = require('../modules/nodes/flow/DoWhile');
 
-module.exports = function() {
+module.exports = function () {
     return {
-	If: require('../modules/nodes/flow/If')(AstNode, Animations, Searches),
-	While: require('../modules/nodes/flow/While')(AstNode),
-	For: require('../modules/nodes/flow/For')(AstNode, Animations),
-	DoWhile: require('../modules/nodes/flow/DoWhile')(AstNode)
+        If: function (first, last, cond, block1, block2) {
+            return new IfStmnt(first, last, cond, block1, block2);
+        },
+        While: function (first, last, cond, block) {
+            return new While(first, last, cond, block);
+        },
+        For: function (first, last, decl, cond, exp, block) {
+            return new For(first, last, decl, cond, exp, block);
+        },
+        DoWhile: function (first, last, block, cond) {
+            return new DoWhile(first, last, block, cond);
+        }
     };
 }();
 
-},{"../modules/nodes/Animations":17,"../modules/nodes/AstNode":18,"../modules/nodes/Searches":20,"../modules/nodes/flow/DoWhile":25,"../modules/nodes/flow/For":26,"../modules/nodes/flow/If":27,"../modules/nodes/flow/While":28}],10:[function(require,module,exports){
+},{"../modules/nodes/flow/DoWhile":25,"../modules/nodes/flow/For":26,"../modules/nodes/flow/If":27,"../modules/nodes/flow/While":28}],10:[function(require,module,exports){
 'use strict';
 
-var AstNode = require('../modules/nodes/AstNode');
-var Prints = require('../modules/nodes/Prints');
-var Animations = require('../modules/nodes/Animations');
-var Searches = require('../modules/nodes/Searches');
+var Output = require('../modules/nodes/func/Output');
+var FunctionCall = require('../modules/nodes/func/FunctionCall');
+var ArrayAccess = require('../modules/nodes/func/ArrayAccess');
 
-module.exports = function() {
+module.exports = function () {
     return {
-	Output: require('../modules/nodes/func/Output')(AstNode, Prints),
-	FunctionCall: require('../modules/nodes/func/FunctionCall')(AstNode, Animations),
-	ArrayAccess: require('../modules/nodes/func/ArrayAccess')(AstNode, Searches)
+        Output: function (first, last, toPrint, type) {
+            return new Output(first, last, toPrint, type);
+        },
+        FunctionCall: function (first, last, obj, method, params) {
+            return new FunctionCall(first, last, obj, method, params);
+        },
+        ArrayAccess: function (first, last, variable, arr) {
+            return new ArrayAccess(first, last, variable, arr);
+        }
     };
 }();
 
-},{"../modules/nodes/Animations":17,"../modules/nodes/AstNode":18,"../modules/nodes/Prints":19,"../modules/nodes/Searches":20,"../modules/nodes/func/ArrayAccess":29,"../modules/nodes/func/FunctionCall":30,"../modules/nodes/func/Output":31}],11:[function(require,module,exports){
+},{"../modules/nodes/func/ArrayAccess":29,"../modules/nodes/func/FunctionCall":30,"../modules/nodes/func/Output":31}],11:[function(require,module,exports){
 'use strict';
 
-var Animations = require('../modules/nodes/Animations');
-var AstNode = require('../modules/nodes/AstNode');
-var Searches = require('../modules/nodes/Searches');
+var Block = require('../modules/nodes/stmnt/Block');
+var Line = require('../modules/nodes/stmnt/Line');
 
-module.exports = function() {
+module.exports = function () {
     return {
-	Block: require('../modules/nodes/stmnt/Block')(AstNode),
-	Line: require('../modules/nodes/stmnt/Line')(AstNode, Animations, Searches)
+        Block: function (first, last, stmnt) {
+            return new Block(first, last, stmnt);
+        },
+        Line: function (first, last, stmnt) {
+            return new Line(first, last, stmnt);
+        }
     };
 }();
 
-},{"../modules/nodes/Animations":17,"../modules/nodes/AstNode":18,"../modules/nodes/Searches":20,"../modules/nodes/stmnt/Block":32,"../modules/nodes/stmnt/Line":33}],12:[function(require,module,exports){
+},{"../modules/nodes/stmnt/Block":32,"../modules/nodes/stmnt/Line":33}],12:[function(require,module,exports){
 'use strict';
 
-var Animations = require('../modules/nodes/Animations');
-var AstNode = require('../modules/nodes/AstNode');
-var Arr = require('../modules/nodes/type/Arr')(AstNode, Animations);
-var Bool = require('../modules/nodes/type/Boolean')(AstNode, Animations);
-var Num = require('../modules/nodes/type/Number')(AstNode, Animations);
+var Arr = require('../modules/nodes/type/Arr');
+var Bool = require('../modules/nodes/type/Boolean');
+var Num = require('../modules/nodes/type/Number');
 
 module.exports = function () {
     return {
@@ -296,54 +322,53 @@ module.exports = function () {
     };
 }();
 
-},{"../modules/nodes/Animations":17,"../modules/nodes/AstNode":18,"../modules/nodes/type/Arr":34,"../modules/nodes/type/Boolean":35,"../modules/nodes/type/Number":36}],13:[function(require,module,exports){
-module.exports=
-{
+},{"../modules/nodes/type/Arr":34,"../modules/nodes/type/Boolean":35,"../modules/nodes/type/Number":36}],13:[function(require,module,exports){
+module.exports={
     "lex": {
         "rules": [
-            ["\\s+",                    "/* skip whitespace */"],
-            ["//.*",                    "/* ignore comments */"],
+            ["\\s+", "/* skip whitespace */"],
+            ["//.*", "/* ignore comments */"],
             ["[0-9]+(?:\\.[0-9]+)?\\b", "return 'NUMBER';"],
-            ["println",                 "return 'PRINT';"],
-            ["print",                   "return 'PRINT';"],
-            ["break",                   "return 'BREAK';"],
-            ["\\.",                     "return 'DOT';"],
-            ["\\*",                     "return '*';"],
-            ["\\/",                     "return '/';"],
-            ["-",                       "return '-';"],
-            ["\\+",                     "return '+';"],
-            ["\\^",                     "return '^';"],
-            ["\\(",                     "return '(';"],
-            ["\\)",                     "return ')';"],
-            ["\\{",                     "return '{';"],
-            ["\\}",                     "return '}';"],
-            ["\\[",                     "return '[';"],
-            ["\\]",                     "return ']';"],
-            ["PI\\b",                   "return 'PI';"],
-            ["\\,",                     "return 'COMMA';"],
-            ["E\\b",                    "return 'E';"],
-            ["<-",                      "return 'ASSIGN';"],
-            ["=",                       "return 'EQUALITY';"],
-            ["≠",                       "return 'NOTEQUAL';"],
-            ["≤",                       "return 'LTE';"],
-            ["<",                       "return 'LT';"],
-            ["≥",                       "return 'GTE';"],
-            [">",                       "return 'GT';"],
-            ["(\n|\;)",                 "return 'TERM';"],
-            ["return",                  "return 'RET';"],
-            ["var",                     "return 'TYPE';"],
-            ["true\\b",                 "return 'TRUE'"],
-            ["false\\b",                "return 'FALSE'"],
-            ["nil\\b",                  "return 'NULL'"],
-            ["if",                      "return 'IF';"],
-            ["else",                    "return 'ELSE';"],
-            ["while",                   "return 'WHILE';"],
-            ["do",                      "return 'DO';"],
-            ["for",                     "return 'FOR';"],
-            ["[A-z][A-z0-9_]*\\+\\+",   "return 'INC';"],
-            ["[a-zA-Z][a-zA-Z0-9_]*",   "return 'VARIABLE';"],
-            ["$",                       "return 'EOF';"],
-            ["\n+",                     "return 'NEWLINE'"]
+            ["println", "return 'PRINT';"],
+            ["print", "return 'PRINT';"],
+            ["break", "return 'BREAK';"],
+            ["\\.", "return 'DOT';"],
+            ["\\*", "return '*';"],
+            ["\\/", "return '/';"],
+            ["-", "return '-';"],
+            ["\\+", "return '+';"],
+            ["\\^", "return '^';"],
+            ["\\(", "return '(';"],
+            ["\\)", "return ')';"],
+            ["\\{", "return '{';"],
+            ["\\}", "return '}';"],
+            ["\\[", "return '[';"],
+            ["\\]", "return ']';"],
+            ["PI\\b", "return 'PI';"],
+            ["\\,", "return 'COMMA';"],
+            ["E\\b", "return 'E';"],
+            ["<-", "return 'ASSIGN';"],
+            ["=", "return 'EQUALITY';"],
+            ["≠", "return 'NOTEQUAL';"],
+            ["≤", "return 'LTE';"],
+            ["<", "return 'LT';"],
+            ["≥", "return 'GTE';"],
+            [">", "return 'GT';"],
+            ["(\n|\;)", "return 'TERM';"],
+            ["return", "return 'RET';"],
+            ["var", "return 'TYPE';"],
+            ["true\\b", "return 'TRUE'"],
+            ["false\\b", "return 'FALSE'"],
+            ["nil\\b", "return 'NULL'"],
+            ["if", "return 'IF';"],
+            ["else", "return 'ELSE';"],
+            ["while", "return 'WHILE';"],
+            ["do", "return 'DO';"],
+            ["for", "return 'FOR';"],
+            ["[A-z][A-z0-9_]*\\+\\+", "return 'INC';"],
+            ["[a-zA-Z][a-zA-Z0-9_]*", "return 'VARIABLE';"],
+            ["$", "return 'EOF';"],
+            ["\n+", "return 'NEWLINE'"]
         ]
     },
 
@@ -356,118 +381,118 @@ module.exports=
     ],
 
     "bnf": {
-        "expressions" :[
+        "expressions": [
             [ "stmnt EOF", "return yy.compile($$);" ]
         ],
 
-        "stmnt" :[
-            [ "",               "" ],
-            [ "if stmnt",       "$$ = ($2 !== undefined) ? [$1].concat($2) : [$1];" ],
-            [ "loop stmnt",     "$$ = ($2 !== undefined) ? [$1].concat($2) : [$1];" ],
-            [ "line stmnt",     "$$ = ($2 !== undefined) ? [$1].concat($2) : [$1];" ]
+        "stmnt": [
+            [ "", "" ],
+            [ "if stmnt", "$$ = ($2 !== undefined) ? [$1].concat($2) : [$1];" ],
+            [ "loop stmnt", "$$ = ($2 !== undefined) ? [$1].concat($2) : [$1];" ],
+            [ "line stmnt", "$$ = ($2 !== undefined) ? [$1].concat($2) : [$1];" ]
         ],
 
-        "returnable" :[
+        "returnable": [
             [ "", "" ],
             [ "answer", "$$ = $1;" ]
         ],
 
         "answer": [
-            [ "cond",           "$$ = $1;" ],
-            [ "exp",            "$$ = $1;" ],
-            [ "structure",      "$$ = $1;" ]
+            [ "cond", "$$ = $1;" ],
+            [ "exp", "$$ = $1;" ],
+            [ "structure", "$$ = $1;" ]
         ],
 
-        "if" :[
-            [ "IF ( cond ) block",                "$$ = new yy.flow.If(@1, @4, $3, $5);" ],
-            [ "IF ( cond ) block ELSE if",        "$$ = new yy.flow.If(@1, @4, $3, $5, $7);" ],
-            [ "IF ( cond ) block ELSE block",     "$$ = new yy.flow.If(@1, @4, $3, $5, $7);" ]
+        "if": [
+            [ "IF ( cond ) block", "$$ = yy.flow.If(@1, @4, $3, $5);" ],
+            [ "IF ( cond ) block ELSE if", "$$ = yy.flow.If(@1, @4, $3, $5, $7);" ],
+            [ "IF ( cond ) block ELSE block", "$$ = yy.flow.If(@1, @4, $3, $5, $7);" ]
         ],
 
-        "loop" :[
-            [ "WHILE ( cond ) block",                  "$$ = new yy.flow.While(@1, @5, $3, $5);" ],
-            [ "DO block WHILE ( cond ) TERM",          "$$ = new yy.flow.DoWhile(@1, @7, $2, $5);" ],
-            [ "FOR ( decl TERM cond TERM exp ) block", "$$ = new yy.flow.For(@1, @8, $3, $5, $7, $9);" ]
+        "loop": [
+            [ "WHILE ( cond ) block", "$$ = yy.flow.While(@1, @5, $3, $5);" ],
+            [ "DO block WHILE ( cond ) TERM", "$$ = yy.flow.DoWhile(@1, @7, $2, $5);" ],
+            [ "FOR ( decl TERM cond TERM exp ) block", "$$ = yy.flow.For(@1, @8, $3, $5, $7, $9);" ]
         ],
 
-        "block" :[
-            [ "{ stmnt }", "$$ = new yy.stmnt.Block(@1, @3, $2);" ]
+        "block": [
+            [ "{ stmnt }", "$$ = yy.stmnt.Block(@1, @3, $2);" ]
         ],
 
-        "decl" :[
-            [ "TYPE decl",                "$$ = $2" ],
-            [ "TYPE var",                 "$$ = $2" ],
-            [ "assignable ASSIGN answer", "$$ = new yy.exp.Assign(@1, @3, $1, $3);" ]
+        "decl": [
+            [ "TYPE decl", "$$ = $2" ],
+            [ "TYPE var", "$$ = $2" ],
+            [ "assignable ASSIGN answer", "$$ = yy.exp.Assign(@1, @3, $1, $3);" ]
         ],
 
         "line": [
-            [ "answer TERM",               "$$ = new yy.stmnt.Line(@1, @2, $1);" ],
-            [ "decl TERM",                 "$$ = new yy.stmnt.Line(@1, @2, $1);" ],
-            [ "reserved TERM",             "$$ = new yy.stmnt.Line(@1, @2, $1);" ]
+            [ "answer TERM", "$$ = yy.stmnt.Line(@1, @2, $1);" ],
+            [ "decl TERM", "$$ = yy.stmnt.Line(@1, @2, $1);" ],
+            [ "reserved TERM", "$$ = yy.stmnt.Line(@1, @2, $1);" ]
         ],
 
-        'structure' : [
-            [ "[ elems ]",      "$$ = yy.type.Arr(@1, $2);" ]
+        "structure": [
+            [ "[ elems ]", "$$ = yy.type.Arr(@1, $2);" ]
         ],
 
-        'elems': [
+        "elems": [
             ["", ""],
             ["exp sep elems", "$$ = ($3 !== undefined) ? [$1].concat($3) : [$1];"]
         ],
 
-        'sep': [
+        "sep": [
             ["", ""],
             ["COMMA", "$$ = yytext"]
         ],
 
-        'reserved': [
-            [ "RET returnable",   "$$ = new yy.Return(@1, @2, $2);" ],
-            [ "BREAK",            "$$ = new yy.Break(@1);" ],
-            [ "PRINT ( answer )", "$$ = new yy.func.Output(@1, @4, $3, $1);" ]
+        "reserved": [
+            [ "RET returnable", "$$ = new yy.Return(@1, @2, $2);" ],
+            [ "BREAK", "$$ = new yy.Break(@1);" ],
+            [ "PRINT ( answer )", "$$ = yy.func.Output(@1, @4, $3, $1);" ]
         ],
 
-        "params" :[
+        "params": [
             ["", ""],
             [ "exp", "$$ = $1;" ]
         ],
 
-        'assignable': [
-	    ['var',                    '$$ = $1;'],
-            [ "assignable [ elems ]",  "$$ = new yy.func.ArrayAccess(@1, @2, $1, $3);" ]
+        "assignable": [
+            ["var", "$$ = $1;"],
+            [ "assignable [ elems ]", "$$ = yy.func.ArrayAccess(@1, @2, $1, $3);" ]
         ],
 
-        'var' : [
-            [ "VARIABLE",              "$$ = new yy.exp.Variable(@1, $1);"]
+        "var": [
+            [ "VARIABLE", "$$ = yy.exp.Variable(@1, $1);"]
         ],
 
-        'method': [
+        "method": [
             ["VARIABLE", "$$ = yytext"]
         ],
 
-        "exp" :[
-            [ "assignable",                       "$$ = $1" ],
-            [ "NUMBER",                           "$$ = yy.type.Number(@1,yytext);" ],
-            [ "( exp )",                          "$$ = $2;" ],
-            [ "INC",                              "$$ = new yy.exp.Increment(@1, $1);" ],
-            [ "exp + exp",                        "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Add);" ],
-            [ "exp - exp",                        "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Subtract);" ],
-            [ "exp * exp",                        "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Multiply);" ],
-            [ "exp / exp",                        "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Divide);" ],
-            [ "exp ^ exp",                        "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Pow);" ],
-            [ "E",                                "$$ = Math.E;" ],
-            [ "PI",                               "$$ = Math.PI;" ],
-            [ "assignable DOT method ( params )", "$$ = new yy.func.FunctionCall(@1, @6, $1, $3, $5);" ]
+        "exp": [
+            [ "assignable", "$$ = $1" ],
+            [ "NUMBER", "$$ = yy.type.Number(@1,yytext);" ],
+            [ "( exp )", "$$ = $2;" ],
+            [ "INC", "$$ = yy.exp.Increment(@1, $1);" ],
+            [ "exp + exp", "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Add);" ],
+            [ "exp - exp", "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Subtract);" ],
+            [ "exp * exp", "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Multiply);" ],
+            [ "exp / exp", "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Divide);" ],
+            [ "exp ^ exp", "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Pow);" ],
+            [ "E", "$$ = Math.E;" ],
+            [ "PI", "$$ = Math.PI;" ],
+            [ "assignable DOT method ( params )", "$$ = yy.func.FunctionCall(@1, @6, $1, $3, $5);" ]
         ],
 
-        "cond" :[
+        "cond": [
             [ "exp EQUALITY exp", "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Equal);" ],
             [ "exp NOTEQUAL exp", "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.Inequal);" ],
-            [ "exp LTE exp",      "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.LTE);" ],
-            [ "exp GTE exp",      "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.GTE);" ],
-            [ "exp LT exp",       "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.LT);" ],
-            [ "exp GT exp",       "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.GT);" ],
-            [ "TRUE",             "$$ = yy.type.Boolean(@1, true);"],
-            [ "FALSE",            "$$ = yy.type.Boolean(@1, false);"]
+            [ "exp LTE exp", "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.LTE);" ],
+            [ "exp GTE exp", "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.GTE);" ],
+            [ "exp LT exp", "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.LT);" ],
+            [ "exp GT exp", "$$ = new yy.exp.Expression(@1, @3, $1, $3, yy.exp.GT);" ],
+            [ "TRUE", "$$ = yy.type.Boolean(@1, true);"],
+            [ "FALSE", "$$ = yy.type.Boolean(@1, false);"]
         ]
     }
 };
@@ -477,7 +502,9 @@ module.exports=
 var Scope = require('./controllers/ScopeCtrl');
 var Animations = require('./nodes/Animations');
 var Prints = require('./nodes/Prints');
-var scope = new Scope();
+var Searches = require('./nodes/Searches');
+var scope = new Scope(new Animations(), new Prints(), new Searches());
+
 var type = require('../factories/typeFactory');
 var flow = require('../factories/flowFactory');
 var expression = require('../factories/expressionFactory');
@@ -485,39 +512,38 @@ var func = require('../factories/functionFactory');
 var statement = require('../factories/statementFactory');
 
 
-var compile = function(stmnts, scope) {
+var compile = function (stmnts, scope) {
     for (var i = 0; i < stmnts.length; i++) {
+        console.log(scope.getValue());
         scope = stmnts[i].compile(scope);
     }
+    return scope;
 };
 
 var AstNode = require('./nodes/AstNode');
-exports.Return = function(first, last, returnable) {
+exports.Return = function (first, last, returnable) {
     AstNode.call(this, first, last);
-    this.compile = function(scope) {
+    this.compile = function (scope) {
         return returnable.compile(scope);
     };
 };
 exports.Return.prototype = Object.create(AstNode.prototype);
 
-exports.Break = function(line) {
+exports.Break = function (line) {
     AstNode.call(this, line);
-    this.compile = function(scope) {
+    this.compile = function (scope) {
         scope.toggleBreak();
         return scope;
     };
 };
 exports.Break.prototype = Object.create(AstNode.prototype);
 
-exports.compile = function(node) {
-    compile(node, scope);
-    var result = {
-        animation: new Animations().get(),
-        print: new Prints().get()
+exports.compile = function (node) {
+    var returned = compile(node, scope);
+    return {
+        animation: returned.getAnimations(),
+        print: returned.getPrints()
     };
-    new Prints().clear();
-    new Animations().clear();
-    return result;
 };
 
 exports.stmnt = {
@@ -549,106 +575,130 @@ exports.exp = {
     Increment: expression.Increment,
     Assign: expression.Assign,
     Variable: expression.Variable,
-    Add: function(left, right) {
+    Add: function (left, right) {
         return left + right;
     },
     /**
      * @return {number}
      */
-    Subtract: function(left, right) {
+    Subtract: function (left, right) {
         return left - right;
     },
     /**
      * @return {number}
      */
-    Multiply: function(left, right) {
+    Multiply: function (left, right) {
         return left * right;
     },
     /**
      * @return {number}
      */
-    Divide: function(left, right) {
+    Divide: function (left, right) {
         return left / right;
     },
     /**
      * @return {number}
      */
-    Pow: function(left, right) {
+    Pow: function (left, right) {
         return Math.pow(left, right);
     },
     /**
      * @return {boolean}
      */
-    Equal: function(left, right) {
+    Equal: function (left, right) {
         return left === right;
     },
     /**
      * @return {boolean}
      */
-    Inequal: function(left, right) {
+    Inequal: function (left, right) {
         return left !== right;
     },
     /**
      * @return {boolean}
      */
-    LTE: function(left, right) {
+    LTE: function (left, right) {
         return left <= right;
     },
     /**
      * @return {boolean}
      */
-    LT: function(left, right) {
+    LT: function (left, right) {
         return left < right;
     },
     /**
      * @return {boolean}
      */
-    GTE: function(left, right) {
+    GTE: function (left, right) {
         return left >= right;
     },
     /**
      * @return {boolean}
      */
-    GT: function(left, right) {
+    GT: function (left, right) {
         return left > right;
     }
 };
 
-},{"../factories/expressionFactory":8,"../factories/flowFactory":9,"../factories/functionFactory":10,"../factories/statementFactory":11,"../factories/typeFactory":12,"./controllers/ScopeCtrl":15,"./nodes/Animations":17,"./nodes/AstNode":18,"./nodes/Prints":19}],15:[function(require,module,exports){
+},{"../factories/expressionFactory":8,"../factories/flowFactory":9,"../factories/functionFactory":10,"../factories/statementFactory":11,"../factories/typeFactory":12,"./controllers/ScopeCtrl":15,"./nodes/Animations":17,"./nodes/AstNode":18,"./nodes/Prints":19,"./nodes/Searches":20}],15:[function(require,module,exports){
 'use strict';
 
-var ScopeCtrl = function() {
+var ScopeCtrl = function (Animations, Prints, Searches) {
     var variables = {};
     var loopBreak = false;
     var child = [];
     var value;
 
-    this.addVariable = function(key, value) {
+    this.addVariable = function (key, value) {
         variables[key] = value;
     };
-    this.getVariable = function(key) {
+    this.getVariable = function (key) {
         return variables[key];
     };
-    this.childScope = function() {
-	child.push(clone(variables));
+    this.childScope = function () {
+        child.push(clone(variables));
     };
-    this.parentScope = function() {
+    this.parentScope = function () {
         variables = transfer(child.pop(), variables);
     };
-    this.getBreak = function() {
+    this.getBreak = function () {
         return loopBreak;
     };
-    this.setValue = function(val) {
+    this.setValue = function (val) {
         value = val;
     };
-    this.getValue = function() {
+    this.getValue = function () {
         return value;
     };
-    this.toggleBreak = function() {
-	loopBreak = !loopBreak;
+    this.toggleBreak = function () {
+        loopBreak = !loopBreak;
+    };
+    this.addAnimation = function (animation) {
+        Animations.add(animation);
+    };
+    this.getAnimations = function () {
+        var animations = Animations.get();
+        Animations.clear();
+        return animations;
+    };
+    this.addPrint = function (print) {
+        Prints.add(print);
+    };
+    this.getPrints = function () {
+        var prints = Prints.get();
+        Prints.clear();
+        return prints;
+    };
+    this.addSearch = function (search) {
+        Searches.add(search);
+    };
+    this.getSearches = function () {
+        var searched = Searches.get();
+        Searches.clear();
+        return searched;
     };
 
-    var transfer = function(parent, child) {
+    var transfer = function (parent, child) {
         for (var attr in parent) {
             if (child.hasOwnProperty(attr)) {
                 parent[attr] = child[attr];
@@ -657,7 +707,7 @@ var ScopeCtrl = function() {
         return parent;
     };
 
-    var clone = function(obj) {
+    var clone = function (obj) {
         if (null === obj || "object" !== typeof obj) {
             return obj;
         }
@@ -686,26 +736,26 @@ module.exports = function editor(elementId) {
     codeEditor = ace.edit(elementId);
     codeEditor.setTheme('ace/theme/monokai');
     codeEditor.setValue(["var arr <- [];",
-			 "for(var i <- 0; i < 5; i++) {",
-			 "\tarr.push(i);",
-			 "}",
-                         "print(arr);"].join('\n'));
+        "for(var i <- 0; i < 5; i++) {",
+        "\tarr.push(i);",
+        "}",
+        "print(arr);"].join('\n'));
     codeEditor.clearSelection();
     session = codeEditor.session;
 
     return {
-        getContent: function() {
+        getContent: function () {
             return session.getValue();
         },
-        setHighlight: function(fistLine, lastLine, firstColumn, lastColumn) {
-            var range = new Range(fistLine-1, firstColumn-1, lastLine-1, lastColumn-1);
+        setHighlight: function (fistLine, lastLine, firstColumn, lastColumn) {
+            var range = new Range(fistLine - 1, firstColumn - 1, lastLine - 1, lastColumn - 1);
             marker = session.addMarker(range, "warning", null, true);
         },
-	removeHighlight: function() {
-	    if (marker !== undefined) {
+        removeHighlight: function () {
+            if (marker !== undefined) {
                 session.removeMarker(marker);
             }
-	}
+        }
     };
 };
 
@@ -719,15 +769,15 @@ module.exports = function Animations() {
     }
     Animations.prototype._instance = this;
 
-    this.add = function(frame) {
+    this.add = function (frame) {
         animations.push(frame);
     };
 
-    this.get = function() {
+    this.get = function () {
         return animations;
     };
 
-    this.clear = function() {
+    this.clear = function () {
         animations = [];
     };
 };
@@ -736,15 +786,15 @@ module.exports = function Animations() {
 'use strict';
 
 module.exports = function (first, last) {
-    this.highlight = function(editor) {
+    this.highlight = function (editor) {
         editor.removeHighlight();
         editor.setHighlight(first.first_line,
-                            last.last_line,
-                            first.first_column,
-                            last.last_column);
+            last.last_line,
+            first.first_column,
+            last.last_column);
     };
     var highlight = this.highlight;
-    this.frame = function(scope, editor) {
+    this.frame = function (scope, editor) {
         highlight(editor);
     };
 };
@@ -754,20 +804,20 @@ module.exports = function (first, last) {
 
 module.exports = function Prints() {
     var prints = '';
-    if(Prints.prototype._instance) {
+    if (Prints.prototype._instance) {
         return Prints.prototype._instance;
     }
     Prints.prototype._instance = this;
 
-    this.add = function(print) {
+    this.add = function (print) {
         prints += print;
     };
 
-    this.get = function() {
+    this.get = function () {
         return prints;
     };
 
-    this.clear = function() {
+    this.clear = function () {
         prints = '';
     };
 };
@@ -782,23 +832,24 @@ module.exports = function Searches() {
     }
     Searches.prototype._instance = this;
 
-    this.add = function(frame) {
+    this.add = function (frame) {
         searches.push(frame);
     };
 
-    this.get = function() {
+    this.get = function () {
         return searches.slice();
     };
 
-    this.clear = function() {
+    this.clear = function () {
         searches = [];
     };
 };
 
 },{}],21:[function(require,module,exports){
 'use strict';
+var AstNode = require('../AstNode');
 
-module.exports = function (AstNode) {
+module.exports = function () {
     var Assign = function (first, last, variable, value) {
         AstNode.call(this, first, last);
         this.compile = function (scope) {
@@ -809,15 +860,16 @@ module.exports = function (AstNode) {
     };
     Assign.prototype = Object.create(AstNode.prototype);
     return Assign;
-};
+}();
 
-},{}],22:[function(require,module,exports){
+},{"../AstNode":18}],22:[function(require,module,exports){
 'use strict';
+var AstNode = require('../AstNode');
 
-module.exports = function(AstNode) {
-    var Expression = function(first, last, stmnt1, stmnt2, func) {
+module.exports = function () {
+    var Expression = function (first, last, stmnt1, stmnt2, func) {
         AstNode.call(this, first, last);
-        this.compile = function(scope) {
+        this.compile = function (scope) {
             var a = stmnt1.compile(scope).getValue();
             var b = stmnt2.compile(scope).getValue();
             scope.setValue(func(a, b));
@@ -826,12 +878,13 @@ module.exports = function(AstNode) {
     };
     Expression.prototype = Object.create(AstNode.prototype);
     return Expression;
-};
+}();
 
-},{}],23:[function(require,module,exports){
+},{"../AstNode":18}],23:[function(require,module,exports){
 'use strict';
+var AstNode = require('../AstNode');
 
-module.exports = function (AstNode) {
+module.exports = function () {
     var Increment = function (line, stmnt) {
         AstNode.call(this, line, line);
         var variable = stmnt.replace('++', '');
@@ -844,12 +897,13 @@ module.exports = function (AstNode) {
     };
     Increment.prototype = Object.create(AstNode.prototype);
     return Increment;
-};
+}();
 
-},{}],24:[function(require,module,exports){
+},{"../AstNode":18}],24:[function(require,module,exports){
 'use strict';
+var AstNode = require('../AstNode');
 
-module.exports = function (AstNode) {
+module.exports = function () {
     var Variable = function (line, variable) {
         AstNode.call(this, line, line);
         this.name = variable;
@@ -860,20 +914,20 @@ module.exports = function (AstNode) {
     };
     Variable.prototype = Object.create(AstNode.prototype);
     return Variable;
-};
+}();
 
-},{}],25:[function(require,module,exports){
+},{"../AstNode":18}],25:[function(require,module,exports){
 'use strict';
+var AstNode = require('../AstNode');
 
-module.exports = function (AstNode) {
+module.exports = function () {
     var DoWhile = function (first, last, block, cond) {
         AstNode.call(this, first, last);
 
         this.compile = function (scope) {
             do {
                 scope = block.compile(scope);
-                scope = cond.compile(scope);
-            } while (scope.getValue());
+            } while (cond.compile(scope).getValue());
             return scope;
         };
     };
@@ -881,10 +935,11 @@ module.exports = function (AstNode) {
     return DoWhile;
 };
 
-},{}],26:[function(require,module,exports){
+},{"../AstNode":18}],26:[function(require,module,exports){
 'use strict';
+var AstNode = require('../AstNode');
 
-module.exports = function (AstNode, Animations) {
+module.exports = function () {
     var For = function (first, last, decl, cond, exp, block) {
         AstNode.call(this, first, last);
 
@@ -892,7 +947,7 @@ module.exports = function (AstNode, Animations) {
             scope.childScope();
             scope = decl.compile(scope);
             while (cond.compile(scope).getValue()) {
-                new Animations().add(this.frame);
+                scope.addAnimation(this.frame);
                 scope = block.compile(scope);
                 if (scope.getBreak()) {
                     scope.toggleBreak();
@@ -906,23 +961,23 @@ module.exports = function (AstNode, Animations) {
     };
     For.prototype = Object.create(AstNode.prototype);
     return For;
-};
+}();
 
-},{}],27:[function(require,module,exports){
+},{"../AstNode":18}],27:[function(require,module,exports){
 'use strict';
+var AstNode = require('../AstNode');
 
-module.exports = function (AstNode, Animations, Searches) {
+module.exports = function () {
     var If = function (line, column, cond, block1, block2) {
         AstNode.call(this, line, column);
         this.compile = function (scope) {
-            var searches = new Searches();
-            var searched = searches.get();
-            searches.clear();
+            var searched = scope.getSearches();
             var frame = this.frame;
-            new Animations().add(function ($scope, editor) {
+            scope.addAnimation(function ($scope, editor) {
                 $scope.searches = searched;
                 frame($scope, editor);
             });
+
             scope = cond.compile(scope);
             if (scope.getValue()) {
                 scope = block1.compile(scope);
@@ -936,12 +991,13 @@ module.exports = function (AstNode, Animations, Searches) {
     };
     If.prototype = Object.create(AstNode.prototype);
     return If;
-};
+}();
 
-},{}],28:[function(require,module,exports){
+},{"../AstNode":18}],28:[function(require,module,exports){
 'use strict';
+var AstNode = require('../AstNode');
 
-module.exports = function (AstNode) {
+module.exports = function () {
     var While = function (first, last, cond, block) {
         AstNode.call(this, first, last);
         this.compile = function (scope) {
@@ -957,34 +1013,37 @@ module.exports = function (AstNode) {
     };
     While.prototype = Object.create(AstNode.prototype);
     return While;
-};
+}();
 
-},{}],29:[function(require,module,exports){
+},{"../AstNode":18}],29:[function(require,module,exports){
 'use strict';
+var AstNode = require('../AstNode');
 
-module.exports = function (AstNode, Searches) {
+module.exports = function () {
     var ArrayAccess = function (first, last, variable, arr) {
         AstNode.call(this, first, last);
         this.compile = function (scope) {
             var a = variable.compile(scope).getValue();
             var index = arr[0].compile(scope).getValue();
-            new Searches().add(index);
+            scope.addSearch(index);
             scope.setValue(a[index]);
             return scope;
         };
     };
     ArrayAccess.prototype = Object.create(AstNode.prototype);
     return ArrayAccess;
-};
+}();
 
-},{}],30:[function(require,module,exports){
+},{"../AstNode":18}],30:[function(require,module,exports){
 'use strict';
+var AstNode = require('../AstNode');
+
 //from http://stackoverflow.com/questions/5999998/how-can-i-check-if-a-javascript-variable-is-function-type
 function isFunction(functionToCheck) {
     var getType = {};
     return functionToCheck && getType.toString.call(functionToCheck) === '[object Function]';
 }
-module.exports = function (AstNode, Animations) {
+module.exports = function () {
     var FunctionCall = function (first, last, obj, method, params) {
         AstNode.call(this, first, last);
         this.compile = function (scope) {
@@ -1001,7 +1060,7 @@ module.exports = function (AstNode, Animations) {
             }
             var data = variable.slice();
             var frame = this.frame;
-            new Animations().add(function ($scope, editor) {
+            scope.addAnimation(function ($scope, editor) {
                 $scope.data = data;
                 $scope.structure = 'array';
                 $scope.method = method;
@@ -1012,22 +1071,23 @@ module.exports = function (AstNode, Animations) {
     };
     FunctionCall.prototype = Object.create(AstNode.prototype);
     return FunctionCall;
-};
+}();
 
-},{}],31:[function(require,module,exports){
+},{"../AstNode":18}],31:[function(require,module,exports){
 'use strict';
+var AstNode = require('../AstNode');
 
-module.exports = function (AstNode, Prints) {
+module.exports = function () {
     var Output = function (first, last, toPrint, type) {
         AstNode.call(this, first, last);
         this.compile = function (scope) {
             scope = toPrint.compile(scope);
-            if(scope.getValue() !== undefined) {
+            if (scope.getValue() !== undefined) {
                 if (type === 'print') {
-                    new Prints().add(scope.getValue());
+                    scope.addPrint(scope.getValue());
                 }
                 else if (type === 'println') {
-                    new Prints().add(scope.getValue() + '\n');
+                    scope.addPrint(scope.getValue() + '\n');
                 }
             }
             return scope;
@@ -1035,10 +1095,11 @@ module.exports = function (AstNode, Prints) {
     };
     Output.prototype = Object.create(AstNode.prototype);
     return Output;
-};
+}();
 
-},{}],32:[function(require,module,exports){
+},{"../AstNode":18}],32:[function(require,module,exports){
 'use strict';
+var AstNode = require('../AstNode');
 
 var compile = function (stmnts, scope) {
     for (var i = 0; i < stmnts.length; i++) {
@@ -1047,7 +1108,7 @@ var compile = function (stmnts, scope) {
     return scope;
 };
 
-module.exports = function (AstNode) {
+module.exports = function () {
     var Block = function (first, last, stmnts) {
         AstNode.call(this, first, last);
         this.compile = function (scope) {
@@ -1059,23 +1120,22 @@ module.exports = function (AstNode) {
     };
     Block.prototype = Object.create(AstNode.prototype);
     return Block;
-};
+}();
 
-},{}],33:[function(require,module,exports){
+},{"../AstNode":18}],33:[function(require,module,exports){
 'use strict';
+var AstNode = require('../AstNode');
 
-module.exports = function (AstNode, Animations, Searches) {
+module.exports = function () {
     var Line = function (line, column, val) {
         AstNode.call(this, line, column);
         this.compile = function (scope) {
 
             var frame = this.frame;
-            var searches = new Searches();
-            var searched = searches.get();
-            searches.clear();
+            var searched = scope.getSearches();
 
             scope = val.compile(scope);
-            new Animations().add(function ($scope, editor) {
+            scope.addAnimation(function ($scope, editor) {
                 $scope.searches = searched;
                 frame($scope, editor);
             });
@@ -1084,12 +1144,12 @@ module.exports = function (AstNode, Animations, Searches) {
     };
     Line.prototype = Object.create(AstNode.prototype);
     return Line;
-};
-
-},{}],34:[function(require,module,exports){
+}();
+},{"../AstNode":18}],34:[function(require,module,exports){
 'use strict';
+var AstNode = require('../AstNode');
 
-module.exports = function (AstNode, Animations) {
+module.exports = function () {
     var Arr = function (line, list) {
         AstNode.call(this, line, line);
         this.compile = function (scope) {
@@ -1100,7 +1160,7 @@ module.exports = function (AstNode, Animations) {
                 }
             }
             var frame = this.frame;
-            new Animations().add(function ($scope, editor) {
+            scope.addAnimation(function ($scope, editor) {
                 $scope.data = arr.slice();
                 $scope.structure = 'array';
                 frame($scope, editor);
@@ -1111,43 +1171,45 @@ module.exports = function (AstNode, Animations) {
     };
     Arr.prototype = Object.create(AstNode.prototype);
     return Arr;
-};
+}();
 
-},{}],35:[function(require,module,exports){
+},{"../AstNode":18}],35:[function(require,module,exports){
 'use strict';
+var AstNode = require('../AstNode');
 
-module.exports = function(AstNode) {
-    var BooleanNode = function(line, bool) {
+module.exports = function () {
+    var BooleanNode = function (line, bool) {
         AstNode.call(this, line, line);
-        this.compile = function(scope) {
+        this.compile = function (scope) {
             scope.setValue(bool);
             return scope;
         };
     };
     BooleanNode.prototype = Object.create(AstNode.prototype);
     return BooleanNode;
-};
+}();
 
-},{}],36:[function(require,module,exports){
+},{"../AstNode":18}],36:[function(require,module,exports){
 'use strict';
+var AstNode = require('../AstNode');
 
-module.exports = function(AstNode) {
-    var NumberNode = function(line, num) {
+module.exports = function () {
+    var NumberNode = function (line, num) {
         AstNode.call(this, line, line);
-        this.compile = function(scope) {
+        this.compile = function (scope) {
             scope.setValue(Number(num));
             return scope;
         };
     };
     NumberNode.prototype = Object.create(AstNode.prototype);
     return NumberNode;
-};
+}();
 
-},{}],37:[function(require,module,exports){
+},{"../AstNode":18}],37:[function(require,module,exports){
 'use strict';
 var Parser = require("jison").Parser;
 
-module.exports = function(grammar, ast) {
+module.exports = function (grammar, ast) {
     var parser = new Parser(grammar);
     parser.yy = ast;
     return {

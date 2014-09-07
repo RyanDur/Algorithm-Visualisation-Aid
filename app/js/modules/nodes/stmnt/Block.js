@@ -1,4 +1,5 @@
 'use strict';
+var AstNode = require('../AstNode');
 
 var compile = function (stmnts, scope) {
     for (var i = 0; i < stmnts.length; i++) {
@@ -7,7 +8,7 @@ var compile = function (stmnts, scope) {
     return scope;
 };
 
-module.exports = function (AstNode) {
+module.exports = function () {
     var Block = function (first, last, stmnts) {
         AstNode.call(this, first, last);
         this.compile = function (scope) {
@@ -19,4 +20,4 @@ module.exports = function (AstNode) {
     };
     Block.prototype = Object.create(AstNode.prototype);
     return Block;
-};
+}();

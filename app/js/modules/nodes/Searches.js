@@ -7,15 +7,15 @@ module.exports = function Searches() {
     }
     Searches.prototype._instance = this;
 
-    this.add = function(frame) {
+    this.add = function (frame) {
         searches.push(frame);
     };
 
-    this.get = function() {
+    this.get = function () {
         return searches.slice();
     };
 
-    this.clear = function() {
+    this.clear = function () {
         searches = [];
     };
 };

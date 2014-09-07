@@ -1,6 +1,7 @@
 'use strict';
+var AstNode = require('../AstNode');
 
-module.exports = function (AstNode) {
+module.exports = function () {
     var Variable = function (line, variable) {
         AstNode.call(this, line, line);
         this.name = variable;
@@ -11,4 +12,4 @@ module.exports = function (AstNode) {
     };
     Variable.prototype = Object.create(AstNode.prototype);
     return Variable;
-};
+}();

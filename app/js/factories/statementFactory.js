@@ -1,12 +1,15 @@
 'use strict';
 
-var Animations = require('../modules/nodes/Animations');
-var AstNode = require('../modules/nodes/AstNode');
-var Searches = require('../modules/nodes/Searches');
+var Block = require('../modules/nodes/stmnt/Block');
+var Line = require('../modules/nodes/stmnt/Line');
 
-module.exports = function() {
+module.exports = function () {
     return {
-	Block: require('../modules/nodes/stmnt/Block')(AstNode),
-	Line: require('../modules/nodes/stmnt/Line')(AstNode, Animations, Searches)
+        Block: function (first, last, stmnt) {
+            return new Block(first, last, stmnt);
+        },
+        Line: function (first, last, stmnt) {
+            return new Line(first, last, stmnt);
+        }
     };
 }();

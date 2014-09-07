@@ -1,10 +1,12 @@
 'use strict';
+var AstNode = require('../AstNode');
+
 //from http://stackoverflow.com/questions/5999998/how-can-i-check-if-a-javascript-variable-is-function-type
 function isFunction(functionToCheck) {
     var getType = {};
     return functionToCheck && getType.toString.call(functionToCheck) === '[object Function]';
 }
-module.exports = function (AstNode, Animations) {
+module.exports = function () {
     var FunctionCall = function (first, last, obj, method, params) {
         AstNode.call(this, first, last);
         this.compile = function (scope) {
@@ -21,7 +23,7 @@ module.exports = function (AstNode, Animations) {
             }
             var data = variable.slice();
             var frame = this.frame;
-            new Animations().add(function ($scope, editor) {
+            scope.addAnimation(function ($scope, editor) {
                 $scope.data = data;
                 $scope.structure = 'array';
                 $scope.method = method;
@@ -32,4 +34,4 @@ module.exports = function (AstNode, Animations) {
     };
     FunctionCall.prototype = Object.create(AstNode.prototype);
     return FunctionCall;
-};
+}();

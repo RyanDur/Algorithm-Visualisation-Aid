@@ -1,6 +1,7 @@
 'use strict';
+var AstNode = require('../AstNode');
 
-module.exports = function (AstNode, Animations) {
+module.exports = function () {
     var Arr = function (line, list) {
         AstNode.call(this, line, line);
         this.compile = function (scope) {
@@ -11,7 +12,7 @@ module.exports = function (AstNode, Animations) {
                 }
             }
             var frame = this.frame;
-            new Animations().add(function ($scope, editor) {
+            scope.addAnimation(function ($scope, editor) {
                 $scope.data = arr.slice();
                 $scope.structure = 'array';
                 frame($scope, editor);
@@ -22,4 +23,4 @@ module.exports = function (AstNode, Animations) {
     };
     Arr.prototype = Object.create(AstNode.prototype);
     return Arr;
-};
+}();

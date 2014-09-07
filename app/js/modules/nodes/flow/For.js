@@ -1,6 +1,7 @@
 'use strict';
+var AstNode = require('../AstNode');
 
-module.exports = function (AstNode, Animations) {
+module.exports = function () {
     var For = function (first, last, decl, cond, exp, block) {
         AstNode.call(this, first, last);
 
@@ -8,7 +9,7 @@ module.exports = function (AstNode, Animations) {
             scope.childScope();
             scope = decl.compile(scope);
             while (cond.compile(scope).getValue()) {
-                new Animations().add(this.frame);
+                scope.addAnimation(this.frame);
                 scope = block.compile(scope);
                 if (scope.getBreak()) {
                     scope.toggleBreak();
@@ -22,4 +23,4 @@ module.exports = function (AstNode, Animations) {
     };
     For.prototype = Object.create(AstNode.prototype);
     return For;
-};
+}();

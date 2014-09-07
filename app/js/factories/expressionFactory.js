@@ -1,12 +1,23 @@
 'use strict';
 
-var AstNode = require('../modules/nodes/AstNode');
+var Exp = require('../modules/nodes/exp/Expression');
+var Inc = require('../modules/nodes/exp/Increment');
+var Assign = require('../modules/nodes/exp/Assign');
+var Variable = require('../modules/nodes/exp/Variable');
 
-module.exports = function() {
+module.exports = function () {
     return {
-	Expression: require('../modules/nodes/exp/Expression')(AstNode),
-	Increment: require('../modules/nodes/exp/Increment')(AstNode),
-	Assign: require('../modules/nodes/exp/Assign')(AstNode),
-	Variable: require('../modules/nodes/exp/Variable')(AstNode)
+        Expression: function (first, last, stmnt1, stmnt2, func) {
+            return new Exp(first, last, stmnt1, stmnt2, func);
+        },
+        Increment: function (line, variable) {
+            return new Inc(line, variable);
+        },
+        Assign: function (first, last, variable, value) {
+            return new Assign(first, last, variable, value);
+        },
+        Variable: function (line, variable) {
+            return new Variable(line, variable);
+        }
     };
 }();

@@ -1,17 +1,17 @@
 'use strict';
+var AstNode = require('../AstNode');
 
-module.exports = function (AstNode, Animations, Searches) {
+module.exports = function () {
     var If = function (line, column, cond, block1, block2) {
         AstNode.call(this, line, column);
         this.compile = function (scope) {
-            var searches = new Searches();
-            var searched = searches.get();
-            searches.clear();
+            var searched = scope.getSearches();
             var frame = this.frame;
-            new Animations().add(function ($scope, editor) {
+            scope.addAnimation(function ($scope, editor) {
                 $scope.searches = searched;
                 frame($scope, editor);
             });
+
             scope = cond.compile(scope);
             if (scope.getValue()) {
                 scope = block1.compile(scope);
@@ -25,4 +25,4 @@ module.exports = function (AstNode, Animations, Searches) {
     };
     If.prototype = Object.create(AstNode.prototype);
     return If;
-};
+}();

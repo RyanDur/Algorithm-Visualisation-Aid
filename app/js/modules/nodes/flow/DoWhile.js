@@ -1,17 +1,17 @@
 'use strict';
+var AstNode = require('../AstNode');
 
-module.exports = function (AstNode) {
+module.exports = function () {
     var DoWhile = function (first, last, block, cond) {
         AstNode.call(this, first, last);
 
         this.compile = function (scope) {
             do {
                 scope = block.compile(scope);
-                scope = cond.compile(scope);
-            } while (scope.getValue());
+            } while (cond.compile(scope).getValue());
             return scope;
         };
     };
     DoWhile.prototype = Object.create(AstNode.prototype);
     return DoWhile;
-};
+}();

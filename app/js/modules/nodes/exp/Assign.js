@@ -1,6 +1,7 @@
 'use strict';
+var AstNode = require('../AstNode');
 
-module.exports = function (AstNode) {
+module.exports = function () {
     var Assign = function (first, last, variable, value) {
         AstNode.call(this, first, last);
         this.compile = function (scope) {
@@ -11,4 +12,4 @@ module.exports = function (AstNode) {
     };
     Assign.prototype = Object.create(AstNode.prototype);
     return Assign;
-};
+}();

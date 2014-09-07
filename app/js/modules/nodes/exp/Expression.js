@@ -1,9 +1,10 @@
 'use strict';
+var AstNode = require('../AstNode');
 
-module.exports = function(AstNode) {
-    var Expression = function(first, last, stmnt1, stmnt2, func) {
+module.exports = function () {
+    var Expression = function (first, last, stmnt1, stmnt2, func) {
         AstNode.call(this, first, last);
-        this.compile = function(scope) {
+        this.compile = function (scope) {
             var a = stmnt1.compile(scope).getValue();
             var b = stmnt2.compile(scope).getValue();
             scope.setValue(func(a, b));
@@ -12,4 +13,4 @@ module.exports = function(AstNode) {
     };
     Expression.prototype = Object.create(AstNode.prototype);
     return Expression;
-};
+}();
