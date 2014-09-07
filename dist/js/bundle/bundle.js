@@ -89,6 +89,10 @@ var DataStructureCtrl = function(scope, $timeout) {
         }
     };
 
+    this.setArray = function() {
+        scope.array = scope.data;
+    };
+
     var setArray = function() {
         scope.array = scope.data;
     };
@@ -131,15 +135,14 @@ module.exports = function ($timeout) {
             scope.data = [];
             scope.array = scope.data;
 
-            scope.$watch('searches', function (newVal, oldVal) {
-                console.log(newVal);
-                console.log(oldVal);
-                if (!newVal.equals(oldVal)) {
+            scope.$watch('search', function (newVal, oldVal) {
+                if (newVal !== oldVal) {
                     console.log(scope.search);
-                    if(scope.search) {
+                    if(scope.search !== undefined) {
                         scope.searches.push(scope.search);
                     } else {
                         scope.searches.length = 0;
+                        dsc.removeClass('search', scope.searches);
                     }
                     var children = elem.find('ul').children();
                     dsc.removeClass('search', children);
@@ -996,7 +999,10 @@ module.exports = function () {
         AstNode.call(this, line, column);
         this.compile = function (scope) {
             var frame = this.frame;
-
+            scope.addAnimation(function ($scope, editor) {
+                $scope.search = undefined;
+                frame($scope, editor);
+            });
             scope = cond.compile(scope);
             if (scope.getValue()) {
                 scope = block1.compile(scope);
@@ -1006,10 +1012,6 @@ module.exports = function () {
                 }
             }
 
-            scope.addAnimation(function ($scope, editor) {
-                $scope.searches = undefined;
-                frame($scope, editor);
-            });
             return scope;
         };
     };
@@ -1144,6 +1146,9 @@ module.exports = function () {
             scope.childScope();
             scope = compile(stmnts, scope);
             scope.parentScope();
+            scope.addAnimation(function($scope) {
+                $scope.search = undefined;
+            });
             return scope;
         };
     };
@@ -1160,10 +1165,7 @@ module.exports = function () {
         AstNode.call(this, line, column);
         this.compile = function (scope) {
             scope = val.compile(scope);
-            var frame = this.frame;
-            scope.addAnimation(function ($scope, editor) {
-                frame($scope, editor);
-            });
+            scope.addAnimation(this.frame);
             return scope;
         };
     };
