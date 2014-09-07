@@ -29,13 +29,22 @@ exports.Return = function (first, last, returnable) {
 exports.Return.prototype = Object.create(AstNode.prototype);
 
 exports.Break = function (line) {
-    AstNode.call(this, line);
+    AstNode.call(this, line, line);
     this.compile = function (scope) {
         scope.toggleBreak();
         return scope;
     };
 };
 exports.Break.prototype = Object.create(AstNode.prototype);
+
+exports.Decl = function(first, last, variable) {
+    AstNode.call(this, first, last);
+    this.compile = function(scope) {
+        scope.addVariable(variable.name, variable.compile(scope));
+        return scope;
+    };
+};
+exports.Decl.prototype = Object.create(AstNode.prototype);
 
 exports.compile = function (node) {
     var returned = compile(node, scope);

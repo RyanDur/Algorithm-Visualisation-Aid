@@ -14,23 +14,22 @@ module.exports = function ($timeout) {
         templateUrl: "templates/data_array.html",
         link: function (scope, elem) {
             var dsc = new DataStructureCtrl(scope, $timeout);
-            scope.searches = [];
+            var searches = [];
             scope.data = [];
             scope.array = scope.data;
 
             scope.$watch('search', function (newVal, oldVal) {
                 if (newVal !== oldVal) {
-                    console.log(scope.search);
                     if(scope.search !== undefined) {
-                        scope.searches.push(scope.search);
+                        searches.push(scope.search);
                     } else {
-                        scope.searches.length = 0;
-                        dsc.removeClass('search', scope.searches);
+                        dsc.removeClass('search', searches);
+                        searches.length = 0;
                     }
                     var children = elem.find('ul').children();
                     dsc.removeClass('search', children);
                     for (var j = 0; j < children.length; j++) {
-                        if (scope.searches.indexOf(j) >= 0) {
+                        if (searches.indexOf(j) >= 0) {
                             angular.element(children[j]).addClass('search');
                         }
                     }

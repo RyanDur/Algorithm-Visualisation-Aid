@@ -131,23 +131,22 @@ module.exports = function ($timeout) {
         templateUrl: "templates/data_array.html",
         link: function (scope, elem) {
             var dsc = new DataStructureCtrl(scope, $timeout);
-            scope.searches = [];
+            var searches = [];
             scope.data = [];
             scope.array = scope.data;
 
             scope.$watch('search', function (newVal, oldVal) {
                 if (newVal !== oldVal) {
-                    console.log(scope.search);
                     if(scope.search !== undefined) {
-                        scope.searches.push(scope.search);
+                        searches.push(scope.search);
                     } else {
-                        scope.searches.length = 0;
-                        dsc.removeClass('search', scope.searches);
+                        dsc.removeClass('search', searches);
+                        searches.length = 0;
                     }
                     var children = elem.find('ul').children();
                     dsc.removeClass('search', children);
                     for (var j = 0; j < children.length; j++) {
-                        if (scope.searches.indexOf(j) >= 0) {
+                        if (searches.indexOf(j) >= 0) {
                             angular.element(children[j]).addClass('search');
                         }
                     }
@@ -449,7 +448,7 @@ module.exports={
 
         "decl": [
             [ "TYPE decl", "$$ = $2" ],
-            [ "TYPE var", "$$ = $2" ],
+            [ "TYPE var", "$$ = new yy.Decl(@1, @2, $2);" ],
             [ "assignable ASSIGN answer", "$$ = yy.exp.Assign(@1, @3, $1, $3);" ]
         ],
 
@@ -557,13 +556,22 @@ exports.Return = function (first, last, returnable) {
 exports.Return.prototype = Object.create(AstNode.prototype);
 
 exports.Break = function (line) {
-    AstNode.call(this, line);
+    AstNode.call(this, line, line);
     this.compile = function (scope) {
         scope.toggleBreak();
         return scope;
     };
 };
 exports.Break.prototype = Object.create(AstNode.prototype);
+
+exports.Decl = function(first, last, variable) {
+    AstNode.call(this, first, last);
+    this.compile = function(scope) {
+        scope.addVariable(variable.name, variable.compile(scope));
+        return scope;
+    };
+};
+exports.Decl.prototype = Object.create(AstNode.prototype);
 
 exports.compile = function (node) {
     var returned = compile(node, scope);

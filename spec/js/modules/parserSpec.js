@@ -199,4 +199,9 @@ describe('parser', function () {
     it('should be able to declare a variable woithout assinging it', function () {
         expect(parser.parse("var a; a <- 3; print(a);").print).toBe('3');
     });
+
+    it('should be able to declare a variable outside a scope', function() {
+        var program = "var arr <- [1,2,3,4,5];var found;for(var i <- 0; i < 5; i++) {if(arr[i] = 3) {found <- i;break; }}print(found);";
+        expect(parser.parse(program).print).toBe('2');
+    });
 });
