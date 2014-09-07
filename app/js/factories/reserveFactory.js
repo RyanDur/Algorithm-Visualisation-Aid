@@ -1,6 +1,6 @@
 'use strict';
-var Break = require('../modules/nodes/reserved/Break');
-var Return = require('../modules/nodes/reserved/Return');
+var Break = require('../modules/nodes/reserved/Break'),
+    Return = require('../modules/nodes/reserved/Return');
 
 module.exports = function () {
     return {

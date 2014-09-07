@@ -1,7 +1,7 @@
 'use strict';
 
-var Block = require('../modules/nodes/stmnt/Block');
-var Line = require('../modules/nodes/stmnt/Line');
+var Block = require('../modules/nodes/stmnt/Block'),
+    Line = require('../modules/nodes/stmnt/Line');
 
 module.exports = function () {
     return {

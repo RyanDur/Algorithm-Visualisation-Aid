@@ -1,9 +1,9 @@
 'use strict';
 
-var IfStmnt = require('../modules/nodes/flow/If');
-var While = require('../modules/nodes/flow/While');
-var For = require('../modules/nodes/flow/For');
-var DoWhile = require('../modules/nodes/flow/DoWhile');
+var IfStmnt = require('../modules/nodes/flow/If'),
+    While = require('../modules/nodes/flow/While'),
+    For = require('../modules/nodes/flow/For'),
+    DoWhile = require('../modules/nodes/flow/DoWhile');
 
 module.exports = function () {
     return {

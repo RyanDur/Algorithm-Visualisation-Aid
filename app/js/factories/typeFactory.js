@@ -1,8 +1,8 @@
 'use strict';
 
-var Arr = require('../modules/nodes/type/Arr');
-var Bool = require('../modules/nodes/type/Boolean');
-var Num = require('../modules/nodes/type/Number');
+var Arr = require('../modules/nodes/type/Arr'),
+    Bool = require('../modules/nodes/type/Boolean'),
+    Num = require('../modules/nodes/type/Number');
 
 module.exports = function () {
     return {

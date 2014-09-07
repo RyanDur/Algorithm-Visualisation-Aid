@@ -1,8 +1,8 @@
 'use strict';
 
-var Output = require('../modules/nodes/func/Output');
-var FunctionCall = require('../modules/nodes/func/FunctionCall');
-var ArrayAccess = require('../modules/nodes/func/ArrayAccess');
+var Output = require('../modules/nodes/func/Output'),
+    FunctionCall = require('../modules/nodes/func/FunctionCall'),
+    ArrayAccess = require('../modules/nodes/func/ArrayAccess');
 
 module.exports = function () {
     return {

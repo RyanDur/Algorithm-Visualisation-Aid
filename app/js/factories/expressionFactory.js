@@ -1,10 +1,10 @@
 'use strict';
 
-var Exp = require('../modules/nodes/exp/Expression');
-var Inc = require('../modules/nodes/exp/Increment');
-var Assign = require('../modules/nodes/exp/Assign');
-var Variable = require('../modules/nodes/exp/Variable');
-var Decl = require('../modules/nodes/exp/Decl');
+var Exp = require('../modules/nodes/exp/Expression'),
+    Inc = require('../modules/nodes/exp/Increment'),
+    Assign = require('../modules/nodes/exp/Assign'),
+    Variable = require('../modules/nodes/exp/Variable'),
+    Decl = require('../modules/nodes/exp/Decl');
 
 module.exports = function () {
     return {

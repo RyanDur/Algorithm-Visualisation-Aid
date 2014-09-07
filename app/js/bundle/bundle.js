@@ -243,11 +243,11 @@ Array.prototype.equals = function (array) {
 },{}],10:[function(require,module,exports){
 'use strict';
 
-var Exp = require('../modules/nodes/exp/Expression');
-var Inc = require('../modules/nodes/exp/Increment');
-var Assign = require('../modules/nodes/exp/Assign');
-var Variable = require('../modules/nodes/exp/Variable');
-var Decl = require('../modules/nodes/exp/Decl');
+var Exp = require('../modules/nodes/exp/Expression'),
+    Inc = require('../modules/nodes/exp/Increment'),
+    Assign = require('../modules/nodes/exp/Assign'),
+    Variable = require('../modules/nodes/exp/Variable'),
+    Decl = require('../modules/nodes/exp/Decl');
 
 module.exports = function () {
     return {
@@ -272,10 +272,10 @@ module.exports = function () {
 },{"../modules/nodes/exp/Assign":24,"../modules/nodes/exp/Decl":25,"../modules/nodes/exp/Expression":26,"../modules/nodes/exp/Increment":27,"../modules/nodes/exp/Variable":28}],11:[function(require,module,exports){
 'use strict';
 
-var IfStmnt = require('../modules/nodes/flow/If');
-var While = require('../modules/nodes/flow/While');
-var For = require('../modules/nodes/flow/For');
-var DoWhile = require('../modules/nodes/flow/DoWhile');
+var IfStmnt = require('../modules/nodes/flow/If'),
+    While = require('../modules/nodes/flow/While'),
+    For = require('../modules/nodes/flow/For'),
+    DoWhile = require('../modules/nodes/flow/DoWhile');
 
 module.exports = function () {
     return {
@@ -297,9 +297,9 @@ module.exports = function () {
 },{"../modules/nodes/flow/DoWhile":29,"../modules/nodes/flow/For":30,"../modules/nodes/flow/If":31,"../modules/nodes/flow/While":32}],12:[function(require,module,exports){
 'use strict';
 
-var Output = require('../modules/nodes/func/Output');
-var FunctionCall = require('../modules/nodes/func/FunctionCall');
-var ArrayAccess = require('../modules/nodes/func/ArrayAccess');
+var Output = require('../modules/nodes/func/Output'),
+    FunctionCall = require('../modules/nodes/func/FunctionCall'),
+    ArrayAccess = require('../modules/nodes/func/ArrayAccess');
 
 module.exports = function () {
     return {
@@ -317,8 +317,8 @@ module.exports = function () {
 
 },{"../modules/nodes/func/ArrayAccess":33,"../modules/nodes/func/FunctionCall":34,"../modules/nodes/func/Output":35}],13:[function(require,module,exports){
 'use strict';
-var Break = require('../modules/nodes/reserved/Break');
-var Return = require('../modules/nodes/reserved/Return');
+var Break = require('../modules/nodes/reserved/Break'),
+    Return = require('../modules/nodes/reserved/Return');
 
 module.exports = function () {
     return {
@@ -334,8 +334,8 @@ module.exports = function () {
 },{"../modules/nodes/reserved/Break":36,"../modules/nodes/reserved/Return":37}],14:[function(require,module,exports){
 'use strict';
 
-var Block = require('../modules/nodes/stmnt/Block');
-var Line = require('../modules/nodes/stmnt/Line');
+var Block = require('../modules/nodes/stmnt/Block'),
+    Line = require('../modules/nodes/stmnt/Line');
 
 module.exports = function () {
     return {
@@ -351,9 +351,9 @@ module.exports = function () {
 },{"../modules/nodes/stmnt/Block":38,"../modules/nodes/stmnt/Line":39}],15:[function(require,module,exports){
 'use strict';
 
-var Arr = require('../modules/nodes/type/Arr');
-var Bool = require('../modules/nodes/type/Boolean');
-var Num = require('../modules/nodes/type/Number');
+var Arr = require('../modules/nodes/type/Arr'),
+    Bool = require('../modules/nodes/type/Boolean'),
+    Num = require('../modules/nodes/type/Number');
 
 module.exports = function () {
     return {
@@ -521,23 +521,23 @@ module.exports={
             [ "NUMBER", "$$ = yy.type.Number(@1,yytext);" ],
             [ "( exp )", "$$ = $2;" ],
             [ "INC", "$$ = yy.exp.Increment(@1, $1);" ],
-            [ "exp + exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.exp.Add);" ],
-            [ "exp - exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.exp.Subtract);" ],
-            [ "exp * exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.exp.Multiply);" ],
-            [ "exp / exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.exp.Divide);" ],
-            [ "exp ^ exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.exp.Pow);" ],
+            [ "exp + exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.op.Add);" ],
+            [ "exp - exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.op.Subtract);" ],
+            [ "exp * exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.op.Multiply);" ],
+            [ "exp / exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.op.Divide);" ],
+            [ "exp ^ exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.op.Pow);" ],
             [ "E", "$$ = Math.E;" ],
             [ "PI", "$$ = Math.PI;" ],
             [ "assignable DOT method ( params )", "$$ = yy.func.FunctionCall(@1, @6, $1, $3, $5);" ]
         ],
 
         "cond": [
-            [ "exp EQUALITY exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.exp.Equal);" ],
-            [ "exp NOTEQUAL exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.exp.Inequal);" ],
-            [ "exp LTE exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.exp.LTE);" ],
-            [ "exp GTE exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.exp.GTE);" ],
-            [ "exp LT exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.exp.LT);" ],
-            [ "exp GT exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.exp.GT);" ],
+            [ "exp EQUALITY exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.op.Equal);" ],
+            [ "exp NOTEQUAL exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.op.Inequal);" ],
+            [ "exp LTE exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.op.LTE);" ],
+            [ "exp GTE exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.op.GTE);" ],
+            [ "exp LT exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.op.LT);" ],
+            [ "exp GT exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.op.GT);" ],
             [ "TRUE", "$$ = yy.type.Boolean(@1, true);"],
             [ "FALSE", "$$ = yy.type.Boolean(@1, false);"]
         ]
@@ -546,19 +546,18 @@ module.exports={
 
 },{}],17:[function(require,module,exports){
 'use strict';
-var Scope = require('./controllers/ScopeCtrl');
-var Animations = require('./nodes/Animations');
-var Prints = require('./nodes/Prints');
-var Searches = require('./nodes/Searches');
-var scope = new Scope(new Animations(), new Prints(), new Searches());
+var Scope = require('./controllers/ScopeCtrl'),
+    Animations = require('./nodes/Animations'),
+    Prints = require('./nodes/Prints'),
+    Searches = require('./nodes/Searches'),
+    scope = new Scope(new Animations(), new Prints(), new Searches());
 
-var type = require('../factories/typeFactory');
-var flow = require('../factories/flowFactory');
-var expression = require('../factories/expressionFactory');
-var func = require('../factories/functionFactory');
-var statement = require('../factories/statementFactory');
-var reserved = require('../factories/reserveFactory');
-
+exports.stmnt = require('../factories/statementFactory');
+exports.func = require('../factories/functionFactory');
+exports.flow = require('../factories/flowFactory');
+exports.type = require('../factories/typeFactory');
+exports.reserved = require('../factories/reserveFactory');
+exports.exp = require('../factories/expressionFactory');
 
 var compile = function (stmnts, scope) {
     for (var i = 0; i < stmnts.length; i++) {
@@ -575,41 +574,7 @@ exports.compile = function (node) {
     };
 };
 
-exports.stmnt = {
-    Block: statement.Block,
-    Line: statement.Line
-};
-
-exports.func = {
-    Output: func.Output,
-    FunctionCall: func.FunctionCall,
-    ArrayAccess: func.ArrayAccess
-};
-
-exports.flow = {
-    If: flow.If,
-    While: flow.While,
-    For: flow.For,
-    DoWhile: flow.DoWhile
-};
-
-exports.type = {
-    Arr: type.Arr,
-    Boolean: type.Boolean,
-    Number: type.Number
-};
-
-exports.reserved = {
-    Break: reserved.Break,
-    Return: reserved.Return
-};
-
-exports.exp = {
-    Expression: expression.Expression,
-    Increment: expression.Increment,
-    Assign: expression.Assign,
-    Variable: expression.Variable,
-    Decl: expression.Decl,
+exports.op = {
     Add: function (left, right) {
         return left + right;
     },
