@@ -2,7 +2,7 @@
 // Foundation JavaScript
 // Documentation can be found at: http://foundation.zurb.com/docs
 require('./extensions/arrayExtension');
-var angular = require('angular');
+var ng = require('angular');
 
 var editor = require('./modules/editor')('editor');
 var grammar = require("./grammars/grammar");
@@ -14,9 +14,10 @@ var dataStructure = require('./directives/dataStructure');
 var push = require('./directives/push');
 var pop = require('./directives/pop');
 var none = require('./directives/none');
+var length = require('./directives/length');
 
 
-var app = angular.module('ava', []);
+var app = ng.module('ava', []);
 app.controller('EditorCtrl', ['$scope', '$timeout', editorCtrl]);
 
 app.directive('datastructure', ['$timeout', '$compile', dataStructure]);
@@ -24,3 +25,4 @@ app.directive('datastructure', ['$timeout', '$compile', dataStructure]);
 app.directive('push', push);
 app.directive('pop', pop);
 app.directive('none', none);
+app.directive('length', length);

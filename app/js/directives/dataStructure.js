@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function($timeout, $compile) {
+module.exports = function($timeout) {
     return {
         restrict: 'E',
         replace: false,
@@ -11,7 +11,7 @@ module.exports = function($timeout, $compile) {
             method: "@"
         },
         templateUrl: "templates/data_array.html",
-        link: function(scope, elem, attrs) {
+        link: function(scope, elem) {
             var old = [];
             scope.data = [];
             scope.searches = [];
@@ -72,16 +72,6 @@ module.exports = function($timeout, $compile) {
                         func();
                     }, index*timeout);
                 });
-            };
-
-            var last = function() {
-                var children = elem.find('ul').children();
-                for(var i = 0; i < children.length; i++) {
-                    if(i === children.length-1) {
-                        return angular.element(children[i]);
-                    }
-                }
-                return null;
             };
         }
     };

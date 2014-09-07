@@ -3,7 +3,7 @@
 // Foundation JavaScript
 // Documentation can be found at: http://foundation.zurb.com/docs
 require('./extensions/arrayExtension');
-var angular = require('angular');
+var ng = require('angular');
 
 var editor = require('./modules/editor')('editor');
 var grammar = require("./grammars/grammar");
@@ -17,7 +17,7 @@ var pop = require('./directives/pop');
 var none = require('./directives/none');
 
 
-var app = angular.module('ava', []);
+var app = ng.module('ava', []);
 app.controller('EditorCtrl', ['$scope', '$timeout', editorCtrl]);
 
 app.directive('datastructure', ['$timeout', '$compile', dataStructure]);
@@ -62,7 +62,7 @@ module.exports = function(editor, parser) {
 },{}],3:[function(require,module,exports){
 'use strict';
 
-module.exports = function($timeout, $compile) {
+module.exports = function($timeout) {
     return {
         restrict: 'E',
         replace: false,
@@ -73,7 +73,7 @@ module.exports = function($timeout, $compile) {
             method: "@"
         },
         templateUrl: "templates/data_array.html",
-        link: function(scope, elem, attrs) {
+        link: function(scope, elem) {
             var old = [];
             scope.data = [];
             scope.searches = [];
@@ -134,16 +134,6 @@ module.exports = function($timeout, $compile) {
                         func();
                     }, index*timeout);
                 });
-            };
-
-            var last = function() {
-                var children = elem.find('ul').children();
-                for(var i = 0; i < children.length; i++) {
-                    if(i === children.length-1) {
-                        return angular.element(children[i]);
-                    }
-                }
-                return null;
             };
         }
     };
@@ -514,7 +504,6 @@ var statement = require('../factories/statementFactory');
 
 var compile = function (stmnts, scope) {
     for (var i = 0; i < stmnts.length; i++) {
-        console.log(scope.getValue());
         scope = stmnts[i].compile(scope);
     }
     return scope;
@@ -933,7 +922,7 @@ module.exports = function () {
     };
     DoWhile.prototype = Object.create(AstNode.prototype);
     return DoWhile;
-};
+}();
 
 },{"../AstNode":18}],26:[function(require,module,exports){
 'use strict';
@@ -1160,8 +1149,9 @@ module.exports = function () {
                 }
             }
             var frame = this.frame;
+            var data = arr.slice();
             scope.addAnimation(function ($scope, editor) {
-                $scope.data = arr.slice();
+                $scope.data = data;
                 $scope.structure = 'array';
                 frame($scope, editor);
             });

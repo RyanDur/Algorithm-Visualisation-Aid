@@ -12,8 +12,9 @@ module.exports = function () {
                 }
             }
             var frame = this.frame;
+            var data = arr.slice();
             scope.addAnimation(function ($scope, editor) {
-                $scope.data = arr.slice();
+                $scope.data = data;
                 $scope.structure = 'array';
                 frame($scope, editor);
             });
