@@ -15,6 +15,9 @@ module.exports = function () {
             scope.childScope();
             scope = compile(stmnts, scope);
             scope.parentScope();
+            scope.addAnimation(function($scope) {
+                $scope.search = undefined;
+            });
             return scope;
         };
     };

@@ -14,7 +14,7 @@ var dataStructure = require('./directives/dataStructure');
 var push = require('./directives/push');
 var pop = require('./directives/pop');
 var none = require('./directives/none');
-var length = require('./directives/length');
+var lengthDir = require('./directives/length');
 
 
 var app = ng.module('ava', []);
@@ -25,4 +25,4 @@ app.directive('datastructure', ['$timeout', '$compile', dataStructure]);
 app.directive('push', push);
 app.directive('pop', pop);
 app.directive('none', none);
-app.directive('length', length);
+app.directive('length', lengthDir);

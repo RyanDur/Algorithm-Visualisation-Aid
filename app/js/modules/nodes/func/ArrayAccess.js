@@ -9,6 +9,11 @@ module.exports = function () {
             var index = arr[0].compile(scope).getValue();
             scope.addSearch(index);
             scope.setValue(a[index]);
+            var frame = this.frame;
+            scope.addAnimation(function($scope, editor) {
+                $scope.search = index;
+                frame($scope, editor);
+            });
             return scope;
         };
     };

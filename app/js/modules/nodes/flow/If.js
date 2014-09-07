@@ -5,13 +5,11 @@ module.exports = function () {
     var If = function (line, column, cond, block1, block2) {
         AstNode.call(this, line, column);
         this.compile = function (scope) {
-            var searched = scope.getSearches();
             var frame = this.frame;
             scope.addAnimation(function ($scope, editor) {
-                $scope.searches = searched;
+                $scope.search = undefined;
                 frame($scope, editor);
             });
-
             scope = cond.compile(scope);
             if (scope.getValue()) {
                 scope = block1.compile(scope);
@@ -20,6 +18,7 @@ module.exports = function () {
                     scope = block2.compile(scope);
                 }
             }
+
             return scope;
         };
     };

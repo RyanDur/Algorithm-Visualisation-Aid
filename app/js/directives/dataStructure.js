@@ -1,78 +1,51 @@
 'use strict';
+var DataStructureCtrl = require('./controllers/DataStructureCtrl');
 
-module.exports = function($timeout) {
+module.exports = function ($timeout) {
     return {
         restrict: 'E',
         replace: false,
         scope: {
             data: "=",
             structure: "@",
-            searches: "=",
+            search: "=",
             method: "@"
         },
         templateUrl: "templates/data_array.html",
-        link: function(scope, elem) {
-            var old = [];
-            scope.data = [];
+        link: function (scope, elem) {
+            var dsc = new DataStructureCtrl(scope, $timeout);
             scope.searches = [];
+            scope.data = [];
             scope.array = scope.data;
-            scope.$watch('searches', function(newVal, oldVal) {
-                if(!newVal.equals(oldVal)) {
-                    var children = elem.find('ul').children();
-                    for(var i = 0; i < children.length; i++) {
-                        angular.element(children[i]).removeClass('search');
+
+            scope.$watch('search', function (newVal, oldVal) {
+                if (newVal !== oldVal) {
+                    console.log(scope.search);
+                    if(scope.search !== undefined) {
+                        scope.searches.push(scope.search);
+                    } else {
+                        scope.searches.length = 0;
+                        dsc.removeClass('search', scope.searches);
                     }
-                    for(var j = 0; j < children.length; j++) {
-                        if(scope.searches.indexOf(j) >= 0) {
+                    var children = elem.find('ul').children();
+                    dsc.removeClass('search', children);
+                    for (var j = 0; j < children.length; j++) {
+                        if (scope.searches.indexOf(j) >= 0) {
                             angular.element(children[j]).addClass('search');
                         }
                     }
                 }
             });
-            scope.$watch('data', function(newVal, oldVal) {
-                if(!newVal.equals(oldVal)) {
-                    if(scope.method) {
-                        methods[scope.method]();
+
+            scope.$watch('data', function (newVal, oldVal) {
+                if (!newVal.equals(oldVal)) {
+                    if (scope.method) {
+                        dsc.methods[scope.method]();
                     } else {
-                        scope.array = scope.data;
-                        old = scope.data;
+                        dsc.setArray();
                     }
                 }
             });
-
-            var methods = {
-                push: function() {
-                    scope.array = scope.data;
-                    old = scope.data;
-                    scope.push = false;
-                    $timeout(function() {
-                        scope.push = true;
-                    }, 100);
-                },
-                pop: function() {
-		    scope.pop = false;
-                    var f = [function() {scope.pop = true;},
-                             function() {
-                                 scope.array = scope.data;
-                                 old = scope.data;
-                             }];
-                    executeAsynchronously(f, 1500);
-                }
-            };
-
-            var forEach = function(collection, func) {
-                for(var i = 0; i < collection.length; i++) {
-                    func(collection[i], i);
-                }
-            };
-
-            var executeAsynchronously = function(functions, timeout) {
-                forEach(functions, function(func, index) {
-                    $timeout(function() {
-                        func();
-                    }, index*timeout);
-                });
-            };
         }
     };
 };
