@@ -11,6 +11,40 @@ exports.type = require('../factories/typeFactory');
 exports.reserved = require('../factories/reserveFactory');
 exports.exp = require('../factories/expressionFactory');
 
+
+
+var AstNode = require('./nodes/AstNode');
+exports.AccessToAccess = function(first, last, arr1, param1, arr2, param2) {
+    AstNode.call(this, first, last);
+    this.compile = function(scope) {
+
+        return scope;
+    };
+};
+exports.AccessToAccess.prototype = Object.create(AstNode.prototype);
+exports.AccessToAnswer = function(first, last, arr, param, answer) {
+    AstNode.call(this, first, last);
+    this.compile = function(scope) {
+
+        return scope;
+    };
+};
+exports.AccessToAnswer.prototype = Object.create(AstNode.prototype);
+exports.ExpToAccess = function(first, last, exp, arr, param) {
+    AstNode.call(this, first, last);
+    this.compile = function(scope) {
+        var array = arr.compile(scope).getValue();
+        var index = param.compile(scope).getValue();
+        scope.addVariable(exp.name, array[index]);
+        return scope;
+    };
+};
+exports.ExpToAccess.prototype = Object.create(AstNode.prototype)
+
+
+
+
+
 var compile = function (stmnts, scope) {
     for (var i = 0; i < stmnts.length; i++) {
         scope = stmnts[i].compile(scope);

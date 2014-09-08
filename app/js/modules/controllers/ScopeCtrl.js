@@ -46,7 +46,6 @@ var ScopeCtrl = function (Animations, Prints) {
         Prints.clear();
         return prints;
     };
-
     var transfer = function (parent, child) {
         for (var attr in parent) {
             if (child.hasOwnProperty(attr)) {

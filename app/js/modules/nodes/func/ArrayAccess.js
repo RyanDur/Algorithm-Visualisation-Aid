@@ -2,14 +2,15 @@
 var AstNode = require('../AstNode');
 
 module.exports = function () {
-    var ArrayAccess = function (first, last, variable, arr) {
+    var ArrayAccess = function (first, last, arr, variable) {
         AstNode.call(this, first, last);
         this.compile = function (scope) {
-            var a = variable.compile(scope).getValue();
-            var index = arr[0].compile(scope).getValue();
-            scope.setValue(a[index]);
+            var array = arr.compile(scope).getValue();
+            var index = variable.compile(scope).getValue();
+            scope.setValue(array[index]);
             var frame = this.frame;
-            scope.addAnimation(function($scope, editor) {
+
+            scope.addAnimation(function ($scope, editor) {
                 $scope.search = index;
                 frame($scope, editor);
             });

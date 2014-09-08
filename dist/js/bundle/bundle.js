@@ -445,21 +445,37 @@ module.exports={
         ],
 
         "answer": [
-            [ "cond", "$$ = $1;" ],
-            [ "exp", "$$ = $1;" ],
+            [ "conditions", "$$ = $1;" ],
+            [ "param", "$$ = $1;" ],
             [ "structure", "$$ = $1;" ]
         ],
 
-        "if": [
-            [ "IF ( cond ) block", "$$ = yy.flow.If(@1, @4, $3, $5);" ],
-            [ "IF ( cond ) block ELSE if", "$$ = yy.flow.If(@1, @4, $3, $5, $7);" ],
-            [ "IF ( cond ) block ELSE block", "$$ = yy.flow.If(@1, @4, $3, $5, $7);" ]
+        "printable": [
+            [ "access", "$$ = $1;" ],
+            [ "answer", "$$ = $1;" ]
         ],
 
+        "if": [
+            [ "IF ( conditions ) block", "$$ = yy.flow.If(@1, @4, $3, $5);" ],
+            [ "IF ( conditions ) block ELSE if", "$$ = yy.flow.If(@1, @4, $3, $5, $7);" ],
+            [ "IF ( conditions ) block ELSE block", "$$ = yy.flow.If(@1, @4, $3, $5, $7);" ]
+        ],
+
+
         "loop": [
-            [ "WHILE ( cond ) block", "$$ = yy.flow.While(@1, @5, $3, $5);" ],
-            [ "DO block WHILE ( cond ) TERM", "$$ = yy.flow.DoWhile(@1, @7, $2, $5);" ],
-            [ "FOR ( decl TERM cond TERM exp ) block", "$$ = yy.flow.For(@1, @8, $3, $5, $7, $9);" ]
+            [ "WHILE ( conditions ) block", "$$ = yy.flow.While(@1, @5, $3, $5);" ],
+            [ "DO block WHILE ( conditions ) TERM", "$$ = yy.flow.DoWhile(@1, @7, $2, $5);" ],
+            [ "FOR ( decl TERM conditions TERM incremental ) block", "$$ = yy.flow.For(@1, @8, $3, $5, $7, $9);" ]
+        ],
+
+        "incremental": [
+            [ "INC", "$$ = yy.exp.Increment(@1, $1);" ],
+            [ "exp", "$$ = $1;" ]
+        ],
+
+        "conditions": [
+            ["arrAccessCond", "$$ = $1;"],
+            ["cond", "$$ = $1;"]
         ],
 
         "block": [
@@ -469,13 +485,14 @@ module.exports={
         "decl": [
             [ "TYPE decl", "$$ = $2" ],
             [ "TYPE var", "$$ = yy.exp.Decl(@1, @2, $2);" ],
-            [ "assignable ASSIGN answer", "$$ = yy.exp.Assign(@1, @3, $1, $3);" ]
+            [ "exp ASSIGN answer", "$$ = yy.exp.Assign(@1, @3, $1, $3);" ]
         ],
 
         "line": [
             [ "answer TERM", "$$ = yy.stmnt.Line(@1, @2, $1);" ],
             [ "decl TERM", "$$ = yy.stmnt.Line(@1, @2, $1);" ],
-            [ "reserved TERM", "$$ = yy.stmnt.Line(@1, @2, $1);" ]
+            [ "reserved TERM", "$$ = yy.stmnt.Line(@1, @2, $1);" ],
+            [ "arrayAssign TERM", ""]
         ],
 
         "structure": [
@@ -495,17 +512,41 @@ module.exports={
         "reserved": [
             [ "RET returnable", "$$ = yy.reserved.Return(@1, @2, $2);" ],
             [ "BREAK", "$$ = yy.reserved.Break(@1);" ],
-            [ "PRINT ( answer )", "$$ = yy.func.Output(@1, @4, $3, $1);" ]
+            [ "PRINT ( printable )", "$$ = yy.func.Output(@1, @4, $3, $1);" ]
         ],
 
         "params": [
             ["", ""],
-            [ "exp", "$$ = $1;" ]
+            [ "param", "$$ = $1;" ]
         ],
 
-        "assignable": [
-            ["var", "$$ = $1;"],
-            [ "assignable [ elems ]", "$$ = yy.func.ArrayAccess(@1, @2, $1, $3);" ]
+        "arrayAssign": [
+            ["var [ param ] ASSIGN var [ param ]", "$$ = new yy.AccessToAccess(@1, @9, $1, $3, $6, $8);"],
+            ["var [ param ] ASSIGN answer", "$$ = new yy.AccessToAnswer(@1, @6, $1, $3, $6);"],
+            ["exp ASSIGN var [ param ]", "$$ = new yy.ExpToAccess(@1, @3, $1, $3, $5);"]
+        ],
+
+        "arrayAccessMath": [
+            ["access + access", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.op.Add);"]
+        ],
+
+        "arrAccessCond": [
+            [ "access op exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, $2);" ],
+            [ "access op access", "$$ = yy.exp.Expression(@1, @3, $1, $3, $2);" ],
+            [ "exp op access", "$$ = yy.exp.Expression(@1, @3, $1, $3, $2);" ]
+        ],
+
+        "op": [
+            ["EQUALITY", "$$ = yy.op.Equal"],
+            ["NOTEQUAL", "$$ = yy.op.Inequal"],
+            ["LTE", "$$ = yy.op.LTE;"],
+            ["GTE", "$$ = yy.op.GTE;"],
+            ["LT", "$$ = yy.op.LT"],
+            ["GT", "$$ = yy.op.GT;"]
+        ],
+
+        "access": [
+            [ "var [ param ]", "$$ = yy.func.ArrayAccess(@1, @2, $1, $3);" ]
         ],
 
         "var": [
@@ -516,28 +557,32 @@ module.exports={
             ["VARIABLE", "$$ = yytext"]
         ],
 
+        "param": [
+            ["exp", "$$ = $1;"]
+        ],
+
         "exp": [
-            [ "assignable", "$$ = $1" ],
-            [ "NUMBER", "$$ = yy.type.Number(@1,yytext);" ],
+            ["arrayAccessMath", "$$ = $1;"],
+            ["var", "$$ = $1;"],
+            ["numbers", "$$ = $1;"],
             [ "( exp )", "$$ = $2;" ],
-            [ "INC", "$$ = yy.exp.Increment(@1, $1);" ],
             [ "exp + exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.op.Add);" ],
-            [ "exp - exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.op.Subtract);" ],
             [ "exp * exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.op.Multiply);" ],
             [ "exp / exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.op.Divide);" ],
             [ "exp ^ exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.op.Pow);" ],
+            [ "exp - exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.op.Subtract);" ],
+            [ "var DOT method ( params )", "$$ = yy.func.FunctionCall(@1, @6, $1, $3, $5);" ]
+        ],
+
+        "numbers": [
+            [ "NUMBER", "$$ = yy.type.Number(@1,yytext);" ],
             [ "E", "$$ = Math.E;" ],
-            [ "PI", "$$ = Math.PI;" ],
-            [ "assignable DOT method ( params )", "$$ = yy.func.FunctionCall(@1, @6, $1, $3, $5);" ]
+            [ "PI", "$$ = Math.PI;" ]
+
         ],
 
         "cond": [
-            [ "exp EQUALITY exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.op.Equal);" ],
-            [ "exp NOTEQUAL exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.op.Inequal);" ],
-            [ "exp LTE exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.op.LTE);" ],
-            [ "exp GTE exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.op.GTE);" ],
-            [ "exp LT exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.op.LT);" ],
-            [ "exp GT exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, yy.op.GT);" ],
+            [ "exp op exp", "$$ = yy.exp.Expression(@1, @3, $1, $3, $2);" ],
             [ "TRUE", "$$ = yy.type.Boolean(@1, true);"],
             [ "FALSE", "$$ = yy.type.Boolean(@1, false);"]
         ]
@@ -557,6 +602,41 @@ exports.flow = require('../factories/flowFactory');
 exports.type = require('../factories/typeFactory');
 exports.reserved = require('../factories/reserveFactory');
 exports.exp = require('../factories/expressionFactory');
+
+
+
+var AstNode = require('./nodes/AstNode');
+exports.AccessToAccess = function(first, last, arr1, param1, arr2, param2) {
+    AstNode.call(this, first, last);
+    this.compile = function(scope) {
+
+        return scope;
+    };
+};
+exports.AccessToAccess.prototype = Object.create(AstNode.prototype);
+exports.AccessToAnswer = function(first, last, arr, param, answer) {
+    AstNode.call(this, first, last);
+    this.compile = function(scope) {
+
+        return scope;
+    };
+};
+exports.AccessToAnswer.prototype = Object.create(AstNode.prototype);
+exports.ExpToAccess = function(first, last, exp, arr, param) {
+    AstNode.call(this, first, last);
+    this.compile = function(scope) {
+        var array = arr.compile(scope).getValue();
+        console.log(array);
+        scope = acc.compile(scope);
+        scope.addVariable(exp.name, scope.getValue());
+        return scope;
+    };
+};
+exports.ExpToAccess.prototype = Object.create(AstNode.prototype)
+
+
+
+
 
 var compile = function (stmnts, scope) {
     for (var i = 0; i < stmnts.length; i++) {
@@ -638,7 +718,7 @@ exports.op = {
         return left > right;
     }
 };
-},{"../factories/expressionFactory":10,"../factories/flowFactory":11,"../factories/functionFactory":12,"../factories/reserveFactory":13,"../factories/statementFactory":14,"../factories/typeFactory":15,"./controllers/AnimationCtrl":18,"./controllers/PrintCtrl":19,"./controllers/ScopeCtrl":20}],18:[function(require,module,exports){
+},{"../factories/expressionFactory":10,"../factories/flowFactory":11,"../factories/functionFactory":12,"../factories/reserveFactory":13,"../factories/statementFactory":14,"../factories/typeFactory":15,"./controllers/AnimationCtrl":18,"./controllers/PrintCtrl":19,"./controllers/ScopeCtrl":20,"./nodes/AstNode":22}],18:[function(require,module,exports){
 'use strict';
 
 module.exports = function Animations() {
@@ -733,7 +813,6 @@ var ScopeCtrl = function (Animations, Prints) {
         Prints.clear();
         return prints;
     };
-
     var transfer = function (parent, child) {
         for (var attr in parent) {
             if (child.hasOwnProperty(attr)) {
@@ -907,9 +986,15 @@ module.exports = function () {
         AstNode.call(this, first, last);
 
         this.compile = function (scope) {
+            scope.childScope();
             do {
                 scope = block.compile(scope);
+                if (scope.getBreak()) {
+                    scope.toggleBreak();
+                    break;
+                }
             } while (cond.compile(scope).getValue());
+            scope.parentScope();
             return scope;
         };
     };
@@ -982,13 +1067,17 @@ module.exports = function () {
     var While = function (first, last, cond, block) {
         AstNode.call(this, first, last);
         this.compile = function (scope) {
+            scope.childScope();
             scope = cond.compile(scope);
             while (scope.getValue()) {
-                scope.childScope();
                 scope = block.compile(scope);
-                scope.parentScope();
+                if (scope.getBreak()) {
+                    scope.toggleBreak();
+                    break;
+                }
                 scope = cond.compile(scope);
             }
+            scope.parentScope();
             return scope;
         };
     };
@@ -1001,14 +1090,15 @@ module.exports = function () {
 var AstNode = require('../AstNode');
 
 module.exports = function () {
-    var ArrayAccess = function (first, last, variable, arr) {
+    var ArrayAccess = function (first, last, arr, variable) {
         AstNode.call(this, first, last);
         this.compile = function (scope) {
-            var a = variable.compile(scope).getValue();
-            var index = arr[0].compile(scope).getValue();
-            scope.setValue(a[index]);
+            var array = arr.compile(scope).getValue();
+            var index = variable.compile(scope).getValue();
+            scope.setValue(array[index]);
             var frame = this.frame;
-            scope.addAnimation(function($scope, editor) {
+
+            scope.addAnimation(function ($scope, editor) {
                 $scope.search = index;
                 frame($scope, editor);
             });
