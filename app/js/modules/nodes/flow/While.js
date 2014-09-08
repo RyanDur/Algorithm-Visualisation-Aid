@@ -5,13 +5,17 @@ module.exports = function () {
     var While = function (first, last, cond, block) {
         AstNode.call(this, first, last);
         this.compile = function (scope) {
+            scope.childScope();
             scope = cond.compile(scope);
             while (scope.getValue()) {
-                scope.childScope();
                 scope = block.compile(scope);
-                scope.parentScope();
+                if (scope.getBreak()) {
+                    scope.toggleBreak();
+                    break;
+                }
                 scope = cond.compile(scope);
             }
+            scope.parentScope();
             return scope;
         };
     };
