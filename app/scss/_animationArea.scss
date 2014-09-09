@@ -1,50 +1,84 @@
 @import "compass/css3";
+
 #animationArea {
-    width: 100%;
-    height: 571px;
-    margin: 0 0 10px 0;
-    overflow: scroll;
-    position:relative;
+  width: 100%;
+  height: 571px;
+  margin: 0 0 10px 0;
+  overflow: scroll;
+  position: relative;
 
-    datastructure {
-        width: auto;
-        height: 50%;
-        overflow: auto;
-        margin: auto;
-        position: absolute;
-        top: 0; left: 0; bottom: 0; right: 0;
+  datastructure {
+    width: auto;
+    height: 50%;
+    overflow: auto;
+    margin: auto;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    @include transition(all, 1s, ease-in-out);
+
+    ul {
+      padding-top: 25px;
+      text-align: center;
+      position: relative;
+      @include transition(all, 1s, ease-in-out);
+      li {
+        position: relative;
         @include transition(all, 1s, ease-in-out);
-
-        ul {
-            padding-top: 25px;
-            text-align: center;
-            position: relative;
-            @include transition(all, 1s, ease-in-out);
-            li {
-                position: relative;
-                @include transition(all, 1s, ease-in-out);
-            }
-            .array {
-                display: inline;
-                list-style-type: none;
-                padding: 20px;
-                border: 1px solid black;
-            }
-            .ready {
-                left: 150px;
-                opacity: 0;
-            }
-            .push {
-                left: 0px;
-                opacity: 1;
-            }
-            .pop {
-                left: 150px;
-                opacity: 0;
-            }
-            .search {
-                background: green;
-            }
-        }
+      }
+      .array {
+        display: inline;
+        list-style-type: none;
+        padding: 20px;
+        border: 1px solid black;
+      }
+      .ready {
+        left: 150px;
+        opacity: 0;
+      }
+      .push {
+        left: 0px;
+        opacity: 1;
+      }
+      .pop {
+        left: 150px;
+        opacity: 0;
+      }
+      .search {
+        background: green;
+      }
     }
+  }
+  .variables {
+    position: absolute;
+    .variable {
+      @include transition(all, 1s, ease-in-out);
+      top: 0;
+      position: absolute;
+      list-style-type: none;
+      border: 1px solid black;
+      height: 54px;
+      .title {
+        border-bottom: 1px solid black;
+        background: #0094ff;
+        width: 100%;
+        text-align: center;
+        color: white;
+      }
+      .value {
+        @include transition(all, 0.5s, ease-in-out);
+        color: #333;
+        text-align: center;
+        opacity: 1;
+      }
+      .conceal {
+        opacity: 0;
+      }
+    }
+    .conceal {
+      opacity: 0;
+    }
+  }
 }

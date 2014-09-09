@@ -15,6 +15,7 @@ var push = require('./directives/push');
 var pop = require('./directives/pop');
 var none = require('./directives/none');
 var lengthDir = require('./directives/length');
+var variable = require('./directives/variable');
 
 
 var app = ng.module('ava', []);
@@ -26,3 +27,4 @@ app.directive('push', push);
 app.directive('pop', pop);
 app.directive('none', none);
 app.directive('length', lengthDir);
+app.directive('variable', variable);

@@ -21,14 +21,14 @@ module.exports = function editor(elementId) {
         getContent: function () {
             return session.getValue();
         },
-        setHighlight: function (fistLine, lastLine, firstColumn, lastColumn) {
-            var range = new Range(fistLine - 1, firstColumn - 1, lastLine - 1, lastColumn - 1);
-            marker = session.addMarker(range, "warning", null, true);
-        },
         removeHighlight: function () {
             if (marker !== undefined) {
                 session.removeMarker(marker);
             }
+        },
+        setHighlight: function (fistLine, lastLine, firstColumn, lastColumn) {
+            var range = new Range(fistLine - 1, firstColumn - 1, lastLine - 1, lastColumn - 1);
+            marker = session.addMarker(range, "warning", null, true);
         }
     };
 };

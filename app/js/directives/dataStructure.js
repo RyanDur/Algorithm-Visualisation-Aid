@@ -9,7 +9,8 @@ module.exports = function ($timeout) {
             data: "=",
             structure: "@",
             search: "=",
-            method: "@"
+            method: "@",
+            variable: "="
         },
         templateUrl: "templates/data_array.html",
         link: function (scope, elem) {

@@ -30,16 +30,27 @@ exports.AccessToAnswer = function(first, last, arr, param, answer) {
     };
 };
 exports.AccessToAnswer.prototype = Object.create(AstNode.prototype);
-exports.ExpToAccess = function(first, last, exp, arr, param) {
+exports.AccessToExp = function(first, last, exp, arr, param) {
     AstNode.call(this, first, last);
     this.compile = function(scope) {
         var array = arr.compile(scope).getValue();
         var index = param.compile(scope).getValue();
-        scope.addVariable(exp.name, array[index]);
+        var name = exp.name;
+        var value = array[index];
+        scope.addVariable(name, value);
+        var frame = this.frame;
+        scope.addAnimation(function($scope, editor) {
+            $scope.variable = {
+                name: name,
+                value: value,
+                index: index
+            };
+            frame($scope, editor);
+        });
         return scope;
     };
 };
-exports.ExpToAccess.prototype = Object.create(AstNode.prototype)
+exports.AccessToExp.prototype = Object.create(AstNode.prototype);
 
 
 

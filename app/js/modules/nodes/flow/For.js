@@ -18,6 +18,9 @@ module.exports = function () {
                 scope = exp.compile(scope);
             }
             scope.parentScope();
+            scope.addAnimation(function($scope, editor) {
+                $scope.clear = {};
+            });
             return scope;
         };
     };

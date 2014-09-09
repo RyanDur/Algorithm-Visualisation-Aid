@@ -209,4 +209,9 @@ describe('parser', function () {
         var program = "var arr <- [1,2,3,4,5];var found;for(var i <- 0; i < 5; i++) {if(arr[i] = 3) {found <- arr[i];break; }}print(found);";
         expect(parser.parse(program).print).toBe('3');
     });
+
+    it('should be able to assign an element from an array', function() {
+        var program = "var arr <- [1,2,3,4,5]; var a <- arr[3]; print(a);";
+        expect(parser.parse(program).print).toBe('4');
+    });
 });
