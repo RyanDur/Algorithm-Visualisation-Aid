@@ -263,7 +263,7 @@ module.exports = function ($timeout) {
                         }, 20);
                         $timeout(function () {
                             variable.find('.value').removeClass('conceal');
-                        }, 1000);
+                        }, 950);
                     } else if(variable.length > 0) {
                         index = $('.index' + scope.variable.index);
                         offset = index.offset();
