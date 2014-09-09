@@ -214,4 +214,9 @@ describe('parser', function () {
         var program = "var arr <- [1,2,3,4,5]; var a <- arr[3]; print(a);";
         expect(parser.parse(program).print).toBe('4');
     });
+
+    iit('should be avle to assign one array index position to another position', function() {
+        var program = "var arr <- [1,2,3,4,5]; arr[2] <- arr[3]; print(arr);";
+        expect(parser.parse(program).print).toBe('1,2,4,4,5');
+    });
 });

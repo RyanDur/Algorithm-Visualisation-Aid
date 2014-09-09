@@ -17,19 +17,37 @@ var AstNode = require('./nodes/AstNode');
 exports.AccessToAccess = function(first, last, arr1, param1, arr2, param2) {
     AstNode.call(this, first, last);
     this.compile = function(scope) {
-
+        var array1 = arr1.compile(scope).getValue();
+        var index1 = param1.compile(scope).getValue();
+        var array2 = arr2.compile(scope).getValue();
+        var index2 = param2.compile(scope).getValue();
+        var data1 = array2.slice();
+        array1[index1] = array2[index2];
+        var data = array1.slice();
+        var frame = this.frame;
+        scope.addAnimation(function($scope, editor) {
+            $scope.ata = {
+                oldData: data1,
+                newData: data,
+                leftIndex: index1,
+                rightIndex: index2
+            };
+            $scope.method = 'ata';
+            frame($scope, editor);
+        });
+        scope.setValue(array1);
         return scope;
     };
 };
 exports.AccessToAccess.prototype = Object.create(AstNode.prototype);
-exports.AccessToAnswer = function(first, last, arr, param, answer) {
+exports.AnswerToAccess = function(first, last, arr, param, answer) {
     AstNode.call(this, first, last);
     this.compile = function(scope) {
 
         return scope;
     };
 };
-exports.AccessToAnswer.prototype = Object.create(AstNode.prototype);
+exports.AnswerToAccess.prototype = Object.create(AstNode.prototype);
 exports.AccessToExp = function(first, last, exp, arr, param) {
     AstNode.call(this, first, last);
     this.compile = function(scope) {

@@ -10,7 +10,8 @@ module.exports = function ($timeout) {
             structure: "@",
             search: "=",
             method: "@",
-            variable: "="
+            variable: "=",
+            ata: "="
         },
         templateUrl: "templates/data_array.html",
         link: function (scope, elem) {
@@ -27,15 +28,10 @@ module.exports = function ($timeout) {
                         dsc.removeClass('search', searches);
                         searches.length = 0;
                     }
-                    var children = elem.find('ul').children();
-                    dsc.removeClass('search', children);
-                    for (var j = 0; j < children.length; j++) {
-                        if (searches.indexOf(j) >= 0) {
-                            angular.element(children[j]).addClass('search');
-                        }
-                    }
+                    search();
                 }
             });
+
 
             scope.$watch('data', function (newVal, oldVal) {
                 if (!newVal.equals(oldVal)) {
@@ -46,6 +42,42 @@ module.exports = function ($timeout) {
                     }
                 }
             });
+
+            scope.$watch('ata', function(newVal, oldVal) {
+                if (newVal !== oldVal) {
+                    if(scope.ata.clear) {
+                        removeSearch();
+                        searches.length = 0;
+                    } else {
+                        searches.length = 0;
+                        scope.array = scope.ata.oldData;
+
+                        $timeout(function() {
+                            searches.push(scope.ata.leftIndex);
+                            searches.push(scope.ata.rightIndex);
+                            search();
+                        }, 200);
+
+                        $timeout(function() {
+                            scope.array = scope.ata.newData;
+                            dsc.removeClass('search', searches);
+                        }, 750);
+                    }
+                }
+            });
+            var search = function() {
+                removeSearch();
+                var children = elem.find('ul').children();
+                for (var j = 0; j < children.length; j++) {
+                    if (searches.indexOf(j) >= 0) {
+                        angular.element(children[j]).addClass('search');
+                    }
+                }
+            };
+            var removeSearch = function() {
+                var children = elem.find('ul').children();
+                dsc.removeClass('search', children);
+            };
         }
     };
 };

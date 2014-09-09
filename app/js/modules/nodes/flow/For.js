@@ -20,6 +20,9 @@ module.exports = function () {
             scope.parentScope();
             scope.addAnimation(function($scope, editor) {
                 $scope.clear = {};
+                $scope.ata = {
+                    clear: true
+                };
             });
             return scope;
         };
