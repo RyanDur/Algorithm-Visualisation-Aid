@@ -43,7 +43,31 @@ exports.AccessToAccess.prototype = Object.create(AstNode.prototype);
 exports.AnswerToAccess = function(first, last, arr, param, answer) {
     AstNode.call(this, first, last);
     this.compile = function(scope) {
+        var array = arr.compile(scope).getValue();
+        var index = param.compile(scope).getValue();
+        var value = answer.compile(scope).getValue();
+        var name = answer.name;
+        var before = array.slice();
+        array[index] = value;
+        var after = array.slice();
+        var frame = this.frame;
+        scope.addAnimation(function($scope, editor) {
+            $scope.ana = {
+                before: before,
+                after: after,
+                index: index,
+                value: value
+            };
+            $scope.method = 'ana';
+            $scope.variable = {
+                name: name,
+                index: index,
+                method: 'set'
+            };
+            frame($scope, editor);
+        });
 
+        scope.setValue(array);
         return scope;
     };
 };
@@ -61,7 +85,8 @@ exports.AccessToExp = function(first, last, exp, arr, param) {
             $scope.variable = {
                 name: name,
                 value: value,
-                index: index
+                index: index,
+                method: 'get'
             };
             frame($scope, editor);
         });

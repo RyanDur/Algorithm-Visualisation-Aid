@@ -27,6 +27,7 @@
       li {
         position: relative;
         @include transition(all, 1s, ease-in-out);
+        color: black;
       }
       .array {
         display: inline;
@@ -48,6 +49,9 @@
       }
       .search {
         background: green;
+      }
+      .hide-text {
+        color: white;
       }
     }
   }

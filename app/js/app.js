@@ -17,6 +17,7 @@ var none = require('./directives/none');
 var lengthDir = require('./directives/length');
 var variable = require('./directives/variable');
 var access = require('./directives/AccessToAccess');
+var ana = require('./directives/AnswerToAccess');
 
 
 var app = ng.module('ava', []);
@@ -30,3 +31,4 @@ app.directive('none', none);
 app.directive('length', lengthDir);
 app.directive('variable', variable);
 app.directive('ata', access);
+app.directive('ana', ana);

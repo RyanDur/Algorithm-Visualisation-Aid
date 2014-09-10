@@ -11,7 +11,8 @@ module.exports = function ($timeout) {
             search: "=",
             method: "@",
             variable: "=",
-            ata: "="
+            ata: "=",
+            ana: "="
         },
         templateUrl: "templates/data_array.html",
         link: function (scope, elem) {
@@ -63,6 +64,19 @@ module.exports = function ($timeout) {
                             dsc.removeClass('search', searches);
                         }, 750);
                     }
+                }
+            });
+
+            scope.$watch('ana', function(newVal, oldVal) {
+                if (newVal !== oldVal) {
+                    scope.array = scope.ana.before;
+                    $timeout(function() {
+                        $('.index' + scope.ana.index).addClass('hide-text');
+                    }, 500);
+                    $timeout(function() {
+                        $('.index' + scope.ana.index).removeClass('hide-text');
+                        scope.array = scope.ana.after;
+                    }, 1000);
                 }
             });
             var search = function() {

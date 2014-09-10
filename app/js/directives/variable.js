@@ -49,7 +49,7 @@ module.exports = function ($timeout) {
                         $timeout(function () {
                             variable.find('.value').removeClass('conceal');
                         }, 950);
-                    } else if(variable.length > 0) {
+                    } else if(scope.variable.method === 'get' && variable.length > 0) {
                         index = $('.index' + scope.variable.index);
                         offset = index.offset();
                         variable.width(index.outerWidth() - 2);
@@ -59,6 +59,11 @@ module.exports = function ($timeout) {
                             scope.variables[scope.variable.name] = scope.variable.value;
                             variable.find('.value').removeClass('conceal');
                         },500);
+                    } else if(scope.variable.method === 'set' && variable.length > 0) {
+                        index = $('.index' + scope.variable.index);
+                        offset = index.offset();
+                        variable.width(index.outerWidth() - 2);
+                        variable.offset({left: offset.left});
                     }
                 }
             });
