@@ -17,22 +17,23 @@
     left: 0;
     bottom: 0;
     right: 0;
-    @include transition(all, 1s, ease-in-out);
 
     ul {
       padding-top: 25px;
       text-align: center;
       position: relative;
-      @include transition(all, 1s, ease-in-out);
+      @include transition(top, 0.5s, ease-in-out);
+      @include transition(left, 0.5s, ease-in-out);
       li {
         position: relative;
-        @include transition(all, 1s, ease-in-out);
+        @include transition(top, 0.5s, ease-in-out);
+        @include transition(left, 0.5s, ease-in-out);
         color: black;
       }
       .array {
         display: inline;
         list-style-type: none;
-        padding: 20px;
+        padding: 22px;
         border: 1px solid black;
       }
       .ready {
@@ -50,20 +51,25 @@
       .search {
         background: green;
       }
-      .hide-text {
-        color: white;
+      .last {
+        position: absolute;
+        height: 64px;
+        width: 60px;
+        background: #ffffff;
+      }
+      .hidden {
+        opacity: 0;
       }
     }
   }
   .variables {
     position: absolute;
     .variable {
-      @include transition(all, 1s, ease-in-out);
+      @include transition(top, 0.5s, ease-in-out);
+      @include transition(left, 0.5s, ease-in-out);
       top: 0;
       position: absolute;
       list-style-type: none;
-      border: 1px solid black;
-      height: 54px;
       .title {
         border-bottom: 1px solid black;
         background: #0094ff;
@@ -72,10 +78,15 @@
         color: white;
       }
       .value {
-        @include transition(all, 0.5s, ease-in-out);
+        @include transition(top, 0.5s, ease-in-out);
+        @include transition(left, 0.5s, ease-in-out);
+        border: 1px solid black;
+        position: absolute;
         color: #333;
         text-align: center;
         opacity: 1;
+        background: white;
+        padding: 22px;
       }
       .conceal {
         opacity: 0;

@@ -166,7 +166,7 @@ module.exports = function ($timeout) {
 
             scope.$watch('search', function (newVal, oldVal) {
                 if (newVal !== oldVal) {
-                    if(scope.search !== undefined) {
+                    if (scope.search !== undefined) {
                         searches.push(scope.search);
                     } else {
                         dsc.removeClass('search', searches);
@@ -187,42 +187,48 @@ module.exports = function ($timeout) {
                 }
             });
 
-            scope.$watch('ata', function(newVal, oldVal) {
+            scope.$watch('ata', function (newVal, oldVal) {
                 if (newVal !== oldVal) {
-                    if(scope.ata.clear) {
-                        removeSearch();
-                        searches.length = 0;
-                    } else {
-                        searches.length = 0;
-                        scope.array = scope.ata.oldData;
-
-                        $timeout(function() {
-                            searches.push(scope.ata.leftIndex);
-                            searches.push(scope.ata.rightIndex);
-                            search();
-                        }, 200);
-
-                        $timeout(function() {
-                            scope.array = scope.ata.newData;
-                            dsc.removeClass('search', searches);
-                        }, 750);
-                    }
+                    var value;
+                    var left;
+                    var right;
+                    scope.ata.oldData.push(scope.ata.value);
+                    scope.array = scope.ata.oldData;
+                    $timeout(function() {
+                        value = getValue(elem, '.hidden');
+                        left = getIndex(elem, scope.ata.leftIndex);
+                        right = getIndex(elem, scope.ata.rightIndex);
+                        value = copy(value, right);
+                    }, 10);
+                    $timeout(function() {
+                        value.removeClass('hidden');
+                    }, 20);
+                    $timeout(function() {
+                        copy(value, left);
+                    },200);
+                    $timeout(function() {
+                        scope.ata.newData.push(scope.ata.value);
+                        scope.array = scope.ata.newData;
+                    }, 400);
+                    $timeout(function() {
+                        value.addClass('hidden');
+                    }, 450);
                 }
             });
 
-            scope.$watch('ana', function(newVal, oldVal) {
+            scope.$watch('ana', function (newVal, oldVal) {
                 if (newVal !== oldVal) {
                     scope.array = scope.ana.before;
-                    $timeout(function() {
+                    $timeout(function () {
                         $('.index' + scope.ana.index).addClass('hide-text');
                     }, 500);
-                    $timeout(function() {
+                    $timeout(function () {
                         $('.index' + scope.ana.index).removeClass('hide-text');
                         scope.array = scope.ana.after;
-                    }, 1000);
+                    }, 1200);
                 }
             });
-            var search = function() {
+            var search = function () {
                 removeSearch();
                 var children = elem.find('ul').children();
                 for (var j = 0; j < children.length; j++) {
@@ -231,9 +237,26 @@ module.exports = function ($timeout) {
                     }
                 }
             };
-            var removeSearch = function() {
+            var removeSearch = function () {
                 var children = elem.find('ul').children();
                 dsc.removeClass('search', children);
+            };
+
+            var copy = function(value, index) {
+                value.offset(getOffset(index));
+                return value;
+            };
+
+            var getIndex = function(element, num) {
+                return element.find('.index' + num);
+            };
+
+            var getValue = function(element, name) {
+                return element.find(name);
+            };
+
+            var getOffset = function(obj) {
+                return obj.offset();
             };
         }
     };
@@ -296,62 +319,113 @@ module.exports = function ($timeout) {
         templateUrl: "templates/variables.html",
         link: function (scope, elem) {
             scope.variables = {};
-            var variable;
             scope.$watch("clear", function (newVal, oldVal) {
                 if (newVal !== oldVal) {
-                    $timeout(function() {
+                    $timeout(function () {
                         elem.find('.variable')
                             .addClass('conceal')
                             .offset({top: 0});
                     }, 100);
-                    $timeout(function() {
+                    $timeout(function () {
                         scope.variables = {};
-                        variable = [];
                     }, 1000);
                 }
             });
             scope.$watch('variable', function (newVal, oldVal) {
-                var index;
-                var offset;
+                var variable;
                 if (newVal !== oldVal) {
-                    variable = $('#' + scope.variable.name);
-                    if (scope.variable && variable.length === 0) {
-                        scope.variables[scope.variable.name] = scope.variable.value;
-                        $timeout(function () {
-                            index = $('.index' + scope.variable.index);
-                            variable = $('#' + scope.variable.name);
-                            variable.css('z-index',100 + scope.variable.index);
-                            offset = index.offset();
-                            offset.top -= index.outerHeight();
-                            variable.width(index.outerWidth() - 2);
-                            variable.offset({left: offset.left});
-                        }, 10);
-                        $timeout(function () {
-                            variable.offset({top: offset.top});
-                            variable.removeClass('conceal');
-                            scope.hide = false;
-                        }, 20);
-                        $timeout(function () {
-                            variable.find('.value').removeClass('conceal');
-                        }, 950);
-                    } else if(scope.variable.method === 'get' && variable.length > 0) {
-                        index = $('.index' + scope.variable.index);
-                        offset = index.offset();
-                        variable.width(index.outerWidth() - 2);
-                        variable.offset({left: offset.left});
-                        variable.find('.value').addClass('conceal');
-                        $timeout(function() {
+                    if (scope.variable) {
+                        variable = getVariable(scope);
+                        if (scope.variable.method === 'get') {
+
                             scope.variables[scope.variable.name] = scope.variable.value;
-                            variable.find('.value').removeClass('conceal');
-                        },500);
-                    } else if(scope.variable.method === 'set' && variable.length > 0) {
-                        index = $('.index' + scope.variable.index);
-                        offset = index.offset();
-                        variable.width(index.outerWidth() - 2);
-                        variable.offset({left: offset.left});
+                            $timeout(function () {
+                                variable = setup();
+                            }, 10);
+                            $timeout(function () {
+                                variable.title.offset({top: (variable.offset.top - getHeight(variable.title))});
+                                variable.variable.removeClass('conceal');
+                            }, 200);
+                            $timeout(function () {
+                                variable.value.offset({top: (variable.offset.top - getHeight(variable.title))});
+                                variable.value.removeClass('conceal');
+                            }, 700);
+
+                        } else if (scope.variable.method === 'set') {
+                            if (variable.length > 0) {
+                                var index = getIndex(scope);
+                                var offset = getOffset(index);
+                                var value = getValue(variable);
+                                variable.width(getWidth(index));
+                                variable.offset({left: (offset.left - getBorder(index))});
+                                $timeout(function () {
+                                    copy(value, index);
+                                    value.addClass('conceal');
+                                }, 1000);
+                            }
+                        }
                     }
                 }
             });
+
+            var setup = function () {
+                var index = getIndex(scope);
+                var variable = getVariable(scope);
+                var offset = getOffset(index);
+                var title = variable.find('.title');
+                title.css('z-index', 100 * scope.variable.index);
+                offset.top -= getHeight(index);
+                variable.outerWidth(getWidth(index));
+                variable.offset({left: (offset.left - getBorder(index))});
+                var value = copy(getValue(variable), index);
+                return {index: index, variable: variable, offset: offset, value: value, title: title};
+            };
+
+            var getPadding = function (element) {
+                return ((element.innerWidth() - element.width()) / 2);
+            };
+
+            var getBorder = function (element) {
+                return (element.outerWidth(true) - element.innerWidth()) / 2;
+            };
+
+            var getMargin = function (element) {
+                return element.outerWidth(true) - element.outerWidth();
+            };
+
+            var getHeight = function (element) {
+                return element.outerHeight() - getBorder(element);
+            };
+
+            var getWidth = function (element) {
+                return element.outerWidth(true) - getBorder(element);
+            };
+
+            var copy = function (value, index, z) {
+                value.outerWidth(getWidth(index));
+                value.css('height', getHeight(index));
+                value.offset(getOffset(index));
+                value.css('z-index', 100 * scope.variable.index - 2);
+                return value;
+            };
+
+            var getIndex = function (scope) {
+                return $('.index' + scope.variable.index);
+            };
+
+            var getValue = function (variable) {
+                return variable.find('.value');
+            };
+
+            var getVariable = function (scope) {
+                var variable = $('#' + scope.variable.name);
+                variable.css('z-index', 100 * scope.variable.index);
+                return variable;
+            };
+
+            var getOffset = function (obj) {
+                return obj.offset();
+            };
         }
     };
 };
@@ -765,7 +839,8 @@ exports.AccessToAccess = function(first, last, arr1, param1, arr2, param2) {
         var array2 = arr2.compile(scope).getValue();
         var index2 = param2.compile(scope).getValue();
         var data1 = array2.slice();
-        array1[index1] = array2[index2];
+        var value = array2[index2];
+        array1[index1] = value;
         var data = array1.slice();
         var frame = this.frame;
         scope.addAnimation(function($scope, editor) {
@@ -773,7 +848,8 @@ exports.AccessToAccess = function(first, last, arr1, param1, arr2, param2) {
                 oldData: data1,
                 newData: data,
                 leftIndex: index1,
-                rightIndex: index2
+                rightIndex: index2,
+                value: value
             };
             $scope.method = 'ata';
             frame($scope, editor);

@@ -23,7 +23,7 @@ module.exports = function ($timeout) {
 
             scope.$watch('search', function (newVal, oldVal) {
                 if (newVal !== oldVal) {
-                    if(scope.search !== undefined) {
+                    if (scope.search !== undefined) {
                         searches.push(scope.search);
                     } else {
                         dsc.removeClass('search', searches);
@@ -44,42 +44,48 @@ module.exports = function ($timeout) {
                 }
             });
 
-            scope.$watch('ata', function(newVal, oldVal) {
+            scope.$watch('ata', function (newVal, oldVal) {
                 if (newVal !== oldVal) {
-                    if(scope.ata.clear) {
-                        removeSearch();
-                        searches.length = 0;
-                    } else {
-                        searches.length = 0;
-                        scope.array = scope.ata.oldData;
-
-                        $timeout(function() {
-                            searches.push(scope.ata.leftIndex);
-                            searches.push(scope.ata.rightIndex);
-                            search();
-                        }, 200);
-
-                        $timeout(function() {
-                            scope.array = scope.ata.newData;
-                            dsc.removeClass('search', searches);
-                        }, 750);
-                    }
+                    var value;
+                    var left;
+                    var right;
+                    scope.ata.oldData.push(scope.ata.value);
+                    scope.array = scope.ata.oldData;
+                    $timeout(function() {
+                        value = getValue(elem, '.hidden');
+                        left = getIndex(elem, scope.ata.leftIndex);
+                        right = getIndex(elem, scope.ata.rightIndex);
+                        value = copy(value, right);
+                    }, 10);
+                    $timeout(function() {
+                        value.removeClass('hidden');
+                    }, 20);
+                    $timeout(function() {
+                        copy(value, left);
+                    },200);
+                    $timeout(function() {
+                        scope.ata.newData.push(scope.ata.value);
+                        scope.array = scope.ata.newData;
+                    }, 400);
+                    $timeout(function() {
+                        value.addClass('hidden');
+                    }, 450);
                 }
             });
 
-            scope.$watch('ana', function(newVal, oldVal) {
+            scope.$watch('ana', function (newVal, oldVal) {
                 if (newVal !== oldVal) {
                     scope.array = scope.ana.before;
-                    $timeout(function() {
+                    $timeout(function () {
                         $('.index' + scope.ana.index).addClass('hide-text');
                     }, 500);
-                    $timeout(function() {
+                    $timeout(function () {
                         $('.index' + scope.ana.index).removeClass('hide-text');
                         scope.array = scope.ana.after;
-                    }, 1000);
+                    }, 1200);
                 }
             });
-            var search = function() {
+            var search = function () {
                 removeSearch();
                 var children = elem.find('ul').children();
                 for (var j = 0; j < children.length; j++) {
@@ -88,9 +94,26 @@ module.exports = function ($timeout) {
                     }
                 }
             };
-            var removeSearch = function() {
+            var removeSearch = function () {
                 var children = elem.find('ul').children();
                 dsc.removeClass('search', children);
+            };
+
+            var copy = function(value, index) {
+                value.offset(getOffset(index));
+                return value;
+            };
+
+            var getIndex = function(element, num) {
+                return element.find('.index' + num);
+            };
+
+            var getValue = function(element, name) {
+                return element.find(name);
+            };
+
+            var getOffset = function(obj) {
+                return obj.offset();
             };
         }
     };

@@ -22,7 +22,8 @@ exports.AccessToAccess = function(first, last, arr1, param1, arr2, param2) {
         var array2 = arr2.compile(scope).getValue();
         var index2 = param2.compile(scope).getValue();
         var data1 = array2.slice();
-        array1[index1] = array2[index2];
+        var value = array2[index2];
+        array1[index1] = value;
         var data = array1.slice();
         var frame = this.frame;
         scope.addAnimation(function($scope, editor) {
@@ -30,7 +31,8 @@ exports.AccessToAccess = function(first, last, arr1, param1, arr2, param2) {
                 oldData: data1,
                 newData: data,
                 leftIndex: index1,
-                rightIndex: index2
+                rightIndex: index2,
+                value: value
             };
             $scope.method = 'ata';
             frame($scope, editor);
