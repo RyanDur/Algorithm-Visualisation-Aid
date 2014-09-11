@@ -34,7 +34,6 @@ exports.AccessToAccess = function(first, last, arr1, param1, arr2, param2) {
                 rightIndex: index2,
                 value: value
             };
-            $scope.method = 'ata';
             frame($scope, editor);
         });
         scope.setValue(array1);
@@ -60,7 +59,6 @@ exports.AnswerToAccess = function(first, last, arr, param, answer) {
                 index: index,
                 value: value
             };
-            $scope.method = 'ana';
             $scope.variable = {
                 name: name,
                 index: index,
